@@ -9,7 +9,8 @@ const baseURL = import.meta.env.VITE_BASEURL;
 const Api = {
     get: async (url, params) => {
         try {
-            const response = await axios.get(url, { params });
+            let newurl = baseURL + url;
+            const response = await axios.get(newurl, { params });
             return response.data;
         } catch (error) {
             throw error;
@@ -27,8 +28,8 @@ const Api = {
     
     put: async (url, data, params) => {
         try {
-            let newurl = baseURL+url+params;
-            const response = await axios.put(url, data, { params });
+            let newurl = baseURL + url;
+            const response = await axios.put(newurl, data, { params });
             return response.data;
         } catch (error) {
             throw error;
@@ -36,8 +37,8 @@ const Api = {
     },
     delete: async (url, params) => {
         try {
-            let newurl = baseURL+url+params;
-            const response = await axios.delete(url, { params });
+            let newurl = baseURL + url;
+            const response = await axios.delete(newurl, { params });
             return response.data;
         } catch (error) {
             throw error;
@@ -99,7 +100,7 @@ const Api = {
    
     deleteWithtoken: async (url, params) => {
         try {
-            let newurl = baseURL+url+params;
+            let newurl = baseURL + url;
             const Token = localStorage.getItem('access_token');
             let config = {
                 headers: 

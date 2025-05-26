@@ -51,13 +51,18 @@ const index = () => {
                 localStorage.setItem('isLogin', '1')
                 localStorage.setItem("userId", data?.userId,);
                 dispatch(AuthUserDetails());
+                setLoading(false);
                 navigate('/')
                 toast.success(message);
 
             } catch (error) {
                 const { response } = error;
-                const { data, status, message } = response;
-                toast.error(data.message);
+                if (response) {
+                    const { data } = response;
+                    toast.error(data?.message || 'Login failed. Please try again.');
+                } else {
+                    toast.error('Network error. Please check your connection and try again.');
+                }
                 setLoading(false);
             }
         }

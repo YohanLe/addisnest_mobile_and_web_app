@@ -105,11 +105,11 @@ export const validateLogin = (obj) => {
     if (!obj.email) {
         errors.email = 'Please enter valid email';
     }
+    if (!validateEmail(obj.email)) {
+        errors.email = 'Please enter valid email';
+    }
     if (!obj.password) {
         errors.password = 'Please enter Password';
-    }
-    if (obj.password.length < 8) {
-        errors.password = "Please enter the password at least 8 characters.";
     }
     return {
         isValid: Object.keys(errors).length === 0,
