@@ -11,7 +11,7 @@ export const GetPropertyList = createAsyncThunk(
     async (state) => {
         const type=state.type
         try {
-            const response = await Api.getWithtoken(`properties/agentProperties?status=${type}`);
+            const response = await Api.getWithtoken(`properties/agentProperties?status=${type}&limit=1000`);
             const data = response;
            
             return { data };
