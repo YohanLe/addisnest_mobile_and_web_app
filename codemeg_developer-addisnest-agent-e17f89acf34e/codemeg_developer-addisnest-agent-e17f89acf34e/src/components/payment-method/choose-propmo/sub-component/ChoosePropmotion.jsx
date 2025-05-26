@@ -115,13 +115,21 @@ const ChoosePropmotion = () => {
                 }
             };
 
+            console.log("Creating property with data:", body);
             const response = await Api.postWithtoken("properties/create", body);
             const { message } = response;
             toast.success(message);
             navigate("/success-payment", { state: { AllData: state?.AllData, BasicPlan: data } });
         } catch (error) {
             console.log("Error creating property:", error);
-            toast.error("Failed to create property listing");
+            console.log("Error response:", error?.response?.data);
+            
+            // Show more specific error message
+            const errorMessage = error?.response?.data?.message || 
+                               error?.response?.data?.detail || 
+                               error?.message || 
+                               "Failed to create property listing";
+            toast.error(errorMessage);
         }
     };
 
