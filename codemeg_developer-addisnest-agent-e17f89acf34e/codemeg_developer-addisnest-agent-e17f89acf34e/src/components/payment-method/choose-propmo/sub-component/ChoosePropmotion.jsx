@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Api from "../../../../Apis/Api";
 
 const BasicPlan = [
-    { id: 1, name: "Basic Plan", type: "Basic Plan", range: "Free", price: 0 },
+    { id: 1, name: "Basic Plan", type: "Basic Plan", range: "Free", price: 0, activeDay: 0 },
 ];
 const VipList = [
     { id: 1, name: "VIP",type:'VIP',  range: "15 Days",price:999 },
@@ -98,7 +98,7 @@ const ChoosePropmotion = () => {
                 furnishing: state?.AllData?.furnishing?.value,
                 bathroom_information: state?.AllData?.special_bathroom_features,
                 planType: data?.PlanData?.type,
-                activeDay: data?.PlanData?.range,
+                activeDay: data?.PlanData?.activeDay || 0,
                 images: state?.AllData?.media_paths,
                 features: Newfeacture,
                 cooling_information: {
