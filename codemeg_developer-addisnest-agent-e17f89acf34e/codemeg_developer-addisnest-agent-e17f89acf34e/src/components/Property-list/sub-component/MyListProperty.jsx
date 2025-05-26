@@ -13,7 +13,14 @@ const MyListProperty = () => {
     const [ItemData, setItemData] = useState('');
     const [showDeletePopup, setDeletePopup] = useState(false);
     const PropertData = useSelector((state) => state.PropertyList.Data);
-    const PropertyList = PropertData?.data?.data;
+    const PropertyListData = PropertData?.data?.data;
+    
+    // Sort properties by creation date - newest first
+    const PropertyList = PropertyListData ? [...PropertyListData].sort((a, b) => {
+        const dateA = new Date(a.createdAt || a.created_at || a.uploadDate || 0);
+        const dateB = new Date(b.createdAt || b.created_at || b.uploadDate || 0);
+        return dateB - dateA; // Descending order (newest first)
+    }) : [];
  
     useEffect(() => {
         if (activeTab === 'All') {
