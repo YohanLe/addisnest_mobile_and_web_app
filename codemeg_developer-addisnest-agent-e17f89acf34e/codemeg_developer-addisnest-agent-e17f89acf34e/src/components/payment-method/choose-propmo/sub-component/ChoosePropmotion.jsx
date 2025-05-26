@@ -34,6 +34,97 @@ const ChoosePropmotion = () => {
         setInputData((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
+    const settypeandvalue = (data) => {
+        if (data && data.length > 0) {
+            let newdata = data.map((item) => item?.value);
+            return newdata.toString();
+        } else {
+            return '';
+        }
+    };
+
+    const createPropertyForBasicPlan = async (data) => {
+        try {
+            let Newfeacture = [
+                {
+                    type: "kitchen_information",
+                    value: settypeandvalue(state?.AllData?.kitchen_information)
+                },
+                {
+                    type: 'security_features',
+                    value: settypeandvalue(state?.AllData?.security_features)
+                },
+                {
+                    type: 'parking',
+                    value: settypeandvalue(state?.AllData?.parking),
+                },
+                {
+                    type: 'laundr_facilities',
+                    value: settypeandvalue(state?.AllData?.laundr_facilities),
+                },
+                {
+                    type: 'rooftop_terrace',
+                    value: settypeandvalue(state?.AllData?.rooftop_terrace)
+                },
+                {
+                    type: 'conference_facilities',
+                    value: settypeandvalue(state?.AllData?.conference_facilities)
+                },
+                {
+                    type: 'underground_water_system',
+                    value: state?.AllData?.underground_water_system
+                },
+                {
+                    type: 'barbecue_grills',
+                    value: state?.AllData?.barbecue_grills
+                },
+            ];
+
+            let body = {
+                latitude: state?.AllData?.lat,
+                longitude: state?.AllData?.lng,
+                address: state?.AllData?.property_address,
+                status: 'ACTIVE',
+                state: state?.AllData?.regional_state,
+                city: state?.AllData?.city,
+                country: state?.AllData?.country,
+                propertyFor: state?.AllData?.property_for,
+                price: state?.AllData?.total_price,
+                description: state?.AllData?.description,
+                property_type: state?.AllData?.property_type?.value,
+                readiness: state?.AllData?.property_readiness,
+                property_size: state?.AllData?.property_size,
+                condition: state?.AllData?.condition?.value,
+                furnishing: state?.AllData?.furnishing?.value,
+                bathroom_information: state?.AllData?.special_bathroom_features,
+                planType: data?.PlanData?.type,
+                activeDay: data?.PlanData?.range,
+                images: state?.AllData?.media_paths,
+                features: Newfeacture,
+                cooling_information: {
+                    type: 'Central AC',
+                    value: state?.AllData?.cooling_information,
+                },
+                interior: {
+                    type: 'interior',
+                    value: state?.AllData?.interior
+                },
+                heating_information: {
+                    type: 'Has Heating',
+                    value: state?.AllData?.heating_information,
+                }
+            };
+
+            const response = await Api.postWithtoken("properties/create", body);
+            const { message } = response;
+            toast.success(message);
+            navigate("/success-payment", { state: { AllData: state?.AllData, BasicPlan: data } });
+        } catch (error) {
+            console.log("Error creating property:", error);
+            toast.error("Failed to create property listing");
+        }
+    };
+
     const nextPage = () => {
         if (!activePlan) {
             toast.warning("Please Select a Plan Type");
@@ -44,9 +135,9 @@ const ChoosePropmotion = () => {
             PlanData: activePlan,
         };
         
-        // If Basic Plan (free) is selected, skip payment and go directly to success
+        // If Basic Plan (free) is selected, create property and go to success
         if (activePlan.type === "Basic Plan" && activePlan.price === 0) {
-            navigate("/success-payment", { state: { AllData: state?.AllData, BasicPlan: data } });
+            createPropertyForBasicPlan(data);
         } else {
             // For paid plans, go to payment page
             navigate("/payment", { state: { AllData: state?.AllData, BasicPlan: data } });
