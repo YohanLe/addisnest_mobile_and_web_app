@@ -1,0 +1,17 @@
+export { default as Logo } from "./logo.png";
+export { default as AuthBg } from "./auth-bg.png";
+export { default as AuthImage } from "./auth-image.jpg";
+export { default as ProfileImg } from "./profile-img.png";
+export { default as PropertyImg } from "./property-img.png";
+export { default as PropertyImg1 } from "./property-img-1.png";
+export { default as PropertyImg2 } from "./property-img-2.png";
+export { default as PropertyImg3 } from "./property-img-3.png";
+export { default as PropertyImg4 } from "./property-img-4.png";
+export { default as DashGraph1 } from "./dash-graph-1.png";
+export { default as DashGraph2 } from "./dash-graph-2.png";
+export { default as DashGraph3 } from "./dash-graph-3.png";
+export { default as DashGraph4 } from "./dash-graph-4.png";
+export { default as DashGraph5 } from "./dash-graph-5.png";
+export { default as PropertyGraph } from "./property-graph.png";
+export { default as GraphImag } from "./graph-img1.png";
+export{default as DummyHome} from './dummyHome.png';

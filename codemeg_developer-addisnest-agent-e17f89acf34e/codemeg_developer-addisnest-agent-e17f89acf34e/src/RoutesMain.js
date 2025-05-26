@@ -1,0 +1,16 @@
+export { default as SigninPage } from './components/auth/sign-in'
+export { default as SignUpPage } from './components/auth/sign-up'
+export { default as NewPasswordPage } from './components/auth/new-password'
+export { default as ForgotPasswordPage } from './components/auth/forgot-password'
+export { default as OtpPage } from './components/auth/otp'
+export { default as HomePage } from './components/home'
+export { default as MyProfilePage } from './components/my-profile'
+export { default as PropertListPage } from './components/Property-list'
+export { default as PropertListFormPage } from './components/property-list-form'
+export { default as ChoosePromotionPage } from "./components/payment-method/choose-propmo";
+export { default as PaymentMethodPage } from "./components/payment-method/payment-process";
+export { default as PaymentSuccessPage } from "./components/payment-method/success-payment";
+export { default as NotificationPage } from "./components/notification";
+export { default as ChatPage } from "./components/chat";
+export { default as AccountManagementPage } from "./components/account-management";
+export { default as ContactusPage } from "./components/contact-us";
