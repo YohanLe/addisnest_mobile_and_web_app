@@ -4,6 +4,9 @@ import { SvgCheckBigIcon } from "../../../../assets/svg/Svg";
 import { toast } from "react-toastify";
 import Api from "../../../../Apis/Api";
 
+const BasicPlan = [
+    { id: 1, name: "Basic Plan", type: "Basic Plan", range: "Free", price: 0 },
+];
 const VipList = [
     { id: 1, name: "VIP",type:'VIP',  range: "15 Days",price:999 },
     { id: 2, name: "VIP",type:'VIP',  range: "28 Days",price:1999 },
@@ -40,7 +43,14 @@ const ChoosePropmotion = () => {
             BasicPlan: inputData.promo_code,
             PlanData: activePlan,
         };
-        navigate("/payment", { state: { AllData: state?.AllData, BasicPlan: data } });
+        
+        // If Basic Plan (free) is selected, skip payment and go directly to success
+        if (activePlan.type === "Basic Plan" && activePlan.price === 0) {
+            navigate("/success-payment", { state: { AllData: state?.AllData, BasicPlan: data } });
+        } else {
+            // For paid plans, go to payment page
+            navigate("/payment", { state: { AllData: state?.AllData, BasicPlan: data } });
+        }
     };
 
     return (
@@ -78,34 +88,62 @@ const ChoosePropmotion = () => {
                                 <p>Choose a promotion plan to attract more buyers or renters.</p>
 
                                 {/* Basic Plan */}
-                                <div className="card">
+                                <div 
+                                    className="card" 
+                                    style={{ 
+                                        borderLeft: '4px solid #28a745', 
+                                        backgroundColor: '#f8f9fa',
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s ease-in-out'
+                                    }}
+                                    onClick={() => handleActiveClick(BasicPlan[0])}
+                                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+                                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                >
                                     <div className="card-body">
-                                        <h3>Basic Plan</h3>
-                                        <div className="propmotion-field">
-                                            <input
-                                                type="text"
-                                                name="promo_code"
-                                                placeholder="Promo Code"
-                                                value={inputData.promo_code}
-                                                onChange={handleInputChange}
-                                            />
-                                            <span><SvgCheckBigIcon /></span>
+                                        <h3 style={{ color: '#28a745' }}>Basic Plan - Free</h3>
+                                        <div className="vipplan-days">
+                                            {BasicPlan.map((item) => (
+                                                <span
+                                                    key={item.id}
+                                                    className={activePlan?.range === item.range ? "active" : ""}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleActiveClick(item);
+                                                    }}
+                                                >
+                                                    {item.range}
+                                                </span>
+                                            ))}
                                         </div>
-                                        <div className="free-icon"><span>Free</span></div>
                                     </div>
                                 </div>
 
                                 {/* VIP Plan */}
-                                <div className="card">
+                                <div 
+                                    className="card" 
+                                    style={{ 
+                                        borderLeft: '4px solid #ffc107', 
+                                        backgroundColor: '#fffbf0',
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s ease-in-out'
+                                    }}
+                                    onClick={() => handleActiveClick(VipList[0])}
+                                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+                                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                >
                                     <div className="card-body">
-                                        <h3>VIP Plan</h3>
+                                        <h3 style={{ color: '#ffc107' }}>VIP Plan</h3>
                                         <p>Select Days</p>
                                         <div className="vipplan-days">
                                             {VipList.map((item) => (
                                                 <span
                                                     key={item.id}
                                                     className={activePlan?.range === item.range ? "active" : ""}
-                                                    onClick={() => handleActiveClick(item)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleActiveClick(item);
+                                                    }}
                                                 >
                                                     {item.range}
                                                 </span>
@@ -115,16 +153,30 @@ const ChoosePropmotion = () => {
                                 </div>
 
                                 {/* Diamond Plan */}
-                                <div className="card">
+                                <div 
+                                    className="card" 
+                                    style={{ 
+                                        borderLeft: '4px solid #6f42c1', 
+                                        backgroundColor: '#f8f7fc',
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s ease-in-out'
+                                    }}
+                                    onClick={() => handleActiveClick(DiamondPlan[0])}
+                                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.02)'}
+                                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                >
                                     <div className="card-body">
-                                        <h3>Diamond Plan / Top Spot</h3>
+                                        <h3 style={{ color: '#6f42c1' }}>Diamond Plan / Top Spot</h3>
                                         <p>Select Days</p>
                                         <div className="vipplan-days">
                                             {DiamondPlan.map((item) => (
                                                 <span
                                                     key={item.id}
                                                     className={activePlan?.range === item.range ? "active" : ""}
-                                                    onClick={() => handleActiveClick(item)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleActiveClick(item);
+                                                    }}
                                                 >
                                                     {item.range}
                                                 </span>
@@ -144,7 +196,7 @@ const ChoosePropmotion = () => {
                                     </div>
                                     <div className="continue-btn">
                                         <button onClick={nextPage} className="btn btn-primary">
-                                            Make Payment
+                                            {activePlan?.type === "Basic Plan" && activePlan?.price === 0 ? "Continue" : "Make Payment"}
                                         </button>
                                     </div>
                                 </div>
