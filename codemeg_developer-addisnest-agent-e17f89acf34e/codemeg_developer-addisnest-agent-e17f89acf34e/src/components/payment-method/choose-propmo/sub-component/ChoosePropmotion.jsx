@@ -1,25 +1,26 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { SvgCheckBigIcon } from "../../../../assets/svg/Svg";
 import { toast } from "react-toastify";
 import Api from "../../../../Apis/Api";
 
 const BasicPlan = [
     { id: 1, name: "Basic Plan", type: "Basic Plan", range: "Free", price: 0, activeDay: 0 },
 ];
+
 const VipList = [
     { id: 1, name: "VIP",type:'VIP',  range: "15 Days",price:999 },
     { id: 2, name: "VIP",type:'VIP',  range: "28 Days",price:1999 },
 ];
+
 const DiamondPlan = [
     { id: 1, name: "Diamond Plan",type:'Diamond Plan', range: "1 Month",price:1999 },
     { id: 2, name: "Diamond Plan",type:'Diamond Plan', range: "3 Month",price:4999 },
 ];
+
 const ChoosePropmotion = () => {
 
     const [activePlan, setActivePlan] = useState(null);
     const [planPrice, setPlanPrice] = useState(0);
-    const [inputData, setInputData] = useState({ promo_code: "" });
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,10 +29,6 @@ const ChoosePropmotion = () => {
     const handleActiveClick = (data) => {
         setActivePlan(data);
         setPlanPrice(data.price);
-    };
-
-    const handleInputChange = (event) => {
-        setInputData((prev) => ({ ...prev, [event.target.name]: event.target.value }));
     };
 
     const settypeandvalue = (data) => {
@@ -45,44 +42,30 @@ const ChoosePropmotion = () => {
 
     const createPropertyForBasicPlan = async (data) => {
         try {
-            let Newfeacture = [
-                {
-                    type: "kitchen_information",
-                    value: settypeandvalue(state?.AllData?.kitchen_information)
-                },
-                {
-                    type: 'security_features',
-                    value: settypeandvalue(state?.AllData?.security_features)
-                },
-                {
-                    type: 'parking',
-                    value: settypeandvalue(state?.AllData?.parking),
-                },
-                {
-                    type: 'laundr_facilities',
-                    value: settypeandvalue(state?.AllData?.laundr_facilities),
-                },
-                {
-                    type: 'rooftop_terrace',
-                    value: settypeandvalue(state?.AllData?.rooftop_terrace)
-                },
-                {
-                    type: 'conference_facilities',
-                    value: settypeandvalue(state?.AllData?.conference_facilities)
-                },
-                {
-                    type: 'underground_water_system',
-                    value: state?.AllData?.underground_water_system
-                },
-                {
-                    type: 'barbecue_grills',
-                    value: state?.AllData?.barbecue_grills
-                },
-            ];
+            // Check if user is authenticated
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                toast.error("Please login to create a property listing");
+                navigate("/login");
+                return;
+            }
+
+            // Convert amenities object to features array format
+            let amenitiesFeatures = [];
+            if (state?.AllData?.amenities) {
+                Object.keys(state.AllData.amenities).forEach(key => {
+                    if (state.AllData.amenities[key]) {
+                        amenitiesFeatures.push({
+                            type: key,
+                            value: "true"
+                        });
+                    }
+                });
+            }
 
             let body = {
-                latitude: state?.AllData?.lat,
-                longitude: state?.AllData?.lng,
+                latitude: state?.AllData?.lat || 0,
+                longitude: state?.AllData?.lng || 0,
                 address: state?.AllData?.property_address,
                 status: 'ACTIVE',
                 state: state?.AllData?.regional_state,
@@ -91,28 +74,15 @@ const ChoosePropmotion = () => {
                 propertyFor: state?.AllData?.property_for,
                 price: state?.AllData?.total_price,
                 description: state?.AllData?.description,
-                property_type: state?.AllData?.property_type?.value,
-                readiness: state?.AllData?.property_readiness,
+                property_type: state?.AllData?.property_type?.value || state?.AllData?.property_type?.label,
                 property_size: state?.AllData?.property_size,
-                condition: state?.AllData?.condition?.value,
-                furnishing: state?.AllData?.furnishing?.value,
-                bathroom_information: state?.AllData?.special_bathroom_features,
+                condition: state?.AllData?.condition?.value || state?.AllData?.condition?.label,
+                furnishing: state?.AllData?.furnishing?.value || state?.AllData?.furnishing?.label,
+                bathroom_information: state?.AllData?.number_of_bathrooms,
                 planType: data?.PlanData?.type,
                 activeDay: data?.PlanData?.activeDay || 0,
                 images: state?.AllData?.media_paths,
-                features: Newfeacture,
-                cooling_information: {
-                    type: 'Central AC',
-                    value: state?.AllData?.cooling_information,
-                },
-                interior: {
-                    type: 'interior',
-                    value: state?.AllData?.interior
-                },
-                heating_information: {
-                    type: 'Has Heating',
-                    value: state?.AllData?.heating_information,
-                }
+                features: amenitiesFeatures
             };
 
             console.log("Creating property with data:", body);
@@ -123,6 +93,14 @@ const ChoosePropmotion = () => {
         } catch (error) {
             console.log("Error creating property:", error);
             console.log("Error response:", error?.response?.data);
+            
+            // Handle authentication errors specifically
+            if (error?.response?.status === 401) {
+                localStorage.removeItem('access_token');
+                toast.error("Your session has expired. Please login again.");
+                navigate("/login");
+                return;
+            }
             
             // Show more specific error message
             const errorMessage = error?.response?.data?.message || 
@@ -139,7 +117,7 @@ const ChoosePropmotion = () => {
             return;
         }
         const data = {
-            BasicPlan: inputData.promo_code,
+            BasicPlan: null,
             PlanData: activePlan,
         };
         
@@ -215,6 +193,7 @@ const ChoosePropmotion = () => {
                                                 </span>
                                             ))}
                                         </div>
+                                        <div className="free-icon"><span>Free</span></div>
                                     </div>
                                 </div>
 

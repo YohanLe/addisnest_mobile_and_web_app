@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import PropertyOnlyList from "./property-list-tab/PropertyOnlyList";
 import FilterPopup from "../../../Helper/FilterPopup";
 import { SvgFilterIcon, SvgLocationIcon, SvgSearchIcon } from "../../../assets/svg-files/SvgFiles";
@@ -7,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const PropertyList = () => {
     const dispatch = useDispatch();
+    const [searchParams] = useSearchParams();
     const [hoveredProperty, setHoveredProperty] = useState(null);
     const HomeData = useSelector((state) => state.Home.HomeData);
     const HomeList = HomeData?.data?.data;
@@ -14,8 +16,10 @@ const PropertyList = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        dispatch(GetHomeData({ type: '' }));
-    }, []);
+        // Get the propertyFor parameter from URL, default to empty string if not present
+        const propertyFor = searchParams.get('propertyFor') || '';
+        dispatch(GetHomeData({ type: propertyFor }));
+    }, [searchParams, dispatch]);
 
     const [showFilterPopup, setFilterPopup] = useState(false);
     const handleFilterPopupToggle = () => {

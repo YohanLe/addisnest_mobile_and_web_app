@@ -334,7 +334,7 @@ const PropertyDetail = ({ PropertyDetails }) => {
                                         </div>
                                         <div className="posted-status">
                                             <SvgActionViewIcon />
-                                            <p>665 views</p>
+                                            <p>{PropertyDetails?.views || 0} views</p>
                                         </div>
                                     </div>
                                     <div className="prpty-content-inner">
@@ -378,15 +378,7 @@ const PropertyDetail = ({ PropertyDetails }) => {
                                                     <span>
                                                         <SvgClock />
                                                     </span>
-                                                    <p>21 Mos on Addisnest</p>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="abt-inner-list">
-                                                    <span>
-                                                        <SvgThermom />
-                                                    </span>
-                                                    <p>{PropertyDetails?.heating_information?.type} & {PropertyDetails?.cooling_information?.type}</p>
+                                                    <p>Posted {MakeFormat(PropertyDetails?.createdAt)}</p>
                                                 </div>
                                             </li>
                                             <li>
@@ -394,15 +386,7 @@ const PropertyDetail = ({ PropertyDetails }) => {
                                                     <span>
                                                         <SvgHouse />
                                                     </span>
-                                                    <p>Single Family</p>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="abt-inner-list">
-                                                    <span>
-                                                        <SvgBounder />
-                                                    </span>
-                                                    <p>{PropertyDetails?.property_size} sqm. Lot</p>
+                                                    <p>{PropertyDetails?.property_type?.value || PropertyDetails?.property_type?.label || PropertyDetails?.property_type}</p>
                                                 </div>
                                             </li>
                                             <li>
@@ -410,23 +394,7 @@ const PropertyDetail = ({ PropertyDetails }) => {
                                                     <span>
                                                         <SvgSquare />
                                                     </span>
-                                                    <p>ETB6845 Per sqm.</p>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="abt-inner-list">
-                                                    <span>
-                                                        <SvgBulding />
-                                                    </span>
-                                                    <p>Build in 2002</p>
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <div className="abt-inner-list">
-                                                    <span>
-                                                        <SvgCarParking />
-                                                    </span>
-                                                    <p>4-Car Garage</p>
+                                                    <p>{PropertyDetails?.property_size} sqft</p>
                                                 </div>
                                             </li>
                                         </ul>

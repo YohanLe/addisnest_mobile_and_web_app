@@ -39,13 +39,23 @@ const index = () => {
                     email: inps.email,
                     password: inps.password,
                 }
-                let formData = new FormData();
-                for (let key in body) {
-                    formData.append(key, body[key]);
-                }
+
+                console.log('🔐 Starting login process...');
+                console.log('📧 Email:', inps.email);
+                console.log('🌐 API Base URL:', import.meta.env.VITE_BASEURL);
+                console.log('🔗 Full Login URL:', import.meta.env.VITE_BASEURL + 'auth/login');
+                console.log('📱 Online Status:', navigator.onLine);
 
                 setLoading(true);
+                
+                // Test network connectivity first
+                if (!navigator.onLine) {
+                    throw new Error('No internet connection detected. Please check your network settings.');
+                }
+
                 const response = await Api.post("auth/login", body);
+                console.log('✅ Login successful:', response);
+                
                 const { data, message } = response;
                 localStorage.setItem('access_token', data?.token);
                 localStorage.setItem('isLogin', '1')
@@ -56,14 +66,54 @@ const index = () => {
                 toast.success(message);
 
             } catch (error) {
-                const { response } = error;
-                if (response) {
-                    const { data } = response;
-                    toast.error(data?.message || 'Login failed. Please try again.');
-                } else {
-                    toast.error('Network error. Please check your connection and try again.');
-                }
+                console.error('❌ Login Error Details:', {
+                    status: error?.response?.status,
+                    statusText: error?.response?.statusText,
+                    message: error?.message,
+                    data: error?.response?.data,
+                    code: error?.code,
+                    name: error?.name
+                });
+
                 setLoading(false);
+                
+                const { response } = error;
+                let errorMessage = 'Login failed. Please try again.';
+                
+                if (response) {
+                    // Server responded with error
+                    const { status, data } = response;
+                    
+                    if (status === 401) {
+                        errorMessage = 'Invalid email or password. Please check your credentials.';
+                    } else if (status === 403) {
+                        errorMessage = 'Access denied. Please contact administrator.';
+                    } else if (status === 404) {
+                        errorMessage = 'Login service not found. Please contact support.';
+                    } else if (status === 429) {
+                        errorMessage = 'Too many login attempts. Please try again later.';
+                    } else if (status >= 500) {
+                        errorMessage = 'Server error. Please try again in a few moments.';
+                    } else {
+                        errorMessage = data?.message || `Server error (${status}). Please try again.`;
+                    }
+                } else if (error?.code === 'NETWORK_ERROR' || error?.message === 'Network Error') {
+                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+                } else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
+                    errorMessage = 'Connection timed out. Please check your internet connection and try again.';
+                } else if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
+                    errorMessage = 'Unable to connect to server. Please check if the server is running and try again.';
+                } else if (!navigator.onLine) {
+                    errorMessage = 'You appear to be offline. Please check your internet connection.';
+                } else {
+                    // Generic error handling
+                    errorMessage = error?.message || 'Network error. Please check your connection and try again.';
+                }
+                
+                toast.error(errorMessage, {
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                });
             }
         }
     };

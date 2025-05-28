@@ -1,10 +1,27 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BannerBg } from "../../../assets/images";
 import { SvgSearchIcon } from "../../../assets/svg-files/SvgFiles";
 
 const BannerSection = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Buy");
   const tabs = ["Buy", "Sell", "Rent"];
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    
+    // Map tab names to property types for API filtering
+    const propertyTypeMap = {
+      "Buy": "sale",
+      "Sell": "sale", // For sell listings, we also show sale properties
+      "Rent": "rent"
+    };
+    
+    // Navigate to property list with the appropriate filter
+    const propertyType = propertyTypeMap[tab];
+    navigate(`/property-list?propertyFor=${propertyType}`);
+  };
   return (
     <>
       <section
@@ -16,7 +33,7 @@ const BannerSection = () => {
             <div className="banner-heading">
               <h1>Your Home, Your Move – All in One Place</h1>
               <p>
-                Welcome to EthniNest, your go-to platform for all things real
+                Welcome to Add, your go-to platform for all things real
                 estate. Whether you're looking for your next home, ready to list
                 a property, or want to connect with trusted agents, we make it
                 easy. Explore properties, manage listings, and get expert advice
@@ -32,7 +49,7 @@ const BannerSection = () => {
                         className={`banner-tabing ${
                           activeTab === tab ? "active" : ""
                         }`}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => handleTabClick(tab)}
                       >
                         <p>{tab}</p>
                       </div>

@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import {
-    SvgArrowRightIcon,
-    SvgCheckBigIcon,
-    SvgCheckIcon,
-    SvgLongArrowIcon,
+  SvgArrowRightIcon,
+  SvgCheckBigIcon,
+  SvgCheckIcon,
+  SvgLongArrowIcon,
 } from "../../../assets/svg-files/SvgFiles";
 import { Link, useNavigate } from "react-router-dom";
 import { ValidatePropertyForm } from "../../../utils/Validation";
 import Api from "../../../Apis/Api";
+import "../../../assets/css/property-form.css";
 
 const PropertyTypeList = [
     { value: 'House', label: 'House' },
@@ -18,168 +19,101 @@ const PropertyTypeList = [
     { value: 'Land', label: 'Land' },
     { value: 'Villa', label: 'Villa' }
 ]
+
 const HomeCondition = [
     { value: 'Newly Built', label: 'Newly Built' },
     { value: 'Old Built', label: 'Old Built' },
 ]
+
 const HomeFurnishing = [
     { value: 'Furnished', label: 'Furnished' },
     { value: 'Fully Furnished', label: 'Fully Furnished' },
     { value: 'Semi Furnished', label: 'Semi Furnished' }
 ]
+
 const ParkingList = [
     { value: 'Garage Parking', label: 'Garage Parking' },
     { value: 'Open Parking', label: 'Open Parking' },
     { value: 'No Parking', label: 'No Parking' },
     { value: 'Visitor Parking', label: 'Visitor Parking' }
 ]
-const LaundryFacilitiesList = [
-    { value: 'In-Unit', label: 'In-Unit' },
-    { value: 'On-Site Laundry Room', label: 'On-Site Laundry Room' },
-]
-const ConferenceList = [
-    { value: 'Meeting Rooms', label: 'Meeting Rooms' },
-    { value: 'High-Speed Internet', label: 'High-Speed Internet' },
-]
-const RooftopTerraceList = [
-    { value: 'Lounge', label: 'Lounge' },
-    { value: 'Garden', label: 'Garden' },
-]
 
-const SecurityFeaturesList = [
-    { value: '24/7 Security', label: '24/7 Security' },
-    { value: 'Access Control', label: 'Access Control' },
+const RegionalStateList = [
+    { value: 'Addis Ababa City Administration', label: 'Addis Ababa City Administration' },
+    { value: 'Afar Region', label: 'Afar Region' },
+    { value: 'Amhara Region', label: 'Amhara Region' },
+    { value: 'Benishangul-Gumuz Region', label: 'Benishangul-Gumuz Region' },
+    { value: 'Dire Dawa City Administration', label: 'Dire Dawa City Administration' },
+    { value: 'Gambela Region', label: 'Gambela Region' },
+    { value: 'Harari Region', label: 'Harari Region' },
+    { value: 'Oromia Region', label: 'Oromia Region' },
+    { value: 'Sidama Region', label: 'Sidama Region' },
+    { value: 'Somali Region', label: 'Somali Region' },
+    { value: 'South Ethiopia Region', label: 'South Ethiopia Region' },
+    { value: 'South West Ethiopia Peoples\' Region', label: 'South West Ethiopia Peoples\' Region' },
+    { value: 'Tigray Region', label: 'Tigray Region' },
+    { value: 'Central Ethiopia Region', label: 'Central Ethiopia Region' }
 ]
 
 const PropertyListForm = () => {
-
-    const [Bath_Features_List, setBath_Features_List] = useState([
-        { value: 'Bathtub', label: 'Bathtub' },
-        { value: 'Double Vanity', label: 'Double Vanity' },
-        { value: 'Modern Fixtures', label: 'Modern Fixtures' },
-        { value: 'Walk-In Shower', label: 'Walk-In Shower' },
-    ]);
-    
-    const [KeyFeaturesOtherList, setKeyFeaturesOtherList] = useState([
-        { value: 'Balcony', label: 'Balcony' },
-        { value: 'Garden', label: 'Garden' },
-        { value: 'Gym', label: 'Gym' },
-        { value: 'Swimming Pool', label: 'Swimming Pool' },
-        { value: 'Security', label: 'Security' },
-        { value: 'Lift/Elevator', label: 'Lift/Elevator' },
-        { value: 'A/C', label: 'A/C' },
-    ]);
     const navigate = useNavigate();
-    
     const [PropertyType, setPropertyType] = useState(null);
     const [ConditionType, setConditionType] = useState(null);
     const [FurnishingType, setFurnishingType] = useState(null);
-
+    const [RegionalStateType, setRegionalStateType] = useState(null);
+    
     const [activeTab, setActiveTab] = useState("rent");
     const [images, setImages] = useState([]);
     const [slots, setSlots] = useState(3);
     const [Loading, setLoading] = useState(false);
-    const SelectClient = [{ value: "Select", label: "Select" }];
+    const [uploadingStates, setUploadingStates] = useState({});
     const [error, setError] = useState({ isValid: false });
-    const [interestRate, setInterestRate] = useState(10);
-    const [InpuBathAdd, setInpuBathAdd] = useState('')
     const [MediaPaths, setMediaPaths] = useState([]);
-
-    const [SelectBathFeatures, setSelectBathFeatures] = useState([]);
-    const [SelectParking, setSelectParking] = useState([]);
-    const [SelectOtherFeatures, setSelectOtherFeatures] = useState([]);
-    const [LaundryFacilities, setLaundryFacilities] = useState([]);
-    const [ConferenceFacilities, setConferenceFacilities] = useState([]);
-    const [RooftopTerrace, setRooftopTerrace] = useState([]);
-    const [SecurityFeatures, setSecurityFeatures] = useState([]);
-
-    const [CoolingInfo, setCoolingInfo] = useState("");
-    const [HeatingInfo, setHeatingInfo] = useState("");
-    const [KitchenInfo, setKitchenInfo] = useState("");
-    const [InteriorInfo, setInteriorInfo] = useState("");
-    const [CommunityInfo, setCommunityInfo] = useState("");
-    const [PlaygroundInfo, setPlaygroundInfo] = useState("");
-    const [EvStationsInfo, setEvStationsInfo] = useState("");
-    const [InternetInfo, setInternetInfo] = useState("");
-    const [BarbecueInfo, setBarbecueInfo] = useState("");
-    const [WaterSysInfo, setWaterSysInfo] = useState("");
-
-    const handleFileChange = async (event, index) => {
-        const file = event.target.files[0];
-        if (file) {
-            const newImages = [...images];
-            newImages[index] = URL.createObjectURL(file); // Preview URL
-            setImages(newImages);
-            // Upload file
-            await ImagesUpload(file);
-        }
-    };
-
-    const ImagesUpload = async (file) => {
-        try {
-            setLoading(true);
-            let formData = new FormData();
-            formData.append("mediaFiles", file);
-            const response = await Api.postWithtoken("media/public", formData);
-            const { files, status, message } = response;
-            setLoading(false);
-    
-            if (files && Array.isArray(files)) {
-                setMediaPaths((prevPaths) => [...prevPaths, ...files]);
-            } else if (files) {
-                setMediaPaths((prevPaths) => [...prevPaths, files]);
-            }
-    
-            toast.success(message);
-        } catch (error) {
-            setLoading(false);
-            console.error("Upload Error:", error);
-            toast.error(error?.response?.data?.message || "Image upload failed!");
-        }
-    };
-    const handleRangeChange = (setter, maxValue) => (e) => {
-        const newValue = Number(e.target.value);
-        setter(newValue);
-        const fillPercentage = (newValue / maxValue) * 100;
-        e.target.style.background = `linear-gradient(to right, #a6f255 ${fillPercentage}%, #e0e0e0 ${fillPercentage}%)`;
-    };
-
-    const addSlot = () => {
-        setSlots(slots + 1);
-    };
+    const [amenitiesExpanded, setAmenitiesExpanded] = useState(false);
+    const [selectedAmenities, setSelectedAmenities] = useState({});
+    const [networkStatus, setNetworkStatus] = useState('online');
 
     const [inps, setInps] = useState({
-        property_address: '',
         regional_state: '',
         city: '',
-        country: '',
-        property_for: '',
+        country: 'Ethiopia',
+        property_address: '',
         total_price: '',
         description: '',
-        property_readiness: '',
         property_size: '',
-        interior: '',
-        has_appliances: '',
         number_of_bathrooms: '',
-        special_bathroom_features: '',
-        cooling_information: '',
-        heating_information: '',
-        condition: '',
-        furnishing: '',
-        parking: '',
-        laundr_facilities: '',
-        community_center: '',
-        playground: '',
-        conference_facilities: '',
-        rooftop_terrace: '',
-        electric_vehicle: '',
-        internet: '',
-        barbecue_grills: '',
-        security_features: '',
-        underground_water_system: '',
-        property_pictures: '',
-    })
+    });
     
+    // Network status monitoring
+    useEffect(() => {
+        const updateNetworkStatus = () => {
+            setNetworkStatus(navigator.onLine ? 'online' : 'offline');
+        };
+
+        // Initial check
+        updateNetworkStatus();
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('online', updateNetworkStatus);
+            window.removeEventListener('offline', updateNetworkStatus);
+        };
+    }, []);
+
+    // Show network status notification
+    useEffect(() => {
+        if (networkStatus === 'offline') {
+            toast.warning('You are offline. Image uploads will fail until your connection is restored.', {
+                autoClose: false,
+                closeButton: true
+            });
+        }
+    }, [networkStatus]);
+
     const onInpChanged = (event) => {
         setError(p => {
             const obj = { ...p }
@@ -189,1015 +123,858 @@ const PropertyListForm = () => {
         setInps((prevInputs) => ({ ...prevInputs, [event.target.name]: event.target.value }));
     };
 
-    const handleInputAddBath = (e) => {
-        setInpuBathAdd(e.target.value);
-    };
-
-    const handleAddFeature = () => {
-        if (InpuBathAdd.trim() !== '') {
-            const newFeature = {
-                value: Bath_Features_List.length + 1,
-                label: InpuBathAdd.trim(),
-            };
-            setBath_Features_List([...Bath_Features_List, newFeature]);
-            setInpuBathAdd('');
+    const handleFileChange = async (event, index) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Show preview immediately
+            const newImages = [...images];
+            newImages[index] = URL.createObjectURL(file);
+            setImages(newImages);
+            
+            // Set uploading state
+            setUploadingStates(prev => ({ ...prev, [index]: true }));
+            
+            await ImagesUpload(file, index);
         }
     };
 
+    const ImagesUpload = async (file, index, retryCount = 0) => {
+        const maxRetries = 2;
+        
+        try {
+            setLoading(true);
+            
+            // File validation
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            
+            if (file.size > maxSize) {
+                toast.error("File size too large! Please select an image under 5MB.");
+                setUploadingStates(prev => ({ ...prev, [index]: false }));
+                setLoading(false);
+                return;
+            }
+            
+            if (!allowedTypes.includes(file.type)) {
+                toast.error("Invalid file type! Please select a JPG, PNG, or WEBP image.");
+                setUploadingStates(prev => ({ ...prev, [index]: false }));
+                setLoading(false);
+                return;
+            }
+            
+            // Check if user is authenticated
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                toast.error("Authentication required. Please login again.");
+                setUploadingStates(prev => ({ ...prev, [index]: false }));
+                setLoading(false);
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append("mediaFiles", file);
+            
+            // Add retry indicator if this is a retry attempt
+            if (retryCount > 0) {
+                toast.info(`Retrying upload... (Attempt ${retryCount + 1}/${maxRetries + 1})`);
+            }
+            
+            const response = await Api.postWithtoken("media/public", formData);
+            const { files, status, message } = response;
+            setLoading(false);
+            
+            // Clear uploading state
+            setUploadingStates(prev => ({ ...prev, [index]: false }));
+            
+            if (files && Array.isArray(files)) {
+                setMediaPaths((prevPaths) => [...prevPaths, ...files]);
+            } else if (files) {
+                setMediaPaths((prevPaths) => [...prevPaths, files]);
+            }
+            toast.success(message || "Image uploaded successfully!");
+        } catch (error) {
+            setLoading(false);
+            setUploadingStates(prev => ({ ...prev, [index]: false }));
+            
+            console.error('Upload Error Details:', {
+                status: error?.response?.status,
+                data: error?.response?.data,
+                message: error?.message,
+                code: error?.code,
+                retryCount
+            });
+            
+            // Check if we should retry
+            const shouldRetry = retryCount < maxRetries && (
+                error?.code === 'NETWORK_ERROR' || 
+                error?.message === 'Network Error' ||
+                error?.message?.includes('Network connection failed') ||
+                error?.response?.status >= 500 ||
+                error?.response?.status === 408 // Request timeout
+            );
+            
+            if (shouldRetry) {
+                toast.warning(`Upload failed. Retrying in ${2 * (retryCount + 1)} seconds...`);
+                setTimeout(() => {
+                    ImagesUpload(file, index, retryCount + 1);
+                }, 2000 * (retryCount + 1)); // Progressive delay
+                return;
+            }
+            
+            // Final failure - remove preview and show error
+            setImages(prev => {
+                const newImages = [...prev];
+                newImages[index] = null;
+                return newImages;
+            });
+            
+            // Enhanced error messaging
+            let errorMessage = "Image upload failed!";
+            
+            if (error?.message?.includes('Authentication failed')) {
+                errorMessage = "Authentication failed. Please refresh the page and login again.";
+            } else if (error?.message?.includes('Network connection failed')) {
+                errorMessage = "Network connection failed. Please check your internet connection and try again.";
+            } else if (error?.message?.includes('File too large')) {
+                errorMessage = "File is too large. Please select a smaller image (under 5MB).";
+            } else if (error?.response?.status === 413) {
+                errorMessage = "File is too large for the server. Please select a smaller image.";
+            } else if (error?.response?.status === 415) {
+                errorMessage = "Unsupported file format. Please select a JPG, PNG, or WEBP image.";
+            } else if (error?.response?.status >= 500) {
+                errorMessage = "Server error. Please try again in a few moments.";
+            } else if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            toast.error(errorMessage);
+        }
+    };
 
+    const addSlot = () => {
+        setSlots(slots + 1);
+    };
+    
+    const toggleAmenities = () => {
+        setAmenitiesExpanded(!amenitiesExpanded);
+    };
+    
+    const handleAmenityChange = (amenityId) => {
+        setSelectedAmenities(prev => ({
+            ...prev,
+            [amenityId]: !prev[amenityId]
+        }));
+    };
+    
     const handleChange = (e, type) => {
         if (type === 'Property') {
             setPropertyType(e);
         } else if (type === 'Condition') {
             setConditionType(e)
-        } else {
+        } else if (type === 'Furnishing') {
             setFurnishingType(e)
+        } else if (type === 'RegionalState') {
+            setRegionalStateType(e);
+            setInps((prevInputs) => ({ ...prevInputs, regional_state: e?.value || '' }));
         }
     };
 
-    const handleCoolingInfoChange = (e) => {
-        const { name, value } = e.target;
-        if (name === "CoolingInfo") {
-            setCoolingInfo(value);
-        } else if (name === "HeatingInfo") {
-            setHeatingInfo(value);
-        } else if (name === 'KitchenInfo') {
-            setKitchenInfo(value)
-        } else if (name === 'InteriorInfo') {
-            setInteriorInfo(value)
-        } else if (name === 'CommunityInfo') {
-            setCommunityInfo(value)
-        } else if (name === 'PlaygroundInfo') {
-            setPlaygroundInfo(value)
-        } else if (name === 'EvStationsInfo') {
-            setEvStationsInfo(value)
-        } else if (name === 'InternetInfo') {
-            setInternetInfo(value)
-        } else if (name === 'BarbecueInfo') {
-            setBarbecueInfo(value)
-        } else if (name === 'WaterSysInfo') {
-            setWaterSysInfo(value)
-        }
-    };
-
-    const handleCheckboxChange = (e, data, type) => {
-        if (type === 'Bathroom') {
-            if (e.target.checked) {
-                setSelectBathFeatures((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setSelectBathFeatures((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        } else {
-            if (e.target.checked) {
-                setSelectParking((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setSelectParking((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        }
-
-    };
-
-    const handleKeyFeaturesCheckboxChange = (e, data, type) => {
-        const { name, value } = e.target.checked;
-        if (type==='Other') {
-            if (e.target.checked) {
-                setSelectOtherFeatures((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setSelectOtherFeatures((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        } else if (type==='Laundry Facilities') {
-            if (e.target.checked) {
-                setLaundryFacilities((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setLaundryFacilities((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        } else if (type === 'Conference Facilities') {
-            if (e.target.checked) {
-                setConferenceFacilities((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setConferenceFacilities((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        } else if (type === 'Rooftop Terrace') {
-            if (e.target.checked) {
-                setRooftopTerrace((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setRooftopTerrace((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        } else if (type === 'Security Features') {
-            if (e.target.checked) {
-                setSecurityFeatures((prevSelected) => [
-                    ...prevSelected,
-                    { value: data.value, label: data.label }
-                ]);
-            } else {
-                setSecurityFeatures((prevSelected) =>
-                    prevSelected.filter((item) => item.value !== data.value)
-                );
-            }
-        }
-    };
-    
     const NextPage = async () => {
-        const errorMessage = ValidatePropertyForm(inps);
+        // Collect all validation errors
+        const errors = [];
         
-        if (!errorMessage.isValid) {
-            setError(errorMessage);
-            return;
-        }
+        // Validate required fields
         if (!PropertyType) {
-            toast.warning('Please select property type');
-            return;
+            errors.push('Property Type is required - Please select the type of property you are offering');
         }
-    
-        if (!InteriorInfo) {
-            toast.warning('Please provide interior details');
-            return;
+        
+        if (!inps?.property_address || inps.property_address.trim() === '') {
+            errors.push('Property Address is required - Please provide the complete address of your property');
         }
-    
-        if (!KitchenInfo) {
-            toast.warning('Please specify appliance details');
-            return;
+        
+        if (!inps?.total_price || inps.total_price.trim() === '') {
+            const priceLabel = activeTab === "rent" ? "Monthly Rent" : "Sale Price";
+            errors.push(`${priceLabel} is required - Please enter the ${priceLabel.toLowerCase()} for your property`);
         }
-    
-        if (!SelectBathFeatures || SelectBathFeatures.length === 0) {
-            toast.warning('Please select special bathroom features');
-            return;
+        
+        if (MediaPaths.length < 2) {
+            if (MediaPaths.length === 0) {
+                errors.push('Property Images are required - Please upload at least 2 high-quality photos of your property');
+            } else {
+                errors.push(`At least 2 property images are required - You have uploaded ${MediaPaths.length} image(s), please add ${2 - MediaPaths.length} more`);
+            }
         }
-    
-        if (!CoolingInfo) {
-            toast.warning('Please provide cooling information');
-            return;
-        }
-    
-        if (!HeatingInfo) {
-            toast.warning('Please provide heating information');
-            return;
-        }
-    
-        if (!ConditionType) {
-            toast.warning('Please select condition type');
-            return;
-        }
-    
-        if (!FurnishingType) {
-            toast.warning('Please select furnishing type');
-            return;
-        }
-    
-        if (!SelectParking || SelectParking.length === 0) {
-            toast.warning('Please provide parking details');
-            return;
-        }
-    
-        if (!SelectOtherFeatures || SelectOtherFeatures.length === 0) {
-            toast.warning('Please provide kitchen information');
-            return;
-        }
-    
-        if (!LaundryFacilities || LaundryFacilities.length === 0) {
-            toast.warning('Please provide laundry facilities details');
-            return;
-        }
-    
-        if (!CommunityInfo) {
-            toast.warning('Please provide community center details');
-            return;
-        }
-    
-        if (!PlaygroundInfo) {
-            toast.warning('Please specify playground details');
-            return;
-        }
-    
-        if (!ConferenceFacilities || ConferenceFacilities.length === 0) {
-            toast.warning('Please provide conference facilities details');
-            return;
-        }
-    
-        if (!RooftopTerrace || RooftopTerrace.length === 0) {
-            toast.warning('Please specify rooftop terrace details');
-            return;
-        }
-    
-        if (!EvStationsInfo) {
-            toast.warning('Please provide electric vehicle station details');
-            return;
-        }
-    
-        if (!InternetInfo) {
-            toast.warning('Please specify internet information');
-            return;
-        }
-    
-        if (!BarbecueInfo) {
-            toast.warning('Please provide barbecue grills details');
-            return;
-        }
-    
-        if (!SecurityFeatures || SecurityFeatures.length === 0) {
-            toast.warning('Please provide security features');
-            return;
-        }
-    
-        if (!WaterSysInfo) {
-            toast.warning('Please provide underground water system details');
-            return;
-        }
-    
-        if (!MediaPaths || MediaPaths.length === 0) {
-            toast.warning('Please upload at least one media file');
+        
+        // If there are validation errors, display them
+        if (errors.length > 0) {
+            toast.error(
+                <div>
+                    <strong>Please complete the following required fields:</strong>
+                    <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+                        {errors.map((error, index) => (
+                            <li key={index} style={{ marginBottom: '5px' }}>{error}</li>
+                        ))}
+                    </ul>
+                </div>,
+                {
+                    autoClose: 8000,
+                    hideProgressBar: false,
+                }
+            );
+            
+            // Scroll to the first error field
+            if (!PropertyType) {
+                document.querySelector('.react-select')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (!inps?.property_address) {
+                document.querySelector('textarea[name="property_address"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (!inps?.total_price) {
+                document.querySelector('input[name="total_price"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (MediaPaths.length < 2) {
+                document.querySelector('.image-upload-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
             return;
         }
     
         let data = {
-            property_address: inps?.property_address,
             regional_state: inps?.regional_state,
             city: inps?.city,
             country: inps?.country,
+            property_address: inps?.property_address,
             number_of_bathrooms: inps.number_of_bathrooms,
             property_size: inps?.property_size,
             total_price: inps?.total_price,
             description: inps?.description,
             property_for: activeTab,
             property_type: PropertyType,
-            property_readiness: interestRate,
-            interior: InteriorInfo,
-            has_appliances: KitchenInfo,
-            special_bathroom_features: SelectBathFeatures,
-            cooling_information: CoolingInfo,
-            heating_information: HeatingInfo,
             condition: ConditionType,
             furnishing: FurnishingType,
-            parking: SelectParking,
-            kitchen_information: SelectOtherFeatures,
-            laundr_facilities: LaundryFacilities,
-            community_center: CommunityInfo,
-            playground: PlaygroundInfo,
-            conference_facilities: ConferenceFacilities,
-            rooftop_terrace: RooftopTerrace,
-            electric_vehicle: EvStationsInfo,
-            internet: InternetInfo,
-            barbecue_grills: BarbecueInfo,
-            security_features: SecurityFeatures,
-            underground_water_system: WaterSysInfo,
-            media_paths: MediaPaths
+            media_paths: MediaPaths,
+            amenities: selectedAmenities
         };
     
         navigate('/choose-promotion', { state: { AllData: data } });
     };
 
     return (
-        <>
-            <section className="common-section property-form-section">
-                <div className="container">
-                    <div className="property-heading-form">
-                        <h3>Property Listing form</h3>
-                    </div>
-                    <div className="property-form-main">
-                        <div className="property-form-title">
-                            <h5>
-                                Property Address
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
+        <section className="common-section property-form-section">
+            <div className="container">
+                <div className="property-heading-form">
+                    <h3>Property Listing Form</h3>
+                    <div className="form-progress-indicator">
+                        <div className="progress-item">
+                            <span className={`step-circle ${PropertyType ? 'completed' : 'pending'}`}>1</span>
+                            <span className="step-label">Property Type</span>
                         </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Property Address</label>
-                                    <textarea
-                                        type="text"
-                                        placeholder="Address, House number, Street"
-                                        name="property_address"
-                                        onChange={onInpChanged}
-                                        value={inps?.property_address}
-                                        className={`${error.errors?.property_address ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.property_address && <p className="error-input-msg">{error.errors?.property_address}</p>}
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">Regional State</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter regional state"
-                                        name="regional_state"
-                                        onChange={onInpChanged}
-                                        value={inps?.regional_state}
-                                        className={`${error.errors?.regional_state ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.regional_state && <p className="error-input-msg">{error.errors?.regional_state}</p>}
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">City</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter city"
-                                        name="city"
-                                        onChange={onInpChanged}
-                                        value={inps?.city}
-                                        className={`${error.errors?.city ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.city && <p className="error-input-msg">{error.errors?.city}</p>}
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">Country</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter country"
-                                        name="country"
-                                        onChange={onInpChanged}
-                                        value={inps?.country}
-                                        className={`${error.errors?.country ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.country && <p className="error-input-msg">{error.errors?.country}</p>}
-                                </div>
-                            </div>
+                        <div className="progress-item">
+                            <span className={`step-circle ${inps.property_address ? 'completed' : 'pending'}`}>2</span>
+                            <span className="step-label">Location</span>
                         </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Property For
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
+                        <div className="progress-item">
+                            <span className={`step-circle ${inps.total_price ? 'completed' : 'pending'}`}>3</span>
+                            <span className="step-label">Price</span>
                         </div>
-                        <div className="property-tab-section">
-                            <ul className="nav nav-pills">
-                                <li className="nav-item">
-                                    <button
-                                        className={`nav-link ${activeTab === "rent" ? "active" : ""}`}
-                                        onClick={() => setActiveTab("rent")}
-                                    >
-                                        Rent
-                                    </button>
-                                </li>
-                                <li className="nav-item">
-                                    <button
-                                        className={`nav-link ${activeTab === "sale" ? "active" : ""}`}
-                                        onClick={() => setActiveTab("sale")}
-                                    >
-                                        Sale
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Property Information
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">Property Type</label>
-                                    <Select
-                                        value={PropertyType}
-                                        onChange={(e) => handleChange(e, 'Property')}
-                                        options={PropertyTypeList}
-                                        placeholder="Select property type"
-                                        isSearchable={false}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">Total Price</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Enter total price"
-                                        name="total_price"
-                                        onChange={onInpChanged}
-                                        value={inps?.total_price}
-                                        className={`${error.errors?.total_price ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.total_price && <p className="error-input-msg">{error.errors?.total_price}</p>}
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-33">
-                                <div className="single-input">
-                                    <label htmlFor="">Property Size (sq ft)</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Enter property size"
-                                        name="property_size"
-                                        onChange={onInpChanged}
-                                        value={inps?.property_size}
-                                        className={`${error.errors?.property_size ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.property_size && <p className="error-input-msg">{error.errors?.property_size}</p>}
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Description</label>
-                                    <textarea
-                                        placeholder="Enter property description"
-                                        name="description"
-                                        onChange={onInpChanged}
-                                        value={inps?.description}
-                                        className={`${error.errors?.description ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.description && <p className="error-input-msg">{error.errors?.description}</p>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Property Readiness
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="single-range-slider">
-                                <label htmlFor="">Property Readiness ({interestRate}%)</label>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={interestRate}
-                                    onChange={handleRangeChange(setInterestRate, 100)}
-                                    className="slider"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Interior Details
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Interior</label>
-                                    <textarea
-                                        placeholder="Describe interior details"
-                                        name="InteriorInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={InteriorInfo}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Has Appliances</label>
-                                    <textarea
-                                        placeholder="Specify appliance details"
-                                        name="KitchenInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={KitchenInfo}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Number of Bathrooms</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Enter number of bathrooms"
-                                        name="number_of_bathrooms"
-                                        onChange={onInpChanged}
-                                        value={inps?.number_of_bathrooms}
-                                        className={`${error.errors?.number_of_bathrooms ? "alert-input" : ""}`}
-                                    />
-                                    {error.errors?.number_of_bathrooms && <p className="error-input-msg">{error.errors?.number_of_bathrooms}</p>}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Special Bathroom Features
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {Bath_Features_List.map((feature, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`bath_feature_${index}`}
-                                            onChange={(e) => handleCheckboxChange(e, feature, 'Bathroom')}
-                                        />
-                                        <label htmlFor={`bath_feature_${index}`}>{feature.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="add-feature-section">
-                                <input
-                                    type="text"
-                                    placeholder="Add custom bathroom feature"
-                                    value={InpuBathAdd}
-                                    onChange={handleInputAddBath}
-                                />
-                                <button type="button" onClick={handleAddFeature}>Add Feature</button>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Heating & Cooling
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Cooling Information</label>
-                                    <textarea
-                                        placeholder="Describe cooling system"
-                                        name="CoolingInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={CoolingInfo}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Heating Information</label>
-                                    <textarea
-                                        placeholder="Describe heating system"
-                                        name="HeatingInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={HeatingInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Condition & Furnishing
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Condition</label>
-                                    <Select
-                                        value={ConditionType}
-                                        onChange={(e) => handleChange(e, 'Condition')}
-                                        options={HomeCondition}
-                                        placeholder="Select condition"
-                                        isSearchable={false}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-inner-flex-50">
-                                <div className="single-input">
-                                    <label htmlFor="">Furnishing</label>
-                                    <Select
-                                        value={FurnishingType}
-                                        onChange={(e) => handleChange(e, 'Furnishing')}
-                                        options={HomeFurnishing}
-                                        placeholder="Select furnishing"
-                                        isSearchable={false}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Parking
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {ParkingList.map((parking, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`parking_${index}`}
-                                            onChange={(e) => handleCheckboxChange(e, parking, 'Parking')}
-                                        />
-                                        <label htmlFor={`parking_${index}`}>{parking.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Kitchen Information
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {KeyFeaturesOtherList.map((feature, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`kitchen_feature_${index}`}
-                                            onChange={(e) => handleKeyFeaturesCheckboxChange(e, feature, 'Other')}
-                                        />
-                                        <label htmlFor={`kitchen_feature_${index}`}>{feature.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Laundry Facilities
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {LaundryFacilitiesList.map((facility, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`laundry_${index}`}
-                                            onChange={(e) => handleKeyFeaturesCheckboxChange(e, facility, 'Laundry Facilities')}
-                                        />
-                                        <label htmlFor={`laundry_${index}`}>{facility.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Community Center
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Community Center Details</label>
-                                    <textarea
-                                        placeholder="Describe community center facilities"
-                                        name="CommunityInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={CommunityInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Playground
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Playground Details</label>
-                                    <textarea
-                                        placeholder="Describe playground facilities"
-                                        name="PlaygroundInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={PlaygroundInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Conference Facilities
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {ConferenceList.map((facility, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`conference_${index}`}
-                                            onChange={(e) => handleKeyFeaturesCheckboxChange(e, facility, 'Conference Facilities')}
-                                        />
-                                        <label htmlFor={`conference_${index}`}>{facility.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Rooftop Terrace
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {RooftopTerraceList.map((terrace, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`rooftop_${index}`}
-                                            onChange={(e) => handleKeyFeaturesCheckboxChange(e, terrace, 'Rooftop Terrace')}
-                                        />
-                                        <label htmlFor={`rooftop_${index}`}>{terrace.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Electric Vehicle Stations
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Electric Vehicle Station Details</label>
-                                    <textarea
-                                        placeholder="Describe electric vehicle charging facilities"
-                                        name="EvStationsInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={EvStationsInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Internet
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Internet Information</label>
-                                    <textarea
-                                        placeholder="Describe internet connectivity and speeds"
-                                        name="InternetInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={InternetInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Barbecue Grills
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Barbecue Grill Details</label>
-                                    <textarea
-                                        placeholder="Describe barbecue and grilling facilities"
-                                        name="BarbecueInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={BarbecueInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Security Features
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="feature-checkbox-section">
-                                {SecurityFeaturesList.map((security, index) => (
-                                    <div key={index} className="feature-checkbox">
-                                        <input
-                                            type="checkbox"
-                                            id={`security_${index}`}
-                                            onChange={(e) => handleKeyFeaturesCheckboxChange(e, security, 'Security Features')}
-                                        />
-                                        <label htmlFor={`security_${index}`}>{security.label}</label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Underground Water System
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="form-inner-flex-100">
-                                <div className="single-input">
-                                    <label htmlFor="">Underground Water System Details</label>
-                                    <textarea
-                                        placeholder="Describe underground water system and facilities"
-                                        name="WaterSysInfo"
-                                        onChange={handleCoolingInfoChange}
-                                        value={WaterSysInfo}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="property-form-title">
-                            <h5>
-                                Property Pictures
-                                <span>
-                                    <SvgCheckIcon />
-                                </span>
-                            </h5>
-                            <em>
-                                <SvgArrowRightIcon />
-                            </em>
-                        </div>
-                        <div className="form-flex">
-                            <div className="property-image-upload-section">
-                                {Array.from({ length: slots }, (_, index) => (
-                                    <div key={index} className="property-image-upload">
-                                        {images[index] ? (
-                                            <img src={images[index]} alt={`Property ${index + 1}`} />
-                                        ) : (
-                                            <div className="upload-placeholder">
-                                                <span>Upload Image {index + 1}</span>
-                                            </div>
-                                        )}
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => handleFileChange(e, index)}
-                                            style={{ display: 'none' }}
-                                            id={`file-input-${index}`}
-                                        />
-                                        <label htmlFor={`file-input-${index}`} className="upload-btn">
-                                            Choose File
-                                        </label>
-                                    </div>
-                                ))}
-                                <button type="button" onClick={addSlot} className="add-more-btn">
-                                    Add More Images
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="property-form-submit">
-                            <button
-                                type="button"
-                                onClick={NextPage}
-                                className="submit-btn"
-                                disabled={Loading}
-                            >
-                                {Loading ? 'Processing...' : 'Next: Choose Promotion'}
-                                <SvgLongArrowIcon />
-                            </button>
+                        <div className="progress-item">
+                            <span className={`step-circle ${MediaPaths.length >= 2 ? 'completed' : 'pending'}`}>4</span>
+                            <span className="step-label">Images</span>
                         </div>
                     </div>
                 </div>
-            </section>
-        </>
+                <div className="property-form-main">
+                    
+                    {/* Step 1: What are you offering? */}
+                    <div className="form-step-section">
+                        <div className="step-header">
+                            <div className="step-indicator">
+                                <span className="step-number">1</span>
+                            </div>
+                            <h4>What are you offering?</h4>
+                        </div>
+                        
+                        <div className="offering-options">
+                            <div 
+                                className={`offering-card ${activeTab === "sell" ? "selected" : ""}`}
+                                onClick={() => setActiveTab("sell")}
+                            >
+                                <div className="card-icon">
+                                    <div className="icon-circle green">🏠</div>
+                                </div>
+                                <h5>For Sale</h5>
+                                <p>Sell your property</p>
+                            </div>
+                            
+                            <div 
+                                className={`offering-card ${activeTab === "rent" ? "selected" : ""}`}
+                                onClick={() => setActiveTab("rent")}
+                            >
+                                <div className="card-icon">
+                                    <div className="icon-circle blue">🔑</div>
+                                </div>
+                                <h5>For Rent</h5>
+                                <p>Rent out your property</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 2: Property Type & Price */}
+                    <div className="form-step-section">
+                        <div className="step-header">
+                            <div className="step-indicator">
+                                <span className="step-number">2</span>
+                            </div>
+                            <h4>Property Type & Price</h4>
+                        </div>
+                        
+                        <div className="step-content">
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Type *</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={PropertyTypeList}
+                                                placeholder="Select property type"
+                                                value={PropertyType}
+                                                onChange={(e) => handleChange(e, "Property")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>{activeTab === "rent" ? "Monthly Rent *" : "Sale Price *"}</label>
+                                        <div className="price-input">
+                                            <span className="currency-prefix">ETB</span>
+                                            <input
+                                                type="number"
+                                                placeholder={activeTab === "rent" ? "3,500" : "500,000"}
+                                                name="total_price"
+                                                onChange={onInpChanged}
+                                                value={inps?.total_price}
+                                            />
+                                            {activeTab === "rent" && <span className="period-suffix">/month</span>}
+                                        </div>
+                                        {error.errors?.total_price && <p className="error-msg">{error.errors?.total_price}</p>}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 3: Property Location */}
+                    <div className="form-step-section">
+                        <div className="step-header">
+                            <div className="step-indicator">
+                                <span className="step-number">3</span>
+                            </div>
+                            <h4>Property Location</h4>
+                        </div>
+                        
+                        <div className="step-content">
+                            <div className="form-group">
+                                <label>Property Address *</label>
+                                <textarea
+                                    name="property_address"
+                                    placeholder="Address, House number, Street"
+                                    onChange={onInpChanged}
+                                    value={inps?.property_address}
+                                    rows="3"
+                                />
+                            </div>
+                            
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Regional State</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={RegionalStateList}
+                                                placeholder="Select regional state"
+                                                value={RegionalStateType}
+                                                onChange={(e) => handleChange(e, "RegionalState")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>City</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Your City"
+                                            name="city"
+                                            onChange={onInpChanged}
+                                            value={inps?.city}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Country</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Your Country"
+                                    name="country"
+                                    onChange={onInpChanged}
+                                    value={inps?.country}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 4: Property Details */}
+                    <div className="form-step-section">
+                        <div className="step-header">
+                            <div className="step-indicator">
+                                <span className="step-number">4</span>
+                            </div>
+                            <h4>Property Details</h4>
+                        </div>
+                        
+                        <div className="step-content">
+                            <div className="form-group">
+                                <label>Property Description</label>
+                                <textarea
+                                    name="description"
+                                    placeholder="Describe your property in detail..."
+                                    onChange={onInpChanged}
+                                    value={inps?.description}
+                                    rows="4"
+                                    className={error.errors?.description ? "error" : ""}
+                                />
+                                {error.errors?.description && <p className="error-msg">{error.errors?.description}</p>}
+                            </div>
+                            
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Size (sqm)</label>
+                                        <div className="input-with-unit">
+                                            <input
+                                                type="text"
+                                                placeholder="150"
+                                                name="property_size"
+                                                onChange={onInpChanged}
+                                                value={inps?.property_size}
+                                            />
+                                            <span className="unit">sqm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Number of Bathrooms</label>
+                                        <input
+                                            type="number"
+                                            placeholder="2"
+                                            name="number_of_bathrooms"
+                                            onChange={onInpChanged}
+                                            value={inps?.number_of_bathrooms}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Condition</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={HomeCondition}
+                                                placeholder="Select condition"
+                                                value={ConditionType}
+                                                onChange={(e) => handleChange(e, "Condition")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Furnishing Status</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={HomeFurnishing}
+                                                placeholder="Select furnishing type"
+                                                value={FurnishingType}
+                                                onChange={(e) => handleChange(e, "Furnishing")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 5: Property Images */}
+                    <div className="form-step-section">
+                        <div className="step-header">
+                            <div className="step-indicator">
+                                <span className="step-number">5</span>
+                            </div>
+                            <h4>Property Images *</h4>
+                        </div>
+                        
+                        <div className="step-content">
+                            <div className="image-upload-section">
+                                <div className="upload-info">
+                                    <h5>📸 Upload Property Photos</h5>
+                                    <p>Add high-quality photos to showcase your property. At least 2 images are required. The first image will be the main photo.</p>
+                                </div>
+                                
+                                <div className="main-upload-area">
+                                    {images[0] ? (
+                                        <div className="main-image-preview">
+                                            <img src={images[0]} alt="Main property" />
+                                            <div className="main-image-badge">Main Photo</div>
+                                        </div>
+                                    ) : (
+                                        <label className="main-upload-dropzone">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleFileChange(e, 0)}
+                                                style={{ display: "none" }}
+                                            />
+                                            <div className="dropzone-content">
+                                                <div className="upload-icon-large">📷</div>
+                                                <h6>Drop your main photo here</h6>
+                                                <p>or click to browse</p>
+                                                <span className="file-formats">JPG, PNG, WEBP (Max 5MB)</span>
+                                            </div>
+                                        </label>
+                                    )}
+                                </div>
+
+                                <div className="additional-images">
+                                    <div className="additional-images-header">
+                                        <h6>Additional Photos</h6>
+                                        <button 
+                                            className="add-more-photos-btn" 
+                                            onClick={addSlot} 
+                                            type="button"
+                                        >
+                                            + Add More
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="thumbnail-grid">
+                                        {Array.from({ length: slots - 1 }).map((_, index) => {
+                                            const actualIndex = index + 1;
+                                            return (
+                                                <div className="thumbnail-slot" key={actualIndex}>
+                                                    {images[actualIndex] ? (
+                                                        <div className="thumbnail-preview">
+                                                            <img
+                                                                src={images[actualIndex]}
+                                                                alt={`Property ${actualIndex + 1}`}
+                                                            />
+                                                            <div className="image-number">{actualIndex + 1}</div>
+                                                            {uploadingStates[actualIndex] && (
+                                                                <div className="upload-overlay">
+                                                                    <div className="upload-spinner">⏳</div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <label className="thumbnail-upload">
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                onChange={(e) => handleFileChange(e, actualIndex)}
+                                                                style={{ display: "none" }}
+                                                            />
+                                                            <div className="thumbnail-content">
+                                                                <div className="plus-icon">+</div>
+                                                                <span>Photo {actualIndex + 1}</span>
+                                                            </div>
+                                                        </label>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="upload-tips">
+                                    <h6>📋 Photo Tips</h6>
+                                    <ul>
+                                        <li>Include exterior and interior shots</li>
+                                        <li>Show key rooms: living room, kitchen, bedrooms</li>
+                                        <li>Capture unique features and amenities</li>
+                                        <li>Use good lighting for best results</li>
+                                        <li>Take photos from different angles</li>
+                                        <li>Ensure images are clear and high resolution</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 6: Property Amenities */}
+                    <div className="form-step-section">
+                        <div className="step-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className="step-indicator">
+                                    <span className="step-number">6</span>
+                                </div>
+                                <h4>Property Amenities</h4>
+                            </div>
+                            <button 
+                                type="button"
+                                className="amenities-toggle-btn"
+                                onClick={toggleAmenities}
+                                style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: '#007bff',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '14px'
+                                }}
+                            >
+                                {amenitiesExpanded ? '− Collapse' : '+ Expand'}
+                            </button>
+                        </div>
+                        
+                        {amenitiesExpanded && (
+                            <div className="step-content">
+                                <div className="amenities-section">
+                                    <div className="amenity-category">
+                                        <h5 className="category-title">🚗 Parking & Transportation</h5>
+                                        <div className="amenity-grid">
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="garage_parking" 
+                                                    checked={selectedAmenities.garage_parking || false}
+                                                    onChange={() => handleAmenityChange('garage_parking')}
+                                                />
+                                                <label htmlFor="garage_parking">Garage Parking</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="covered_parking" 
+                                                    checked={selectedAmenities.covered_parking || false}
+                                                    onChange={() => handleAmenityChange('covered_parking')}
+                                                />
+                                                <label htmlFor="covered_parking">Covered Parking</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="street_parking" 
+                                                    checked={selectedAmenities.street_parking || false}
+                                                    onChange={() => handleAmenityChange('street_parking')}
+                                                />
+                                                <label htmlFor="street_parking">Street Parking</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="visitor_parking" 
+                                                    checked={selectedAmenities.visitor_parking || false}
+                                                    onChange={() => handleAmenityChange('visitor_parking')}
+                                                />
+                                                <label htmlFor="visitor_parking">Visitor Parking</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="amenity-category">
+                                        <h5 className="category-title">🔒 Security & Safety</h5>
+                                        <div className="amenity-grid">
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="security_guard" 
+                                                    checked={selectedAmenities.security_guard || false}
+                                                    onChange={() => handleAmenityChange('security_guard')}
+                                                />
+                                                <label htmlFor="security_guard">24/7 Security Guard</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="cctv_surveillance" 
+                                                    checked={selectedAmenities.cctv_surveillance || false}
+                                                    onChange={() => handleAmenityChange('cctv_surveillance')}
+                                                />
+                                                <label htmlFor="cctv_surveillance">CCTV Surveillance</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="gated_community" 
+                                                    checked={selectedAmenities.gated_community || false}
+                                                    onChange={() => handleAmenityChange('gated_community')}
+                                                />
+                                                <label htmlFor="gated_community">Gated Community</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="alarm_system" 
+                                                    checked={selectedAmenities.alarm_system || false}
+                                                    onChange={() => handleAmenityChange('alarm_system')}
+                                                />
+                                                <label htmlFor="alarm_system">Alarm System</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="amenity-category">
+                                        <h5 className="category-title">🏢 Building Facilities</h5>
+                                        <div className="amenity-grid">
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="elevator" 
+                                                    checked={selectedAmenities.elevator || false}
+                                                    onChange={() => handleAmenityChange('elevator')}
+                                                />
+                                                <label htmlFor="elevator">Elevator</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="generator" 
+                                                    checked={selectedAmenities.generator || false}
+                                                    onChange={() => handleAmenityChange('generator')}
+                                                />
+                                                <label htmlFor="generator">Generator/Backup Power</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="water_tank" 
+                                                    checked={selectedAmenities.water_tank || false}
+                                                    onChange={() => handleAmenityChange('water_tank')}
+                                                />
+                                                <label htmlFor="water_tank">Water Storage Tank</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="concierge" 
+                                                    checked={selectedAmenities.concierge || false}
+                                                    onChange={() => handleAmenityChange('concierge')}
+                                                />
+                                                <label htmlFor="concierge">Concierge Service</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="amenity-category">
+                                        <h5 className="category-title">🌿 Outdoor & Recreation</h5>
+                                        <div className="amenity-grid">
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="garden" 
+                                                    checked={selectedAmenities.garden || false}
+                                                    onChange={() => handleAmenityChange('garden')}
+                                                />
+                                                <label htmlFor="garden">Garden/Landscaping</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="balcony" 
+                                                    checked={selectedAmenities.balcony || false}
+                                                    onChange={() => handleAmenityChange('balcony')}
+                                                />
+                                                <label htmlFor="balcony">Balcony/Terrace</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="swimming_pool" 
+                                                    checked={selectedAmenities.swimming_pool || false}
+                                                    onChange={() => handleAmenityChange('swimming_pool')}
+                                                />
+                                                <label htmlFor="swimming_pool">Swimming Pool</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="gym" 
+                                                    checked={selectedAmenities.gym || false}
+                                                    onChange={() => handleAmenityChange('gym')}
+                                                />
+                                                <label htmlFor="gym">Gym/Fitness Center</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="amenity-category">
+                                        <h5 className="category-title">💡 Utilities & Connectivity</h5>
+                                        <div className="amenity-grid">
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="wifi_ready" 
+                                                    checked={selectedAmenities.wifi_ready || false}
+                                                    onChange={() => handleAmenityChange('wifi_ready')}
+                                                />
+                                                <label htmlFor="wifi_ready">WiFi Ready</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="air_conditioning" 
+                                                    checked={selectedAmenities.air_conditioning || false}
+                                                    onChange={() => handleAmenityChange('air_conditioning')}
+                                                />
+                                                <label htmlFor="air_conditioning">Air Conditioning</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="heating" 
+                                                    checked={selectedAmenities.heating || false}
+                                                    onChange={() => handleAmenityChange('heating')}
+                                                />
+                                                <label htmlFor="heating">Central Heating</label>
+                                            </div>
+                                            <div className="amenity-item">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="solar_power" 
+                                                    checked={selectedAmenities.solar_power || false}
+                                                    onChange={() => handleAmenityChange('solar_power')}
+                                                />
+                                                <label htmlFor="solar_power">Solar Power</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="form-actions">
+                        <button 
+                            className="submit-btn" 
+                            onClick={NextPage}
+                            type="button"
+                        >
+                            Next Page <SvgLongArrowIcon />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
     );
 };
 

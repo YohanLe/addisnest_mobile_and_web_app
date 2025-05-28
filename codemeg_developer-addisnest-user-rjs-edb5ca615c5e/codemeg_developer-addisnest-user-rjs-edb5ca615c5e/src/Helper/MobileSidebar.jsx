@@ -1,12 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, } from "react-router-dom";
 import LogOutPopup from "./LogOutPopup";
 
 const MobileSidebar = () => {
   const [showLogOutPopup, setLogOutPopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const handleLogOutPopup = () => {
     setLogOutPopup((p) => !p);
   };
+
+  useEffect(() => {
+    const loginStatus = localStorage.getItem('isLogin');
+    setIsLoggedIn(loginStatus === '1');
+  }, []);
 
   const removeClass = () => {
     document.body.classList.remove("open-sidebar");
@@ -138,7 +144,7 @@ const MobileSidebar = () => {
                     }
                     // onClick={removeClass}
                   >
-                    Become an agent
+                    {isLoggedIn ? "My listing" : "Become an agent"}
                   </Link>
                 </li>
                 <li>

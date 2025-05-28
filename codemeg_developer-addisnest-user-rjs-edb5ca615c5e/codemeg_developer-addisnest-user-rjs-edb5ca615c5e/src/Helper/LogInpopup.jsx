@@ -74,17 +74,49 @@ const LogInpopup = ({ handlePopup }) => {
                 localStorage.setItem('access_token', data?.token);
                 localStorage.setItem('isLogin','1')
                 localStorage.setItem("userId", data?.userId,);
+                localStorage.setItem("userType", activeTab); // Store user type for navigation
                 // addAccessToken(data?.accessToken);
                 handlePopup();
                 dispatch(AuthUserDetails());
-                navigate('/')
+                
+                // Navigate to different routes based on user type
+                if (activeTab === "agent") {
+                    // Redirect to agent dashboard
+                    window.location.href = `${window.location.origin.replace(':3000', ':3001')}/`;
+                } else {
+                    navigate('/');
+                }
+                
                 toast.success("Login sucessfully");
 
             } catch (error) {
-                const { response } = error;
-                const { data, status, message } = response;
-                toast.error(data.message);
+                console.error('Login error:', error);
                 setLoading(false);
+                
+                // Handle network errors (CORS, connection issues, etc.)
+                if (!error.response) {
+                    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+                        toast.error('Network connection failed. Please check your internet connection and try again.');
+                    } else if (error.name === 'TypeError' || error.message.includes('CORS')) {
+                        toast.error('Unable to connect to the server. Please try again later or contact support.');
+                    } else {
+                        toast.error('An unexpected error occurred. Please try again.');
+                    }
+                    return;
+                }
+                
+                // Handle HTTP response errors
+                const { response } = error;
+                if (response && response.data) {
+                    const { data, status } = response;
+                    if (data.message) {
+                        toast.error(data.message);
+                    } else {
+                        toast.error('Login failed. Please check your credentials and try again.');
+                    }
+                } else {
+                    toast.error('Login failed. Please try again.');
+                }
             }
         }
     };
@@ -215,7 +247,7 @@ const LogInpopup = ({ handlePopup }) => {
                                     </div>
                                     <div className="auth-btm">
                                         <p>
-                                            Don’t have an Account?
+                                            Don't have an Account?
                                             <Link onClick={handleRegisterPopupToggle}>
                                                 Register
                                             </Link>
