@@ -750,7 +750,7 @@ const EditPropertyForm = () => {
             if (!inps.property_address || inps.property_address.trim() === '') {
                 errors.push('Property Address is required');
             }
-            if (!inps.total_price || inps.total_price.trim() === '') {
+            if (!inps.total_price || String(inps.total_price).trim() === '') {
                 errors.push('Price is required');
             }
             if (!inps.description || inps.description.trim() === '') {
