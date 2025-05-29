@@ -1089,7 +1089,7 @@ const EditPropertyForm = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Bedrooms *</label>
+                                    <label>Number of Bedrooms *</label>
                                     <input
                                         type="number"
                                         name="number_of_bedrooms"
@@ -1101,7 +1101,7 @@ const EditPropertyForm = () => {
                                     />
                                 </div>
                                 <div className="form-group">
-                                    <label>Bathrooms *</label>
+                                    <label>Number of Bathrooms *</label>
                                     <input
                                         type="number"
                                         name="number_of_bathrooms"
