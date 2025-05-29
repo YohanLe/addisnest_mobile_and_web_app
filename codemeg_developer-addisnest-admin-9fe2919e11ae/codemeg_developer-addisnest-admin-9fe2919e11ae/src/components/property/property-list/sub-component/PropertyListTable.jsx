@@ -1,26 +1,33 @@
-import  { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ProfileImg } from "../../../../assets/images";
 import { SvgActionTrashIcon, SvgActionViewIcon, SvgActionEditIcon } from "../../../../assets/svg/Svg";
 import DeletePopup from "../../../../helper/DeletePopup";
 import Pagination from "../../../../helper/Pagination";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchRentList } from "../../../../Redux-store/Slices/RentListSlice";
 import { fetchSellList } from "../../../../Redux-store/Slices/SellListSlice";
+
 import Api from "../../../../Apis/Api";
+import "../../../../assets/css/property-list.css";
 
-const SellListTable = () => {
+const PropertyListTable = () => {
   const dispatch = useDispatch();
-  const { properties, loading, error, totalPages } = useSelector(
-    (state) => state.SellList
-  );
-
+  
+  // Get data from both rent and sell slices
+  const rentState = useSelector((state) => state.RentList);
+  const sellState = useSelector((state) => state.SellList);
+  
   const [currentItem, setCurrentItem] = useState(null);
   const selectRefs = useRef([]);
   const [showDeletePopup, setDeletePopup] = useState(false);
   const [propertyIdToDelete, setPropertyIdToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    dispatch(fetchRentList());
     dispatch(fetchSellList());
   }, [dispatch]);
 
@@ -41,6 +48,39 @@ const SellListTable = () => {
     };
   }, [currentItem]);
 
+  // Combine properties from both rent and sell
+  const getCombinedProperties = () => {
+    const rentProperties = (rentState.properties || []).map(property => ({
+      ...property,
+      listingType: 'Rent'
+    }));
+    
+    const sellProperties = (sellState.properties || []).map(property => ({
+      ...property,
+      listingType: 'Sale'
+    }));
+
+    let allProperties = [...rentProperties, ...sellProperties];
+
+    // Filter by tab
+    if (activeTab === "rent") {
+      allProperties = rentProperties;
+    } else if (activeTab === "sell") {
+      allProperties = sellProperties;
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      allProperties = allProperties.filter(property =>
+        property.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.property_type?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    return allProperties;
+  };
+
   const handleItemClick = (index) => {
     setCurrentItem(currentItem === index ? null : index);
   };
@@ -55,12 +95,21 @@ const SellListTable = () => {
     setDeletePopup(false);
     try {
       await Api.deleteWithtoken(`properties/${propertyIdToDelete}`);
+      dispatch(fetchRentList());
       dispatch(fetchSellList());
       setPropertyIdToDelete(null);
     } catch (error) {
       console.error("Error deleting property:", error);
     }
   };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const combinedProperties = getCombinedProperties();
+  const loading = rentState.loading || sellState.loading;
+  const error = rentState.error || sellState.error;
 
   return (
     <>
@@ -95,10 +144,35 @@ const SellListTable = () => {
                         />
                       </svg>
                     </span>
-                    <input type="text" placeholder="Search" />
+                    <input 
+                      type="text" 
+                      placeholder="Search" 
+                      value={searchTerm}
+                      onChange={handleSearchChange}
+                    />
                   </label>
                 </div>
               </div>
+            </div>
+            <div className="tab-navigation">
+              <button 
+                className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
+                onClick={() => setActiveTab("all")}
+              >
+                All Properties
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === "rent" ? "active" : ""}`}
+                onClick={() => setActiveTab("rent")}
+              >
+                For Rent
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === "sell" ? "active" : ""}`}
+                onClick={() => setActiveTab("sell")}
+              >
+                For Sale
+              </button>
             </div>
           </div>
           <div className="responsive-table">
@@ -108,6 +182,7 @@ const SellListTable = () => {
                   <th className="w-10px text-start">S.no</th>
                   <th className="w-250px text-start">Property Detail</th>
                   <th className="w-70px text-center">Property Type</th>
+                  <th className="w-70px text-center">Listing Type</th>
                   <th className="w-150px text-start">Listed by</th>
                   <th className="w-70px text-center">Rate</th>
                   <th className="w-70px text-center">Status</th>
@@ -115,17 +190,18 @@ const SellListTable = () => {
                 </tr>
               </thead>
               <tbody>
-                {properties && properties.length > 0 ? (
-                  properties.map((item, index) => (
-                    <tr key={item.id}>
+                {combinedProperties && combinedProperties.length > 0 ? (
+                  combinedProperties.map((item, index) => (
+                    <tr key={`${item.listingType}-${item.id}`}>
                       <td>#{index + 1}</td>
                       <td className="text-start">
                         <div className="usrdtls-td">
                           <div className="proptery-bg">
                             <span
                               style={{
-                                backgroundImage: `url(${item.media?.filePath || ProfileImg
-                                  })`,
+                                backgroundImage: `url("${
+                                  item.media?.filePath || ProfileImg
+                                }" )`,
                               }}
                             ></span>
                           </div>
@@ -135,13 +211,19 @@ const SellListTable = () => {
                         </div>
                       </td>
                       <td className="text-center">{item.property_type || "N/A"}</td>
+                      <td className="text-center">
+                        <span className={`badge ${item.listingType === 'Rent' ? 'info-badge' : 'warning-badge'}`}>
+                          {item.listingType}
+                        </span>
+                      </td>
                       <td className="text-start">
                         <div className="usrdtls-td">
                           <div className="userprfl-bg">
                             <span
                               style={{
-                                backgroundImage: `url(${item.user?.profile_img || ProfileImg
-                                  })`,
+                                backgroundImage: `url(${
+                                  item.user?.profile_img || ProfileImg
+                                })`,
                               }}
                             ></span>
                           </div>
@@ -152,14 +234,15 @@ const SellListTable = () => {
                         </div>
                       </td>
                       <td className="text-center">
-                      <span className="text-success">{item.price ? `$${item.price.toLocaleString()}` : "N/A"}</span>
+                        <span className="text-success">{item.price ? `$${item.price.toLocaleString()}` : "N/A"}</span>
                       </td>
                       <td className="text-center">
                         <span
-                          className={`badge ${item.status && item.status.toLowerCase() === "active"
+                          className={`badge ${
+                            item.status && item.status.toLowerCase() === "active"
                               ? "success-badge"
                               : "danger-badge"
-                            }`}
+                          }`}
                         >
                           {item.status || "N/A"}
                         </span>
@@ -168,10 +251,7 @@ const SellListTable = () => {
                         <div className="action-main">
                           <div className="action-inner">
                             <div className="action-buttons">
-                              <Link
-                                to={`/property-detail/${item.id}`}
-                                className="view-action"
-                              >
+                              <Link to={`/property-detail/${item.id}`} className="view-action">
                                 <SvgActionViewIcon />
                               </Link>
                             </div>
@@ -199,7 +279,7 @@ const SellListTable = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="text-center">
+                    <td colSpan="8" className="text-center">
                       {loading ? "Loading..." : error ? error : "No properties found."}
                     </td>
                   </tr>
@@ -208,7 +288,7 @@ const SellListTable = () => {
             </table>
           </div>
           <Pagination
-            totalPages={totalPages}
+            totalPages={Math.max(rentState.totalPages || 1, sellState.totalPages || 1)}
             currentPage={currentPage}
             onPageChange={setCurrentPage}
           />
@@ -224,4 +304,4 @@ const SellListTable = () => {
   );
 };
 
-export default SellListTable;
+export default PropertyListTable;

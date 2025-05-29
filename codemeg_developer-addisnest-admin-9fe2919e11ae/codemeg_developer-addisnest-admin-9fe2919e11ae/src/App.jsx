@@ -12,6 +12,8 @@ import {
   NotificationListPage,
   OtpPage,
   PropertyDetailPage,
+  PropertyEditPage,
+  PropertyListPage,
   RentListPage,
   SellListPage,
   SigninPage,
@@ -60,8 +62,10 @@ const App = () => {
               <Route path="/agent-detail/:id" element={<AgentDetailPage />} />
               <Route path="/sell-list" element={<SellListPage />} />
               <Route path="/rent-list" element={<RentListPage />} />
+              <Route path="/property-list" element={<PropertyListPage />} />
               <Route path="/property-detail/:agentId/:propertyId" element={<PropertyDetailPage />} />
               <Route path="/property-detail/:propertyId" element={<PropertyDetailPage />} />
+              <Route path="/property-edit/:id" element={<PropertyEditPage />} />
               <Route path="/notification" element={<NotificationListPage />} />
               <Route path="/finance" element={<FinanceListPage />} />
               <Route path="/subscription" element={<SubscriptionListPage />} />

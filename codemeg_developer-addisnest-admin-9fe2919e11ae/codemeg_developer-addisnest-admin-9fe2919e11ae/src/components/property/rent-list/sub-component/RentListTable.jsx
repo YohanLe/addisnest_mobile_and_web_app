@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ProfileImg } from "../../../../assets/images";
-import { SvgActionTrashIcon, SvgActionViewIcon } from "../../../../assets/svg/Svg";
+import { SvgActionTrashIcon, SvgActionViewIcon, SvgActionEditIcon } from "../../../../assets/svg/Svg";
 import DeletePopup from "../../../../helper/DeletePopup";
 import Pagination from "../../../../helper/Pagination";
 import { Link } from "react-router-dom";
@@ -174,6 +174,13 @@ const RentListTable = () => {
                             <div className="action-buttons">
                               <Link to={`/property-detail/${item.id}`} className="view-action">
                                 <SvgActionViewIcon />
+                              </Link>
+                            </div>
+                          </div>
+                          <div className="action-inner">
+                            <div className="action-buttons">
+                              <Link to={`/property-edit/${item.id}`} className="edit-action">
+                                <SvgActionEditIcon />
                               </Link>
                             </div>
                           </div>
