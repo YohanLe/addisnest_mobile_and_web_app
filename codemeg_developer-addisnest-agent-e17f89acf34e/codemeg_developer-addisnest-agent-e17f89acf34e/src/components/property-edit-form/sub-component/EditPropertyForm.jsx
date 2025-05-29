@@ -390,23 +390,38 @@ const EditPropertyForm = () => {
             setOriginalData(propertyData);
             
             // Populate form fields with comprehensive field mapping and proper type conversion
-            setInps({
+            const formData = {
                 regional_state: propertyData?.regional_state || '',
                 city: propertyData?.city || '',
                 country: propertyData?.country || 'Ethiopia',
                 property_address: propertyData?.property_address || propertyData?.address || '',
-                total_price: String(propertyData?.total_price || propertyData?.price || ''),
+                total_price: propertyData?.total_price || propertyData?.price || '',
                 description: propertyData?.description || '',
-                property_size: String(propertyData?.property_size || propertyData?.size || ''),
-                number_of_bathrooms: String(propertyData?.number_of_bathrooms || propertyData?.bathrooms || ''),
-                number_of_bedrooms: String(propertyData?.number_of_bedrooms || propertyData?.bedrooms || ''),
+                property_size: propertyData?.property_size || propertyData?.size || '',
+                number_of_bathrooms: propertyData?.number_of_bathrooms || propertyData?.bathrooms || '',
+                number_of_bedrooms: propertyData?.number_of_bedrooms || propertyData?.bedrooms || '',
+            };
+
+            // Convert numeric fields to strings for input compatibility
+            if (formData.total_price) formData.total_price = String(formData.total_price);
+            if (formData.property_size) formData.property_size = String(formData.property_size);
+            if (formData.number_of_bathrooms) formData.number_of_bathrooms = String(formData.number_of_bathrooms);
+            if (formData.number_of_bedrooms) formData.number_of_bedrooms = String(formData.number_of_bedrooms);
+
+            console.log('📋 Raw property data:', propertyData);
+            console.log('📋 Processed form data:', formData);
+            console.log('📋 Bedroom/Bathroom values:', {
+                raw_bedrooms: propertyData?.number_of_bedrooms,
+                raw_bedrooms_alt: propertyData?.bedrooms,
+                processed_bedrooms: formData.number_of_bedrooms,
+                raw_bathrooms: propertyData?.number_of_bathrooms,
+                raw_bathrooms_alt: propertyData?.bathrooms,
+                processed_bathrooms: formData.number_of_bathrooms,
+                raw_regional_state: propertyData?.regional_state,
+                processed_regional_state: formData.regional_state
             });
 
-            console.log('📋 Form fields populated:', {
-                bedrooms: propertyData?.number_of_bedrooms || propertyData?.bedrooms,
-                bathrooms: propertyData?.number_of_bathrooms || propertyData?.bathrooms,
-                regional_state: propertyData?.regional_state
-            });
+            setInps(formData);
 
             // Set property type
             if (propertyData?.property_type) {
