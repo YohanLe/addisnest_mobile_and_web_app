@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import DeletePopup from "./DeletePopup";
 import { SvgDeleteIcon, SvgEditPencelIcon, SvgSoldIcon } from "../assets/svg/Svg";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import Api from "../Apis/Api";
 
 const ActiveDropdown = ({ item }) => {
     const dispatch = useDispatch();
@@ -59,19 +61,19 @@ const ActiveDropdown = ({ item }) => {
     };
 
  
-    const StatusUpdatefun = async () => {
-        let body={
-            propertyId:item?.propertyId,
-            status:'Sold',
+    const StatusUpdatefun = async (propertyItem) => {
+        let body = {
+            propertyId: propertyItem?.propertyId || propertyItem?.id,
+            status: 'Sold',
         }
         setIsLoading(true);
         try {
-            const response = await Api.postWithtoken(`properties/${ItemData?.id}`,body);
+            const response = await Api.postWithtoken(`properties/${propertyItem?.id || propertyItem?.propertyId}`, body);
             const data = response;
-            toast.success(data?.message);
-            handlePopup();
+            toast.success(data?.message || "Property status updated to sold!");
+            setCurrentItem(null); // Close dropdown
         } catch (error) {
-            const errorMessage = error.response?.data?.message;
+            const errorMessage = error.response?.data?.message || "Failed to update property status";
             toast.error(errorMessage);
         } finally {
             setIsLoading(false);
@@ -108,7 +110,7 @@ const ActiveDropdown = ({ item }) => {
                 >
                     <ul>
                         <li>
-                            <Link to={`/property-form?id=${item?.id || item?.propertyId}`}>
+                            <Link to={`/edit-property?id=${item?.id || item?.propertyId}`}>
                                 <span>
                                     <SvgEditPencelIcon />
                                 </span>

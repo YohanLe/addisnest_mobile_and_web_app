@@ -7,7 +7,7 @@ import {
   SvgCheckIcon,
   SvgLongArrowIcon,
 } from "../../../assets/svg/Svg";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ValidatePropertyForm } from "../../../utils/Validation";
 import Api from "../../../Apis/Api";
 import "../../../assets/css/property-form.css";
@@ -31,6 +31,13 @@ const HomeFurnishing = [
     { value: 'Semi Furnished', label: 'Semi Furnished' }
 ]
 
+const ParkingList = [
+    { value: 'Garage Parking', label: 'Garage Parking' },
+    { value: 'Open Parking', label: 'Open Parking' },
+    { value: 'No Parking', label: 'No Parking' },
+    { value: 'Visitor Parking', label: 'Visitor Parking' }
+]
+
 const RegionalStateList = [
     { value: 'Addis Ababa City Administration', label: 'Addis Ababa City Administration' },
     { value: 'Afar Region', label: 'Afar Region' },
@@ -50,16 +57,10 @@ const RegionalStateList = [
 
 const PropertyListForm = () => {
     const navigate = useNavigate();
-    const location = useLocation();
     const [PropertyType, setPropertyType] = useState(null);
     const [ConditionType, setConditionType] = useState(null);
     const [FurnishingType, setFurnishingType] = useState(null);
     const [RegionalStateType, setRegionalStateType] = useState(null);
-    
-    // Edit mode state
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editPropertyId, setEditPropertyId] = useState(null);
-    const [loadingPropertyData, setLoadingPropertyData] = useState(false);
     
     const [activeTab, setActiveTab] = useState("rent");
     const [images, setImages] = useState([]);
@@ -81,117 +82,8 @@ const PropertyListForm = () => {
         description: '',
         property_size: '',
         number_of_bathrooms: '',
+        number_of_bedrooms: '',
     });
-    
-    // Check for edit mode on component mount
-    useEffect(() => {
-        const urlParams = new URLSearchParams(location.search);
-        const propertyId = urlParams.get('id');
-        
-        if (propertyId) {
-            setIsEditMode(true);
-            setEditPropertyId(propertyId);
-            loadPropertyData(propertyId);
-        }
-    }, [location.search]);
-    
-    // Function to load existing property data
-    const loadPropertyData = async (propertyId) => {
-        setLoadingPropertyData(true);
-        try {
-            toast.info("Loading property data...");
-            const response = await Api.getWithtoken(`properties/${propertyId}`);
-            const propertyData = response?.data || response;
-            
-            if (propertyData) {
-                populateFormWithPropertyData(propertyData);
-                toast.success("Property data loaded successfully!");
-            }
-        } catch (error) {
-            console.error('Error loading property data:', error);
-            toast.error("Failed to load property data. Please try again.");
-        } finally {
-            setLoadingPropertyData(false);
-        }
-    };
-    
-    // Function to populate form fields with existing property data
-    const populateFormWithPropertyData = (propertyData) => {
-        // Set basic form inputs
-        setInps({
-            regional_state: propertyData.regional_state || '',
-            city: propertyData.city || '',
-            country: propertyData.country || 'Ethiopia',
-            property_address: propertyData.property_address || '',
-            total_price: propertyData.total_price?.toString() || '',
-            description: propertyData.description || '',
-            property_size: propertyData.property_size?.toString() || '',
-            number_of_bathrooms: propertyData.number_of_bathrooms?.toString() || '',
-        });
-        
-        // Set property type
-        if (propertyData.property_type) {
-            const foundPropertyType = PropertyTypeList.find(
-                type => type.value === propertyData.property_type?.value || type.value === propertyData.property_type
-            );
-            setPropertyType(foundPropertyType || null);
-        }
-        
-        // Set condition
-        if (propertyData.condition) {
-            const foundCondition = HomeCondition.find(
-                condition => condition.value === propertyData.condition?.value || condition.value === propertyData.condition
-            );
-            setConditionType(foundCondition || null);
-        }
-        
-        // Set furnishing
-        if (propertyData.furnishing) {
-            const foundFurnishing = HomeFurnishing.find(
-                furnishing => furnishing.value === propertyData.furnishing?.value || furnishing.value === propertyData.furnishing
-            );
-            setFurnishingType(foundFurnishing || null);
-        }
-        
-        // Set regional state
-        if (propertyData.regional_state) {
-            const foundRegionalState = RegionalStateList.find(
-                state => state.value === propertyData.regional_state
-            );
-            setRegionalStateType(foundRegionalState || null);
-        }
-        
-        // Set property for (rent/sell)
-        if (propertyData.property_for) {
-            setActiveTab(propertyData.property_for);
-        }
-        
-        // Set media paths and images
-        if (propertyData.media_paths && Array.isArray(propertyData.media_paths)) {
-            setMediaPaths(propertyData.media_paths);
-            
-            // Load existing images for preview
-            const existingImages = propertyData.media_paths.map(path => {
-                // Construct full URL if needed
-                return path.startsWith('http') ? path : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${path}`;
-            });
-            setImages(existingImages);
-            
-            // Adjust slots based on number of images
-            if (propertyData.media_paths.length > 3) {
-                setSlots(propertyData.media_paths.length);
-            }
-        }
-        
-        // Set amenities
-        if (propertyData.amenities) {
-            setSelectedAmenities(propertyData.amenities);
-            // Auto-expand amenities if they exist
-            if (Object.keys(propertyData.amenities).length > 0) {
-                setAmenitiesExpanded(true);
-            }
-        }
-    };
     
     // Network status monitoring
     useEffect(() => {
@@ -447,22 +339,28 @@ const PropertyListForm = () => {
             return;
         }
     
+        // FIXED: Extract values from Select objects properly
         let data = {
             regional_state: inps?.regional_state,
             city: inps?.city,
             country: inps?.country,
             property_address: inps?.property_address,
             number_of_bathrooms: inps.number_of_bathrooms,
+            number_of_bedrooms: inps.number_of_bedrooms,
             property_size: inps?.property_size,
             total_price: inps?.total_price,
             description: inps?.description,
             property_for: activeTab,
-            property_type: PropertyType,
-            condition: ConditionType,
-            furnishing: FurnishingType,
+            property_type: PropertyType?.value || PropertyType,
+            condition: ConditionType?.value || ConditionType,
+            furnishing: FurnishingType?.value || FurnishingType,
             media_paths: MediaPaths,
             amenities: selectedAmenities
         };
+
+        console.log('🚀 Submitting property data:', data);
+        console.log('📋 Property for:', activeTab);
+        console.log('🏠 Property type:', PropertyType?.value || PropertyType);
     
         navigate('/choose-promotion', { state: { AllData: data } });
     };
@@ -471,12 +369,7 @@ const PropertyListForm = () => {
         <section className="common-section property-form-section">
             <div className="container">
                 <div className="property-heading-form">
-                    <h3>{isEditMode ? 'Edit Property Listing' : 'Property Listing Form'}</h3>
-                    {loadingPropertyData && (
-                        <div className="loading-indicator">
-                            <p>Loading property data...</p>
-                        </div>
-                    )}
+                    <h3>Property Listing Form</h3>
                     <div className="form-progress-indicator">
                         <div className="progress-item">
                             <span className={`step-circle ${PropertyType ? 'completed' : 'pending'}`}>1</span>
@@ -697,6 +590,24 @@ const PropertyListForm = () => {
                             <div className="form-row">
                                 <div className="form-col-50">
                                     <div className="form-group">
+                                        <label>Number of Bedrooms</label>
+                                        <input
+                                            type="number"
+                                            placeholder="3"
+                                            name="number_of_bedrooms"
+                                            onChange={onInpChanged}
+                                            value={inps?.number_of_bedrooms}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    {/* Empty column for spacing */}
+                                </div>
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
                                         <label>Property Condition</label>
                                         <div className="select-wrapper">
                                             <Select
@@ -833,248 +744,167 @@ const PropertyListForm = () => {
                                 type="button"
                                 className="amenities-toggle-btn"
                                 onClick={toggleAmenities}
-                                style={{
-                                    padding: '8px 16px',
-                                    backgroundColor: '#007bff',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                    fontSize: '14px'
-                                }}
                             >
-                                {amenitiesExpanded ? '− Collapse' : '+ Expand'}
+                                {amenitiesExpanded ? '↑ Hide Amenities' : '↓ Show Amenities'}
                             </button>
                         </div>
                         
                         {amenitiesExpanded && (
                             <div className="step-content">
-                                <div className="amenities-section">
-                                    <div className="amenity-category">
-                                        <h5 className="category-title">🚗 Parking & Transportation</h5>
-                                        <div className="amenity-grid">
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="garage_parking" 
-                                                    checked={selectedAmenities.garage_parking || false}
-                                                    onChange={() => handleAmenityChange('garage_parking')}
-                                                />
-                                                <label htmlFor="garage_parking">Garage Parking</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="covered_parking" 
-                                                    checked={selectedAmenities.covered_parking || false}
-                                                    onChange={() => handleAmenityChange('covered_parking')}
-                                                />
-                                                <label htmlFor="covered_parking">Covered Parking</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="street_parking" 
-                                                    checked={selectedAmenities.street_parking || false}
-                                                    onChange={() => handleAmenityChange('street_parking')}
-                                                />
-                                                <label htmlFor="street_parking">Street Parking</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="visitor_parking" 
-                                                    checked={selectedAmenities.visitor_parking || false}
-                                                    onChange={() => handleAmenityChange('visitor_parking')}
-                                                />
-                                                <label htmlFor="visitor_parking">Visitor Parking</label>
-                                            </div>
-                                        </div>
+                                <div className="amenities-grid">
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="parking"
+                                            checked={selectedAmenities.parking || false}
+                                            onChange={() => handleAmenityChange('parking')}
+                                        />
+                                        <label htmlFor="parking">🚗 Parking</label>
                                     </div>
-
-                                    <div className="amenity-category">
-                                        <h5 className="category-title">🔒 Security & Safety</h5>
-                                        <div className="amenity-grid">
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="security_guard" 
-                                                    checked={selectedAmenities.security_guard || false}
-                                                    onChange={() => handleAmenityChange('security_guard')}
-                                                />
-                                                <label htmlFor="security_guard">24/7 Security Guard</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="cctv_surveillance" 
-                                                    checked={selectedAmenities.cctv_surveillance || false}
-                                                    onChange={() => handleAmenityChange('cctv_surveillance')}
-                                                />
-                                                <label htmlFor="cctv_surveillance">CCTV Surveillance</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="gated_community" 
-                                                    checked={selectedAmenities.gated_community || false}
-                                                    onChange={() => handleAmenityChange('gated_community')}
-                                                />
-                                                <label htmlFor="gated_community">Gated Community</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="alarm_system" 
-                                                    checked={selectedAmenities.alarm_system || false}
-                                                    onChange={() => handleAmenityChange('alarm_system')}
-                                                />
-                                                <label htmlFor="alarm_system">Alarm System</label>
-                                            </div>
-                                        </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="swimming_pool"
+                                            checked={selectedAmenities.swimming_pool || false}
+                                            onChange={() => handleAmenityChange('swimming_pool')}
+                                        />
+                                        <label htmlFor="swimming_pool">🏊 Swimming Pool</label>
                                     </div>
-
-                                    <div className="amenity-category">
-                                        <h5 className="category-title">🏢 Building Facilities</h5>
-                                        <div className="amenity-grid">
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="elevator" 
-                                                    checked={selectedAmenities.elevator || false}
-                                                    onChange={() => handleAmenityChange('elevator')}
-                                                />
-                                                <label htmlFor="elevator">Elevator</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="generator" 
-                                                    checked={selectedAmenities.generator || false}
-                                                    onChange={() => handleAmenityChange('generator')}
-                                                />
-                                                <label htmlFor="generator">Generator/Backup Power</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="water_tank" 
-                                                    checked={selectedAmenities.water_tank || false}
-                                                    onChange={() => handleAmenityChange('water_tank')}
-                                                />
-                                                <label htmlFor="water_tank">Water Storage Tank</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="concierge" 
-                                                    checked={selectedAmenities.concierge || false}
-                                                    onChange={() => handleAmenityChange('concierge')}
-                                                />
-                                                <label htmlFor="concierge">Concierge Service</label>
-                                            </div>
-                                        </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="gym"
+                                            checked={selectedAmenities.gym || false}
+                                            onChange={() => handleAmenityChange('gym')}
+                                        />
+                                        <label htmlFor="gym">💪 Gym</label>
                                     </div>
-
-                                    <div className="amenity-category">
-                                        <h5 className="category-title">🌿 Outdoor & Recreation</h5>
-                                        <div className="amenity-grid">
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="garden" 
-                                                    checked={selectedAmenities.garden || false}
-                                                    onChange={() => handleAmenityChange('garden')}
-                                                />
-                                                <label htmlFor="garden">Garden/Landscaping</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="balcony" 
-                                                    checked={selectedAmenities.balcony || false}
-                                                    onChange={() => handleAmenityChange('balcony')}
-                                                />
-                                                <label htmlFor="balcony">Balcony/Terrace</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="swimming_pool" 
-                                                    checked={selectedAmenities.swimming_pool || false}
-                                                    onChange={() => handleAmenityChange('swimming_pool')}
-                                                />
-                                                <label htmlFor="swimming_pool">Swimming Pool</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="gym" 
-                                                    checked={selectedAmenities.gym || false}
-                                                    onChange={() => handleAmenityChange('gym')}
-                                                />
-                                                <label htmlFor="gym">Gym/Fitness Center</label>
-                                            </div>
-                                        </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="garden"
+                                            checked={selectedAmenities.garden || false}
+                                            onChange={() => handleAmenityChange('garden')}
+                                        />
+                                        <label htmlFor="garden">🌳 Garden</label>
                                     </div>
-
-                                    <div className="amenity-category">
-                                        <h5 className="category-title">💡 Utilities & Connectivity</h5>
-                                        <div className="amenity-grid">
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="wifi_ready" 
-                                                    checked={selectedAmenities.wifi_ready || false}
-                                                    onChange={() => handleAmenityChange('wifi_ready')}
-                                                />
-                                                <label htmlFor="wifi_ready">WiFi Ready</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="air_conditioning" 
-                                                    checked={selectedAmenities.air_conditioning || false}
-                                                    onChange={() => handleAmenityChange('air_conditioning')}
-                                                />
-                                                <label htmlFor="air_conditioning">Air Conditioning</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="heating" 
-                                                    checked={selectedAmenities.heating || false}
-                                                    onChange={() => handleAmenityChange('heating')}
-                                                />
-                                                <label htmlFor="heating">Central Heating</label>
-                                            </div>
-                                            <div className="amenity-item">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="solar_power" 
-                                                    checked={selectedAmenities.solar_power || false}
-                                                    onChange={() => handleAmenityChange('solar_power')}
-                                                />
-                                                <label htmlFor="solar_power">Solar Power</label>
-                                            </div>
-                                        </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="balcony"
+                                            checked={selectedAmenities.balcony || false}
+                                            onChange={() => handleAmenityChange('balcony')}
+                                        />
+                                        <label htmlFor="balcony">🏠 Balcony</label>
+                                    </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="security"
+                                            checked={selectedAmenities.security || false}
+                                            onChange={() => handleAmenityChange('security')}
+                                        />
+                                        <label htmlFor="security">🔒 24/7 Security</label>
+                                    </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="elevator"
+                                            checked={selectedAmenities.elevator || false}
+                                            onChange={() => handleAmenityChange('elevator')}
+                                        />
+                                        <label htmlFor="elevator">🏢 Elevator</label>
+                                    </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="internet"
+                                            checked={selectedAmenities.internet || false}
+                                            onChange={() => handleAmenityChange('internet')}
+                                        />
+                                        <label htmlFor="internet">📶 Internet/WiFi</label>
+                                    </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="ac"
+                                            checked={selectedAmenities.ac || false}
+                                            onChange={() => handleAmenityChange('ac')}
+                                        />
+                                        <label htmlFor="ac">❄️ Air Conditioning</label>
+                                    </div>
+                                    
+                                    <div className="amenity-item">
+                                        <input
+                                            type="checkbox"
+                                            id="laundry"
+                                            checked={selectedAmenities.laundry || false}
+                                            onChange={() => handleAmenityChange('laundry')}
+                                        />
+                                        <label htmlFor="laundry">👕 Laundry</label>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Submit Button */}
+                    {/* Form Actions */}
                     <div className="form-actions">
-                        <button 
-                            className="submit-btn" 
-                            onClick={NextPage}
-                            type="button"
-                        >
-                            Next Page <SvgLongArrowIcon />
-                        </button>
+                        <div className="action-buttons">
+                            <Link to="/dashboard" className="btn-cancel">
+                                Cancel
+                            </Link>
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                onClick={NextPage}
+                                disabled={Loading}
+                            >
+                                {Loading ? (
+                                    <span className="loading-spinner">⏳ Processing...</span>
+                                ) : (
+                                    <span>
+                                        Continue to Promotion
+                                        <SvgLongArrowIcon />
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                        
+                        <div className="form-summary">
+                            <div className="summary-item">
+                                <span className="summary-label">Property Type:</span>
+                                <span className="summary-value">{PropertyType?.label || 'Not selected'}</span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">Price:</span>
+                                <span className="summary-value">
+                                    {inps.total_price ? `ETB ${inps.total_price}${activeTab === 'rent' ? '/month' : ''}` : 'Not set'}
+                                </span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">Images:</span>
+                                <span className="summary-value">{MediaPaths.length} uploaded</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                {/* Network Status Indicator */}
+                {networkStatus === 'offline' && (
+                    <div className="network-status-banner offline">
+                        <span className="status-icon">📡</span>
+                        <span>You are currently offline. Some features may not work properly.</span>
+                    </div>
+                )}
             </div>
         </section>
     );

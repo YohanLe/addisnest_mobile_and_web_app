@@ -6,6 +6,7 @@ import {
     ChatPage,
     ChoosePromotionPage,
     ContactusPage,
+    EditPropertyFormPage,
     ForgotPasswordPage,
     HomePage,
     MyProfilePage,
@@ -58,6 +59,7 @@ const App = () => {
                             <Route path="/property-list" element={<PropertListPage />} />
                             <Route path="/my-profile" element={<MyProfilePage />} />
                             <Route path="/property-form" element={<PropertListFormPage />} />
+                            <Route path="/edit-property" element={<EditPropertyFormPage />} />
                             <Route
                                 path="/choose-promotion"
                                 element={<ChoosePromotionPage />}

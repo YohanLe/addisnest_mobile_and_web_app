@@ -97,6 +97,23 @@ const Api = {
         }
     },
 
+    patchWithtoken: async (url,params) => {
+        try {
+            let newurl = baseURL+url;
+            const Token = localStorage.getItem('access_token');
+            let config = {
+                headers: 
+                {
+                    "Authorization" :'Bearer '+Token
+                }
+            };
+            const response = await axios.patch(newurl, params,config);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     // Specialized method for file uploads with enhanced error handling
     postFileWithtoken: async (url, formData) => {
         const newurl = baseURL + url;

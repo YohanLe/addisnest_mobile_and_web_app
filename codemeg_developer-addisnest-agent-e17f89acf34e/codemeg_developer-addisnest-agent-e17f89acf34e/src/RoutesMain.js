@@ -7,6 +7,7 @@ export { default as HomePage } from './components/home'
 export { default as MyProfilePage } from './components/my-profile'
 export { default as PropertListPage } from './components/Property-list'
 export { default as PropertListFormPage } from './components/property-list-form'
+export { default as EditPropertyFormPage } from './components/property-edit-form'
 export { default as ChoosePromotionPage } from "./components/payment-method/choose-propmo";
 export { default as PaymentMethodPage } from "./components/payment-method/payment-process";
 export { default as PaymentSuccessPage } from "./components/payment-method/success-payment";
