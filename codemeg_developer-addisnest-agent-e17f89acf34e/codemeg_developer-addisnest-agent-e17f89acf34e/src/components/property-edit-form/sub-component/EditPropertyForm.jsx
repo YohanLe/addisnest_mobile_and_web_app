@@ -1268,18 +1268,52 @@ const EditPropertyForm = () => {
                     
                     {amenitiesExpanded && (
                         <div className="step-content" style={{ paddingTop: '10px' }}>
-                            <div className="amenities-grid">
+                            <div className="amenities-grid" style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                gap: '12px',
+                                padding: '15px 0'
+                            }}>
                                 {amenitiesList.map((amenity) => (
-                                    <div key={amenity.id} className="amenity-item">
-                                        <label className="amenity-label">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedAmenities[amenity.id] || false}
-                                                onChange={() => handleAmenityChange(amenity.id)}
-                                                className="amenity-checkbox"
-                                            />
-                                            <span className="amenity-text">{amenity.label}</span>
-                                        </label>
+                                    <div 
+                                        key={amenity.id} 
+                                        className="amenity-item"
+                                        onClick={() => handleAmenityChange(amenity.id)}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px',
+                                            padding: '12px 15px',
+                                            backgroundColor: selectedAmenities[amenity.id] ? '#e8f5e8' : '#f8f9fa',
+                                            border: `2px solid ${selectedAmenities[amenity.id] ? '#28a745' : '#e9ecef'}`,
+                                            borderRadius: '8px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            userSelect: 'none'
+                                        }}
+                                    >
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '24px',
+                                            height: '24px',
+                                            borderRadius: '4px',
+                                            backgroundColor: selectedAmenities[amenity.id] ? '#28a745' : '#fff',
+                                            border: `2px solid ${selectedAmenities[amenity.id] ? '#28a745' : '#ccc'}`,
+                                            color: 'white',
+                                            fontSize: '16px',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {selectedAmenities[amenity.id] && '✓'}
+                                        </div>
+                                        <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: selectedAmenities[amenity.id] ? '600' : '400',
+                                            color: selectedAmenities[amenity.id] ? '#28a745' : '#333'
+                                        }}>
+                                            {amenity.label}
+                                        </span>
                                     </div>
                                 ))}
                             </div>
