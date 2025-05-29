@@ -221,6 +221,62 @@ const EditPropertyForm = () => {
         }
     }, [propertyId]);
 
+    // Force update form fields and selects when originalData changes
+    useEffect(() => {
+        if (originalData && !fetchingData) {
+            console.log('🔄 UseEffect triggered for form field population with originalData:', originalData);
+            
+            // Force update form inputs
+            const formData = {
+                regional_state: originalData.regional_state || '',
+                city: originalData.city || '',
+                country: originalData.country || 'Ethiopia',
+                property_address: originalData.property_address || originalData.address || '',
+                total_price: String(originalData.total_price || originalData.price || ''),
+                description: originalData.description || '',
+                property_size: String(originalData.property_size || originalData.size || ''),
+                number_of_bathrooms: String(originalData.number_of_bathrooms || originalData.bathrooms || ''),
+                number_of_bedrooms: String(originalData.number_of_bedrooms || originalData.bedrooms || ''),
+            };
+            
+            console.log('🔄 Setting form data in useEffect:', formData);
+            setInps(formData);
+
+            // Force update select components
+            if (originalData.property_type) {
+                const propertyType = PropertyTypeList.find(p => p.value === originalData.property_type);
+                if (propertyType) {
+                    console.log('🔄 Setting PropertyType in useEffect:', propertyType);
+                    setPropertyType(propertyType);
+                }
+            }
+
+            if (originalData.regional_state) {
+                const regionalState = RegionalStateList.find(r => r.value === originalData.regional_state);
+                if (regionalState) {
+                    console.log('🔄 Setting RegionalStateType in useEffect:', regionalState);
+                    setRegionalStateType(regionalState);
+                }
+            }
+
+            if (originalData.condition) {
+                const condition = HomeCondition.find(c => c.value === originalData.condition);
+                if (condition) {
+                    console.log('🔄 Setting ConditionType in useEffect:', condition);
+                    setConditionType(condition);
+                }
+            }
+
+            if (originalData.furnishing) {
+                const furnishing = HomeFurnishing.find(f => f.value === originalData.furnishing);
+                if (furnishing) {
+                    console.log('🔄 Setting FurnishingType in useEffect:', furnishing);
+                    setFurnishingType(furnishing);
+                }
+            }
+        }
+    }, [originalData, fetchingData]);
+
     const fetchPropertyData = async () => {
         console.log(`🔄 Starting fetchPropertyData for ID: ${propertyId}`);
         setFetchingData(true);
@@ -389,88 +445,6 @@ const EditPropertyForm = () => {
             console.log('📋 Final property data from', successEndpoint, ':', propertyData);
             setOriginalData(propertyData);
             
-            // Populate form fields with comprehensive field mapping and proper type conversion
-            const formData = {
-                regional_state: propertyData?.regional_state || '',
-                city: propertyData?.city || '',
-                country: propertyData?.country || 'Ethiopia',
-                property_address: propertyData?.property_address || propertyData?.address || '',
-                total_price: propertyData?.total_price || propertyData?.price || '',
-                description: propertyData?.description || '',
-                property_size: propertyData?.property_size || propertyData?.size || '',
-                number_of_bathrooms: propertyData?.number_of_bathrooms || propertyData?.bathrooms || '',
-                number_of_bedrooms: propertyData?.number_of_bedrooms || propertyData?.bedrooms || '',
-            };
-
-            // Convert numeric fields to strings for input compatibility
-            if (formData.total_price) formData.total_price = String(formData.total_price);
-            if (formData.property_size) formData.property_size = String(formData.property_size);
-            if (formData.number_of_bathrooms) formData.number_of_bathrooms = String(formData.number_of_bathrooms);
-            if (formData.number_of_bedrooms) formData.number_of_bedrooms = String(formData.number_of_bedrooms);
-
-            console.log('📋 Raw property data:', propertyData);
-            console.log('📋 Processed form data:', formData);
-            console.log('📋 Bedroom/Bathroom values:', {
-                raw_bedrooms: propertyData?.number_of_bedrooms,
-                raw_bedrooms_alt: propertyData?.bedrooms,
-                processed_bedrooms: formData.number_of_bedrooms,
-                raw_bathrooms: propertyData?.number_of_bathrooms,
-                raw_bathrooms_alt: propertyData?.bathrooms,
-                processed_bathrooms: formData.number_of_bathrooms,
-                raw_regional_state: propertyData?.regional_state,
-                processed_regional_state: formData.regional_state
-            });
-
-            setInps(formData);
-
-            // Set property type
-            if (propertyData?.property_type) {
-                const propertyType = PropertyTypeList.find(p => p.value === propertyData.property_type);
-                if (propertyType) {
-                    setPropertyType(propertyType);
-                    console.log('✅ Property type set:', propertyType);
-                }
-            }
-
-            // Set condition
-            if (propertyData?.condition) {
-                const condition = HomeCondition.find(c => c.value === propertyData.condition);
-                if (condition) {
-                    setConditionType(condition);
-                    console.log('✅ Condition set:', condition);
-                }
-            }
-
-            // Set furnishing
-            if (propertyData?.furnishing) {
-                const furnishing = HomeFurnishing.find(f => f.value === propertyData.furnishing);
-                if (furnishing) {
-                    setFurnishingType(furnishing);
-                    console.log('✅ Furnishing set:', furnishing);
-                }
-            }
-
-            // Enhanced regional state handling
-            const regionalStateValue = propertyData?.regional_state;
-            console.log('🗺️ Setting regional state:', regionalStateValue);
-            if (regionalStateValue) {
-                const regionalState = RegionalStateList.find(r => r.value === regionalStateValue);
-                if (regionalState) {
-                    setRegionalStateType(regionalState);
-                    console.log('✅ Regional state set:', regionalState);
-                } else {
-                    // If exact match not found, try partial match
-                    const partialMatch = RegionalStateList.find(r => 
-                        r.value.toLowerCase().includes(regionalStateValue.toLowerCase()) ||
-                        regionalStateValue.toLowerCase().includes(r.value.toLowerCase())
-                    );
-                    if (partialMatch) {
-                        setRegionalStateType(partialMatch);
-                        console.log('✅ Regional state partial match set:', partialMatch);
-                    }
-                }
-            }
-
             // Enhanced property offering type detection using the same logic as MyListProperty
             const detectedOfferingType = getOfferingType(propertyData);
             setActiveTab(detectedOfferingType);
@@ -549,41 +523,10 @@ const EditPropertyForm = () => {
             };
             
             setOriginalData(emergencyMockProperty);
-            
-            // Populate form fields
-            setInps({
-                regional_state: emergencyMockProperty.regional_state,
-                city: emergencyMockProperty.city,
-                country: emergencyMockProperty.country,
-                property_address: emergencyMockProperty.property_address,
-                total_price: emergencyMockProperty.total_price,
-                description: emergencyMockProperty.description,
-                property_size: emergencyMockProperty.property_size,
-                number_of_bathrooms: emergencyMockProperty.number_of_bathrooms,
-                number_of_bedrooms: emergencyMockProperty.number_of_bedrooms,
-            });
-            
-            // Set property type
-            const propertyType = PropertyTypeList.find(p => p.value === emergencyMockProperty.property_type);
-            if (propertyType) {
-                setPropertyType(propertyType);
-            }
-            
-            // Set regional state
-            const regionalState = RegionalStateList.find(r => r.value === emergencyMockProperty.regional_state);
-            if (regionalState) {
-                setRegionalStateType(regionalState);
-            }
-            
-            // Set offering type
             setActiveTab(emergencyMockProperty.property_for);
-            
-            // Set images
             setImages([emergencyMockProperty.media[0].filePath, emergencyMockProperty.media[1].filePath]);
             setMediaPaths(emergencyMockProperty.media);
             setSlots(3);
-            
-            // Set amenities
             setSelectedAmenities(emergencyMockProperty.amenities);
             
             toast.warning('⚠️ Using emergency test data - API and mock fallback both failed');
@@ -1142,6 +1085,7 @@ const EditPropertyForm = () => {
                                         placeholder="Size in square meters"
                                         min="0"
                                         step="0.01"
+                                        className="form-control"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -1153,6 +1097,7 @@ const EditPropertyForm = () => {
                                         onChange={onInpChanged}
                                         placeholder="Number of bedrooms"
                                         min="0"
+                                        className="form-control"
                                     />
                                 </div>
                                 <div className="form-group">
@@ -1164,6 +1109,7 @@ const EditPropertyForm = () => {
                                         onChange={onInpChanged}
                                         placeholder="Number of bathrooms"
                                         min="0"
+                                        className="form-control"
                                     />
                                 </div>
                             </div>
