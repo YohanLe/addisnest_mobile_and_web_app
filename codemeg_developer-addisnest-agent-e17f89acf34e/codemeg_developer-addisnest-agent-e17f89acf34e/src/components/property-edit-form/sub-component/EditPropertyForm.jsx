@@ -389,17 +389,23 @@ const EditPropertyForm = () => {
             console.log('📋 Final property data from', successEndpoint, ':', propertyData);
             setOriginalData(propertyData);
             
-            // Populate form fields with comprehensive field mapping
+            // Populate form fields with comprehensive field mapping and proper type conversion
             setInps({
                 regional_state: propertyData?.regional_state || '',
                 city: propertyData?.city || '',
                 country: propertyData?.country || 'Ethiopia',
                 property_address: propertyData?.property_address || propertyData?.address || '',
-                total_price: propertyData?.total_price || propertyData?.price || '',
+                total_price: String(propertyData?.total_price || propertyData?.price || ''),
                 description: propertyData?.description || '',
-                property_size: propertyData?.property_size || propertyData?.size || '',
-                number_of_bathrooms: propertyData?.number_of_bathrooms || propertyData?.bathrooms || '',
-                number_of_bedrooms: propertyData?.number_of_bedrooms || propertyData?.bedrooms || '',
+                property_size: String(propertyData?.property_size || propertyData?.size || ''),
+                number_of_bathrooms: String(propertyData?.number_of_bathrooms || propertyData?.bathrooms || ''),
+                number_of_bedrooms: String(propertyData?.number_of_bedrooms || propertyData?.bedrooms || ''),
+            });
+
+            console.log('📋 Form fields populated:', {
+                bedrooms: propertyData?.number_of_bedrooms || propertyData?.bedrooms,
+                bathrooms: propertyData?.number_of_bathrooms || propertyData?.bathrooms,
+                regional_state: propertyData?.regional_state
             });
 
             // Set property type
