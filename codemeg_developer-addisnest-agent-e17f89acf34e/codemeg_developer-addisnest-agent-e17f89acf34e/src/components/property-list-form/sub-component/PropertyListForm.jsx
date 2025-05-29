@@ -55,6 +55,76 @@ const RegionalStateList = [
     { value: 'Central Ethiopia Region', label: 'Central Ethiopia Region' }
 ]
 
+const amenitiesList = [
+    // Basic Amenities
+    { id: 'parking', label: 'Parking Space' },
+    { id: 'garage', label: 'Garage' },
+    { id: 'garden', label: 'Garden/Yard' },
+    { id: 'balcony', label: 'Balcony/Terrace' },
+    { id: 'security', label: '24/7 Security' },
+    { id: 'elevator', label: 'Elevator' },
+    
+    // Utilities & Services
+    { id: 'internet', label: 'Internet/WiFi' },
+    { id: 'electricity', label: 'Electricity' },
+    { id: 'water', label: 'Water Supply' },
+    { id: 'generator', label: 'Backup Generator' },
+    { id: 'solar', label: 'Solar Power' },
+    { id: 'laundry', label: 'Laundry Room/Service' },
+    { id: 'cleaning', label: 'Cleaning Service' },
+    
+    // Climate Control
+    { id: 'ac', label: 'Air Conditioning' },
+    { id: 'heating', label: 'Heating System' },
+    { id: 'fans', label: 'Ceiling Fans' },
+    
+    // Recreation & Fitness
+    { id: 'gym', label: 'Gym/Fitness Center' },
+    { id: 'pool', label: 'Swimming Pool' },
+    { id: 'playground', label: 'Playground' },
+    { id: 'sports', label: 'Sports Facilities' },
+    { id: 'clubhouse', label: 'Clubhouse' },
+    
+    // Kitchen & Dining
+    { id: 'kitchen', label: 'Fully Equipped Kitchen' },
+    { id: 'appliances', label: 'Kitchen Appliances' },
+    { id: 'dining', label: 'Dining Area' },
+    { id: 'pantry', label: 'Pantry/Storage' },
+    
+    // Safety & Security
+    { id: 'cctv', label: 'CCTV Surveillance' },
+    { id: 'alarm', label: 'Security Alarm' },
+    { id: 'gated', label: 'Gated Community' },
+    { id: 'intercom', label: 'Intercom System' },
+    { id: 'guard', label: 'Security Guard' },
+    
+    // Convenience Features
+    { id: 'furnished', label: 'Furnished' },
+    { id: 'storage', label: 'Storage Space' },
+    { id: 'maid', label: 'Maid\'s Room' },
+    { id: 'guest', label: 'Guest Room' },
+    { id: 'office', label: 'Home Office/Study' },
+    { id: 'wardrobe', label: 'Built-in Wardrobes' },
+    
+    // Outdoor Features
+    { id: 'rooftop', label: 'Rooftop Access' },
+    { id: 'courtyard', label: 'Courtyard' },
+    { id: 'parking_covered', label: 'Covered Parking' },
+    { id: 'barbecue', label: 'BBQ Area' },
+    
+    // Accessibility
+    { id: 'wheelchair', label: 'Wheelchair Accessible' },
+    { id: 'ramp', label: 'Wheelchair Ramp' },
+    
+    // Location Benefits
+    { id: 'transport', label: 'Near Public Transport' },
+    { id: 'shopping', label: 'Near Shopping Centers' },
+    { id: 'schools', label: 'Near Schools' },
+    { id: 'hospital', label: 'Near Healthcare' },
+    { id: 'mosque', label: 'Near Mosque' },
+    { id: 'church', label: 'Near Church' }
+];
+
 const PropertyListForm = () => {
     const navigate = useNavigate();
     const [PropertyType, setPropertyType] = useState(null);
@@ -370,22 +440,123 @@ const PropertyListForm = () => {
             <div className="container">
                 <div className="property-heading-form">
                     <h3>Property Listing Form</h3>
-                    <div className="form-progress-indicator">
-                        <div className="progress-item">
-                            <span className={`step-circle ${PropertyType ? 'completed' : 'pending'}`}>1</span>
-                            <span className="step-label">Property Type</span>
+                    <div className="form-progress-indicator" style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: '15px',
+                        marginTop: '20px',
+                        padding: '20px',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                        maxWidth: '600px',
+                        margin: '20px auto'
+                    }}>
+                        <div className="progress-item" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            flex: '1',
+                            minWidth: '150px'
+                        }}>
+                            <span className={`step-circle ${PropertyType ? 'completed' : 'pending'}`} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: PropertyType ? '#ff6b6b' : 'rgba(255,255,255,0.3)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                border: '2px solid white'
+                            }}>1</span>
+                            <span className="step-label" style={{ 
+                                fontWeight: PropertyType ? 'bold' : 'normal',
+                                color: 'white',
+                                fontSize: '12px'
+                            }}>Property Type</span>
                         </div>
-                        <div className="progress-item">
-                            <span className={`step-circle ${inps.property_address ? 'completed' : 'pending'}`}>2</span>
-                            <span className="step-label">Location</span>
+                        <div className="progress-item" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            flex: '1',
+                            minWidth: '120px'
+                        }}>
+                            <span className={`step-circle ${inps.property_address ? 'completed' : 'pending'}`} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: inps.property_address ? '#4ecdc4' : 'rgba(255,255,255,0.3)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                border: '2px solid white'
+                            }}>2</span>
+                            <span className="step-label" style={{ 
+                                fontWeight: inps.property_address ? 'bold' : 'normal',
+                                color: 'white',
+                                fontSize: '12px'
+                            }}>Location</span>
                         </div>
-                        <div className="progress-item">
-                            <span className={`step-circle ${inps.total_price ? 'completed' : 'pending'}`}>3</span>
-                            <span className="step-label">Price</span>
+                        <div className="progress-item" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            flex: '1',
+                            minWidth: '100px'
+                        }}>
+                            <span className={`step-circle ${inps.total_price ? 'completed' : 'pending'}`} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: inps.total_price ? '#45b7d1' : 'rgba(255,255,255,0.3)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                border: '2px solid white'
+                            }}>3</span>
+                            <span className="step-label" style={{ 
+                                fontWeight: inps.total_price ? 'bold' : 'normal',
+                                color: 'white',
+                                fontSize: '12px'
+                            }}>Price</span>
                         </div>
-                        <div className="progress-item">
-                            <span className={`step-circle ${MediaPaths.length >= 2 ? 'completed' : 'pending'}`}>4</span>
-                            <span className="step-label">Images</span>
+                        <div className="progress-item" style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '8px',
+                            flex: '1',
+                            minWidth: '100px'
+                        }}>
+                            <span className={`step-circle ${MediaPaths.length >= 2 ? 'completed' : 'pending'}`} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: MediaPaths.length >= 2 ? '#96ceb4' : 'rgba(255,255,255,0.3)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '14px',
+                                border: '2px solid white'
+                            }}>4</span>
+                            <span className="step-label" style={{ 
+                                fontWeight: MediaPaths.length >= 2 ? 'bold' : 'normal',
+                                color: 'white',
+                                fontSize: '12px'
+                            }}>Images</span>
                         </div>
                     </div>
                 </div>
@@ -752,105 +923,19 @@ const PropertyListForm = () => {
                         {amenitiesExpanded && (
                             <div className="step-content">
                                 <div className="amenities-grid">
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="parking"
-                                            checked={selectedAmenities.parking || false}
-                                            onChange={() => handleAmenityChange('parking')}
-                                        />
-                                        <label htmlFor="parking">🚗 Parking</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="swimming_pool"
-                                            checked={selectedAmenities.swimming_pool || false}
-                                            onChange={() => handleAmenityChange('swimming_pool')}
-                                        />
-                                        <label htmlFor="swimming_pool">🏊 Swimming Pool</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="gym"
-                                            checked={selectedAmenities.gym || false}
-                                            onChange={() => handleAmenityChange('gym')}
-                                        />
-                                        <label htmlFor="gym">💪 Gym</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="garden"
-                                            checked={selectedAmenities.garden || false}
-                                            onChange={() => handleAmenityChange('garden')}
-                                        />
-                                        <label htmlFor="garden">🌳 Garden</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="balcony"
-                                            checked={selectedAmenities.balcony || false}
-                                            onChange={() => handleAmenityChange('balcony')}
-                                        />
-                                        <label htmlFor="balcony">🏠 Balcony</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="security"
-                                            checked={selectedAmenities.security || false}
-                                            onChange={() => handleAmenityChange('security')}
-                                        />
-                                        <label htmlFor="security">🔒 24/7 Security</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="elevator"
-                                            checked={selectedAmenities.elevator || false}
-                                            onChange={() => handleAmenityChange('elevator')}
-                                        />
-                                        <label htmlFor="elevator">🏢 Elevator</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="internet"
-                                            checked={selectedAmenities.internet || false}
-                                            onChange={() => handleAmenityChange('internet')}
-                                        />
-                                        <label htmlFor="internet">📶 Internet/WiFi</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="ac"
-                                            checked={selectedAmenities.ac || false}
-                                            onChange={() => handleAmenityChange('ac')}
-                                        />
-                                        <label htmlFor="ac">❄️ Air Conditioning</label>
-                                    </div>
-                                    
-                                    <div className="amenity-item">
-                                        <input
-                                            type="checkbox"
-                                            id="laundry"
-                                            checked={selectedAmenities.laundry || false}
-                                            onChange={() => handleAmenityChange('laundry')}
-                                        />
-                                        <label htmlFor="laundry">👕 Laundry</label>
-                                    </div>
+                                    {amenitiesList.map((amenity) => (
+                                        <div key={amenity.id} className="amenity-item">
+                                            <label className="amenity-label">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedAmenities[amenity.id] || false}
+                                                    onChange={() => handleAmenityChange(amenity.id)}
+                                                    className="amenity-checkbox"
+                                                />
+                                                <span className="amenity-text">{amenity.label}</span>
+                                            </label>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
