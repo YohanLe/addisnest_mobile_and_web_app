@@ -7,7 +7,7 @@ import {
   SvgCheckIcon,
   SvgLongArrowIcon,
 } from "../../../assets/svg/Svg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ValidatePropertyForm } from "../../../utils/Validation";
 import Api from "../../../Apis/Api";
 import "../../../assets/css/property-form.css";
@@ -31,13 +31,6 @@ const HomeFurnishing = [
     { value: 'Semi Furnished', label: 'Semi Furnished' }
 ]
 
-const ParkingList = [
-    { value: 'Garage Parking', label: 'Garage Parking' },
-    { value: 'Open Parking', label: 'Open Parking' },
-    { value: 'No Parking', label: 'No Parking' },
-    { value: 'Visitor Parking', label: 'Visitor Parking' }
-]
-
 const RegionalStateList = [
     { value: 'Addis Ababa City Administration', label: 'Addis Ababa City Administration' },
     { value: 'Afar Region', label: 'Afar Region' },
@@ -57,10 +50,16 @@ const RegionalStateList = [
 
 const PropertyListForm = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [PropertyType, setPropertyType] = useState(null);
     const [ConditionType, setConditionType] = useState(null);
     const [FurnishingType, setFurnishingType] = useState(null);
     const [RegionalStateType, setRegionalStateType] = useState(null);
+    
+    // Edit mode state
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editPropertyId, setEditPropertyId] = useState(null);
+    const [loadingPropertyData, setLoadingPropertyData] = useState(false);
     
     const [activeTab, setActiveTab] = useState("rent");
     const [images, setImages] = useState([]);
@@ -71,7 +70,6 @@ const PropertyListForm = () => {
     const [MediaPaths, setMediaPaths] = useState([]);
     const [amenitiesExpanded, setAmenitiesExpanded] = useState(false);
     const [selectedAmenities, setSelectedAmenities] = useState({});
-    const [showPhotoTipsPopup, setShowPhotoTipsPopup] = useState(false);
     const [networkStatus, setNetworkStatus] = useState('online');
 
     const [inps, setInps] = useState({
@@ -79,12 +77,121 @@ const PropertyListForm = () => {
         city: '',
         country: 'Ethiopia',
         property_address: '',
-        total_price: '0',
+        total_price: '',
         description: '',
-        property_size: '0',
-        number_of_bathrooms: '0',
-        number_of_bedrooms: '0',
+        property_size: '',
+        number_of_bathrooms: '',
     });
+    
+    // Check for edit mode on component mount
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const propertyId = urlParams.get('id');
+        
+        if (propertyId) {
+            setIsEditMode(true);
+            setEditPropertyId(propertyId);
+            loadPropertyData(propertyId);
+        }
+    }, [location.search]);
+    
+    // Function to load existing property data
+    const loadPropertyData = async (propertyId) => {
+        setLoadingPropertyData(true);
+        try {
+            toast.info("Loading property data...");
+            const response = await Api.getWithtoken(`properties/${propertyId}`);
+            const propertyData = response?.data || response;
+            
+            if (propertyData) {
+                populateFormWithPropertyData(propertyData);
+                toast.success("Property data loaded successfully!");
+            }
+        } catch (error) {
+            console.error('Error loading property data:', error);
+            toast.error("Failed to load property data. Please try again.");
+        } finally {
+            setLoadingPropertyData(false);
+        }
+    };
+    
+    // Function to populate form fields with existing property data
+    const populateFormWithPropertyData = (propertyData) => {
+        // Set basic form inputs
+        setInps({
+            regional_state: propertyData.regional_state || '',
+            city: propertyData.city || '',
+            country: propertyData.country || 'Ethiopia',
+            property_address: propertyData.property_address || '',
+            total_price: propertyData.total_price?.toString() || '',
+            description: propertyData.description || '',
+            property_size: propertyData.property_size?.toString() || '',
+            number_of_bathrooms: propertyData.number_of_bathrooms?.toString() || '',
+        });
+        
+        // Set property type
+        if (propertyData.property_type) {
+            const foundPropertyType = PropertyTypeList.find(
+                type => type.value === propertyData.property_type?.value || type.value === propertyData.property_type
+            );
+            setPropertyType(foundPropertyType || null);
+        }
+        
+        // Set condition
+        if (propertyData.condition) {
+            const foundCondition = HomeCondition.find(
+                condition => condition.value === propertyData.condition?.value || condition.value === propertyData.condition
+            );
+            setConditionType(foundCondition || null);
+        }
+        
+        // Set furnishing
+        if (propertyData.furnishing) {
+            const foundFurnishing = HomeFurnishing.find(
+                furnishing => furnishing.value === propertyData.furnishing?.value || furnishing.value === propertyData.furnishing
+            );
+            setFurnishingType(foundFurnishing || null);
+        }
+        
+        // Set regional state
+        if (propertyData.regional_state) {
+            const foundRegionalState = RegionalStateList.find(
+                state => state.value === propertyData.regional_state
+            );
+            setRegionalStateType(foundRegionalState || null);
+        }
+        
+        // Set property for (rent/sell)
+        if (propertyData.property_for) {
+            setActiveTab(propertyData.property_for);
+        }
+        
+        // Set media paths and images
+        if (propertyData.media_paths && Array.isArray(propertyData.media_paths)) {
+            setMediaPaths(propertyData.media_paths);
+            
+            // Load existing images for preview
+            const existingImages = propertyData.media_paths.map(path => {
+                // Construct full URL if needed
+                return path.startsWith('http') ? path : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/${path}`;
+            });
+            setImages(existingImages);
+            
+            // Adjust slots based on number of images
+            if (propertyData.media_paths.length > 3) {
+                setSlots(propertyData.media_paths.length);
+            }
+        }
+        
+        // Set amenities
+        if (propertyData.amenities) {
+            setSelectedAmenities(propertyData.amenities);
+            // Auto-expand amenities if they exist
+            if (Object.keys(propertyData.amenities).length > 0) {
+                setAmenitiesExpanded(true);
+            }
+        }
+    };
     
     // Network status monitoring
     useEffect(() => {
@@ -263,10 +370,6 @@ const PropertyListForm = () => {
         setAmenitiesExpanded(!amenitiesExpanded);
     };
     
-    const togglePhotoTipsPopup = () => {
-        setShowPhotoTipsPopup(!showPhotoTipsPopup);
-    };
-    
     const handleAmenityChange = (amenityId) => {
         setSelectedAmenities(prev => ({
             ...prev,
@@ -350,7 +453,6 @@ const PropertyListForm = () => {
             country: inps?.country,
             property_address: inps?.property_address,
             number_of_bathrooms: inps.number_of_bathrooms,
-            number_of_bedrooms: inps.number_of_bedrooms,
             property_size: inps?.property_size,
             total_price: inps?.total_price,
             description: inps?.description,
@@ -369,7 +471,12 @@ const PropertyListForm = () => {
         <section className="common-section property-form-section">
             <div className="container">
                 <div className="property-heading-form">
-                    <h3>Property Listing Form</h3>
+                    <h3>{isEditMode ? 'Edit Property Listing' : 'Property Listing Form'}</h3>
+                    {loadingPropertyData && (
+                        <div className="loading-indicator">
+                            <p>Loading property data...</p>
+                        </div>
+                    )}
                     <div className="form-progress-indicator">
                         <div className="progress-item">
                             <span className={`step-circle ${PropertyType ? 'completed' : 'pending'}`}>1</span>
@@ -392,332 +499,228 @@ const PropertyListForm = () => {
                 <div className="property-form-main">
                     
                     {/* Step 1: What are you offering? */}
-                    <div className="form-step-section" style={{ padding: '16px 0' }}>
-                        <div className="step-header" style={{ marginBottom: '12px' }}>
+                    <div className="form-step-section">
+                        <div className="step-header">
                             <div className="step-indicator">
                                 <span className="step-number">1</span>
                             </div>
-                            <h5 style={{ margin: 0, fontSize: '16px' }}>What are you offering?</h5>
+                            <h4>What are you offering?</h4>
                         </div>
                         
-                        <div style={{ display: 'flex', gap: '12px', maxWidth: '400px' }}>
+                        <div className="offering-options">
                             <div 
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    border: activeTab === "sell" ? '3px solid #28a745' : '2px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    backgroundColor: activeTab === "sell" ? '#e8f5e8' : '#fafafa',
-                                    cursor: 'pointer',
-                                    textAlign: 'center',
-                                    transition: 'all 0.3s ease',
-                                    boxShadow: activeTab === "sell" ? '0 4px 12px rgba(40, 167, 69, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                    transform: activeTab === "sell" ? 'translateY(-2px)' : 'none'
-                                }}
+                                className={`offering-card ${activeTab === "sell" ? "selected" : ""}`}
                                 onClick={() => setActiveTab("sell")}
                             >
-                                <div style={{ fontSize: '24px', marginBottom: '4px' }}>🏠</div>
-                                <div style={{ 
-                                    fontSize: '14px', 
-                                    fontWeight: 'bold', 
-                                    color: activeTab === "sell" ? '#28a745' : '#333', 
-                                    marginBottom: '2px' 
-                                }}>For Sale</div>
-                                <div style={{ fontSize: '12px', color: activeTab === "sell" ? '#28a745' : '#666' }}>Sell your property</div>
+                                <div className="card-icon">
+                                    <div className="icon-circle green">🏠</div>
+                                </div>
+                                <h5>For Sale</h5>
+                                <p>Sell your property</p>
                             </div>
                             
                             <div 
-                                style={{
-                                    flex: 1,
-                                    padding: '12px',
-                                    border: activeTab === "rent" ? '3px solid #007bff' : '2px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    backgroundColor: activeTab === "rent" ? '#e3f2fd' : '#fafafa',
-                                    cursor: 'pointer',
-                                    textAlign: 'center',
-                                    transition: 'all 0.3s ease',
-                                    boxShadow: activeTab === "rent" ? '0 4px 12px rgba(0, 123, 255, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)',
-                                    transform: activeTab === "rent" ? 'translateY(-2px)' : 'none'
-                                }}
+                                className={`offering-card ${activeTab === "rent" ? "selected" : ""}`}
                                 onClick={() => setActiveTab("rent")}
                             >
-                                <div style={{ fontSize: '24px', marginBottom: '4px' }}>🔑</div>
-                                <div style={{ 
-                                    fontSize: '14px', 
-                                    fontWeight: 'bold', 
-                                    color: activeTab === "rent" ? '#007bff' : '#333', 
-                                    marginBottom: '2px' 
-                                }}>For Rent</div>
-                                <div style={{ fontSize: '12px', color: activeTab === "rent" ? '#007bff' : '#666' }}>Rent out your property</div>
+                                <div className="card-icon">
+                                    <div className="icon-circle blue">🔑</div>
+                                </div>
+                                <h5>For Rent</h5>
+                                <p>Rent out your property</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Step 2: Property Type & Price */}
-                    <div className="form-step-section" style={{ padding: '16px 0' }}>
-                        <div className="step-header" style={{ marginBottom: '12px' }}>
+                    <div className="form-step-section">
+                        <div className="step-header">
                             <div className="step-indicator">
                                 <span className="step-number">2</span>
                             </div>
-                            <h5 style={{ margin: 0, fontSize: '16px' }}>Property Type & Price</h5>
+                            <h4>Property Type & Price</h4>
                         </div>
                         
                         <div className="step-content">
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '12px' }}>
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '14px', marginBottom: '4px' }}>Property Type *</label>
-                                    <div className="select-wrapper">
-                                        <Select
-                                            options={PropertyTypeList}
-                                            placeholder="Select property type"
-                                            value={PropertyType}
-                                            onChange={(e) => handleChange(e, "Property")}
-                                            className="react-select"
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    minHeight: '36px',
-                                                    fontSize: '14px'
-                                                })
-                                            }}
-                                        />
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Type *</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={PropertyTypeList}
+                                                placeholder="Select property type"
+                                                value={PropertyType}
+                                                onChange={(e) => handleChange(e, "Property")}
+                                                className="react-select"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '14px', marginBottom: '4px' }}>
-                                        {activeTab === "rent" ? "Monthly Rent *" : "Sale Price *"}
-                                    </label>
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        border: '1px solid #ccc', 
-                                        borderRadius: '4px',
-                                        overflow: 'hidden'
-                                    }}>
-                                        <span style={{ 
-                                            padding: '8px', 
-                                            backgroundColor: '#f8f9fa', 
-                                            fontSize: '14px', 
-                                            fontWeight: '500',
-                                            borderRight: '1px solid #ccc'
-                                        }}>ETB</span>
-                                        <input
-                                            type="number"
-                                            placeholder={activeTab === "rent" ? "3,500" : "500,000"}
-                                            name="total_price"
-                                            onChange={onInpChanged}
-                                            value={inps?.total_price}
-                                            style={{ 
-                                                border: 'none', 
-                                                outline: 'none', 
-                                                padding: '8px', 
-                                                fontSize: '14px',
-                                                flex: 1
-                                            }}
-                                        />
-                                        {activeTab === "rent" && (
-                                            <span style={{ 
-                                                padding: '8px', 
-                                                backgroundColor: '#f8f9fa', 
-                                                fontSize: '12px', 
-                                                color: '#666',
-                                                borderLeft: '1px solid #ccc'
-                                            }}>/month</span>
-                                        )}
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>{activeTab === "rent" ? "Monthly Rent *" : "Sale Price *"}</label>
+                                        <div className="price-input">
+                                            <span className="currency-prefix">ETB</span>
+                                            <input
+                                                type="number"
+                                                placeholder={activeTab === "rent" ? "3,500" : "500,000"}
+                                                name="total_price"
+                                                onChange={onInpChanged}
+                                                value={inps?.total_price}
+                                            />
+                                            {activeTab === "rent" && <span className="period-suffix">/month</span>}
+                                        </div>
+                                        {error.errors?.total_price && <p className="error-msg">{error.errors?.total_price}</p>}
                                     </div>
-                                    {error.errors?.total_price && <p className="error-msg" style={{ fontSize: '12px', margin: '4px 0 0 0' }}>{error.errors?.total_price}</p>}
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Step 3: Property Location */}
-                    <div className="form-step-section" style={{ padding: '16px 0' }}>
-                        <div className="step-header" style={{ marginBottom: '12px' }}>
+                    <div className="form-step-section">
+                        <div className="step-header">
                             <div className="step-indicator">
                                 <span className="step-number">3</span>
                             </div>
-                            <h5 style={{ margin: 0, fontSize: '16px' }}>Property Location</h5>
+                            <h4>Property Location</h4>
                         </div>
                         
                         <div className="step-content">
-                            <div className="form-group" style={{ margin: 0 }}>
-                                <label style={{ fontSize: '14px', marginBottom: '4px' }}>Property Address *</label>
-                                <input
-                                    type="text"
+                            <div className="form-group">
+                                <label>Property Address *</label>
+                                <textarea
                                     name="property_address"
                                     placeholder="Address, House number, Street"
                                     onChange={onInpChanged}
                                     value={inps?.property_address}
-                                    style={{ fontSize: '14px', padding: '8px' }}
+                                    rows="3"
                                 />
                             </div>
                             
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '14px', marginBottom: '4px' }}>Regional State</label>
-                                    <div className="select-wrapper">
-                                        <Select
-                                            options={RegionalStateList}
-                                            placeholder="Select state"
-                                            value={RegionalStateType}
-                                            onChange={(e) => handleChange(e, "RegionalState")}
-                                            className="react-select"
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    minHeight: '36px',
-                                                    fontSize: '14px'
-                                                })
-                                            }}
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Regional State</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={RegionalStateList}
+                                                placeholder="Select regional state"
+                                                value={RegionalStateType}
+                                                onChange={(e) => handleChange(e, "RegionalState")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>City</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Enter Your City"
+                                            name="city"
+                                            onChange={onInpChanged}
+                                            value={inps?.city}
                                         />
                                     </div>
                                 </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '14px', marginBottom: '4px' }}>City</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your City"
-                                        name="city"
-                                        onChange={onInpChanged}
-                                        value={inps?.city}
-                                        style={{ fontSize: '14px', padding: '8px' }}
-                                    />
-                                </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '14px', marginBottom: '4px' }}>Country</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Enter Your Country"
-                                        name="country"
-                                        onChange={onInpChanged}
-                                        value={inps?.country}
-                                        style={{ fontSize: '14px', padding: '8px' }}
-                                    />
-                                </div>
+                            </div>
+                            
+                            <div className="form-group">
+                                <label>Country</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Your Country"
+                                    name="country"
+                                    onChange={onInpChanged}
+                                    value={inps?.country}
+                                />
                             </div>
                         </div>
                     </div>
 
                     {/* Step 4: Property Details */}
-                    <div className="form-step-section" style={{ padding: '12px 0' }}>
-                        <div className="step-header" style={{ marginBottom: '8px' }}>
+                    <div className="form-step-section">
+                        <div className="step-header">
                             <div className="step-indicator">
                                 <span className="step-number">4</span>
                             </div>
-                            <h6 style={{ margin: 0, fontSize: '15px' }}>Property Details</h6>
+                            <h4>Property Details</h4>
                         </div>
                         
                         <div className="step-content">
-                            <div className="form-group" style={{ marginBottom: '6px' }}>
-                                <label style={{ fontSize: '13px', marginBottom: '2px', display: 'block' }}>Description</label>
+                            <div className="form-group">
+                                <label>Property Description</label>
                                 <textarea
                                     name="description"
-                                    placeholder="Brief property description..."
+                                    placeholder="Describe your property in detail..."
                                     onChange={onInpChanged}
                                     value={inps?.description}
-                                    rows="1"
-                                    style={{ fontSize: '14px', padding: '4px', width: '100%', resize: 'none' }}
+                                    rows="4"
                                     className={error.errors?.description ? "error" : ""}
                                 />
-                                {error.errors?.description && <p className="error-msg" style={{ fontSize: '11px', margin: '2px 0 0 0' }}>{error.errors?.description}</p>}
+                                {error.errors?.description && <p className="error-msg">{error.errors?.description}</p>}
                             </div>
                             
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px' }}>
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '13px', marginBottom: '3px', display: 'block' }}>Size</label>
-                                    <div style={{ position: 'relative' }}>
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Size (sqm)</label>
+                                        <div className="input-with-unit">
+                                            <input
+                                                type="text"
+                                                placeholder="150"
+                                                name="property_size"
+                                                onChange={onInpChanged}
+                                                value={inps?.property_size}
+                                            />
+                                            <span className="unit">sqm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Number of Bathrooms</label>
                                         <input
-                                            type="text"
-                                            placeholder="150"
-                                            name="property_size"
+                                            type="number"
+                                            placeholder="2"
+                                            name="number_of_bathrooms"
                                             onChange={onInpChanged}
-                                            value={inps?.property_size}
-                                            style={{ fontSize: '13px', padding: '6px', paddingRight: '35px', width: '100%' }}
-                                        />
-                                        <span style={{ 
-                                            position: 'absolute', 
-                                            right: '6px', 
-                                            top: '50%', 
-                                            transform: 'translateY(-50%)', 
-                                            fontSize: '11px', 
-                                            color: '#666' 
-                                        }}>sqm</span>
-                                    </div>
-                                </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '13px', marginBottom: '3px', display: 'block' }}>Beds</label>
-                                    <input
-                                        type="number"
-                                        placeholder="3"
-                                        name="number_of_bedrooms"
-                                        onChange={onInpChanged}
-                                        value={inps?.number_of_bedrooms}
-                                        style={{ fontSize: '13px', padding: '6px', width: '100%' }}
-                                    />
-                                </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '13px', marginBottom: '3px', display: 'block' }}>Baths</label>
-                                    <input
-                                        type="number"
-                                        placeholder="2"
-                                        name="number_of_bathrooms"
-                                        onChange={onInpChanged}
-                                        value={inps?.number_of_bathrooms}
-                                        style={{ fontSize: '13px', padding: '6px', width: '100%' }}
-                                    />
-                                </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '13px', marginBottom: '3px', display: 'block' }}>Condition</label>
-                                    <div className="select-wrapper">
-                                        <Select
-                                            options={HomeCondition}
-                                            placeholder="Select"
-                                            value={ConditionType}
-                                            onChange={(e) => handleChange(e, "Condition")}
-                                            className="react-select"
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    minHeight: '30px',
-                                                    fontSize: '13px'
-                                                }),
-                                                valueContainer: (base) => ({
-                                                    ...base,
-                                                    padding: '0 6px'
-                                                })
-                                            }}
+                                            value={inps?.number_of_bathrooms}
                                         />
                                     </div>
                                 </div>
-                                
-                                <div className="form-group" style={{ margin: 0 }}>
-                                    <label style={{ fontSize: '13px', marginBottom: '3px', display: 'block' }}>Furnishing</label>
-                                    <div className="select-wrapper">
-                                        <Select
-                                            options={HomeFurnishing}
-                                            placeholder="Select"
-                                            value={FurnishingType}
-                                            onChange={(e) => handleChange(e, "Furnishing")}
-                                            className="react-select"
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    minHeight: '30px',
-                                                    fontSize: '13px'
-                                                }),
-                                                valueContainer: (base) => ({
-                                                    ...base,
-                                                    padding: '0 6px'
-                                                })
-                                            }}
-                                        />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Property Condition</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={HomeCondition}
+                                                placeholder="Select condition"
+                                                value={ConditionType}
+                                                onChange={(e) => handleChange(e, "Condition")}
+                                                className="react-select"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="form-col-50">
+                                    <div className="form-group">
+                                        <label>Furnishing Status</label>
+                                        <div className="select-wrapper">
+                                            <Select
+                                                options={HomeFurnishing}
+                                                placeholder="Select furnishing type"
+                                                value={FurnishingType}
+                                                onChange={(e) => handleChange(e, "Furnishing")}
+                                                className="react-select"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -734,245 +737,85 @@ const PropertyListForm = () => {
                         </div>
                         
                         <div className="step-content">
-                            <div className="image-upload-section" style={{ padding: '16px 0' }}>
-                                <div className="upload-info" style={{ marginBottom: '12px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        <h6 style={{ margin: 0, fontSize: '16px' }}>📸 Upload Property Photos</h6>
-                                        <button 
-                                            type="button"
-                                            onClick={togglePhotoTipsPopup}
-                                            style={{
-                                                background: '#007bff',
-                                                color: 'white',
-                                                border: 'none',
-                                                borderRadius: '50%',
-                                                width: '20px',
-                                                height: '20px',
-                                                fontSize: '10px',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                            title="Photo Tips"
-                                        >
-                                            ℹ️
-                                        </button>
-                                    </div>
-                                    <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>At least 2 images required. First image will be the main photo.</p>
+                            <div className="image-upload-section">
+                                <div className="upload-info">
+                                    <h5>📸 Upload Property Photos</h5>
+                                    <p>Add high-quality photos to showcase your property. At least 2 images are required. The first image will be the main photo.</p>
                                 </div>
                                 
-                                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                                    <div style={{ flex: '0 0 200px', height: '140px' }}>
-                                        {images[0] ? (
-                                            <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '8px', overflow: 'hidden' }}>
-                                                <img src={images[0]} alt="Main property" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                <div style={{ 
-                                                    position: 'absolute', 
-                                                    top: '8px', 
-                                                    left: '8px', 
-                                                    background: 'rgba(0,123,255,0.9)', 
-                                                    color: 'white', 
-                                                    padding: '2px 6px', 
-                                                    borderRadius: '4px', 
-                                                    fontSize: '11px',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    Main
-                                                </div>
+                                <div className="main-upload-area">
+                                    {images[0] ? (
+                                        <div className="main-image-preview">
+                                            <img src={images[0]} alt="Main property" />
+                                            <div className="main-image-badge">Main Photo</div>
+                                        </div>
+                                    ) : (
+                                        <label className="main-upload-dropzone">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => handleFileChange(e, 0)}
+                                                style={{ display: "none" }}
+                                            />
+                                            <div className="dropzone-content">
+                                                <div className="upload-icon-large">📷</div>
+                                                <h6>Drop your main photo here</h6>
+                                                <p>or click to browse</p>
+                                                <span className="file-formats">JPG, PNG, WEBP (Max 5MB)</span>
                                             </div>
-                                        ) : (
-                                            <label style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                width: '100%',
-                                                height: '100%',
-                                                border: '2px dashed #007bff',
-                                                borderRadius: '8px',
-                                                backgroundColor: '#f8f9fa',
-                                                cursor: 'pointer',
-                                                textAlign: 'center'
-                                            }}>
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleFileChange(e, 0)}
-                                                    style={{ display: "none" }}
-                                                />
-                                                <div style={{ fontSize: '24px', marginBottom: '4px' }}>📷</div>
-                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#007bff' }}>Main Photo</span>
-                                                <span style={{ fontSize: '10px', color: '#666' }}>Click to upload</span>
-                                            </label>
-                                        )}
-                                    </div>
-                                    
-                                    <div style={{ flex: '1', minWidth: '200px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '14px', fontWeight: '500', color: '#333' }}>Additional Photos</span>
-                                            <button 
-                                                onClick={addSlot} 
-                                                type="button"
-                                                style={{
-                                                    background: '#28a745',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    padding: '4px 8px',
-                                                    borderRadius: '4px',
-                                                    fontSize: '12px',
-                                                    cursor: 'pointer'
-                                                }}
-                                            >
-                                                + Add More
-                                            </button>
-                                        </div>
-                                        
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px' }}>
-                                            {Array.from({ length: slots - 1 }).map((_, index) => {
-                                                const actualIndex = index + 1;
-                                                return (
-                                                    <div key={actualIndex} style={{ aspectRatio: '1', position: 'relative' }}>
-                                                        {images[actualIndex] ? (
-                                                            <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '6px', overflow: 'hidden' }}>
-                                                                <img
-                                                                    src={images[actualIndex]}
-                                                                    alt={`Property ${actualIndex + 1}`}
-                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                                />
-                                                                <div style={{ 
-                                                                    position: 'absolute', 
-                                                                    top: '4px', 
-                                                                    right: '4px', 
-                                                                    background: 'rgba(0,0,0,0.7)', 
-                                                                    color: 'white', 
-                                                                    width: '16px', 
-                                                                    height: '16px', 
-                                                                    borderRadius: '50%', 
-                                                                    display: 'flex', 
-                                                                    alignItems: 'center', 
-                                                                    justifyContent: 'center', 
-                                                                    fontSize: '10px' 
-                                                                }}>
-                                                                    {actualIndex + 1}
-                                                                </div>
-                                                                {uploadingStates[actualIndex] && (
-                                                                    <div style={{
-                                                                        position: 'absolute',
-                                                                        top: 0,
-                                                                        left: 0,
-                                                                        width: '100%',
-                                                                        height: '100%',
-                                                                        backgroundColor: 'rgba(255,255,255,0.8)',
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        justifyContent: 'center'
-                                                                    }}>
-                                                                        <span style={{ fontSize: '16px' }}>⏳</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <label style={{
-                                                                display: 'flex',
-                                                                flexDirection: 'column',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                width: '100%',
-                                                                height: '100%',
-                                                                border: '1px dashed #ccc',
-                                                                borderRadius: '6px',
-                                                                backgroundColor: '#fafafa',
-                                                                cursor: 'pointer',
-                                                                textAlign: 'center'
-                                                            }}>
-                                                                <input
-                                                                    type="file"
-                                                                    accept="image/*"
-                                                                    onChange={(e) => handleFileChange(e, actualIndex)}
-                                                                    style={{ display: "none" }}
-                                                                />
-                                                                <div style={{ fontSize: '16px', marginBottom: '2px' }}>+</div>
-                                                                <span style={{ fontSize: '9px', color: '#999' }}>{actualIndex + 1}</span>
-                                                            </label>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
+                                        </label>
+                                    )}
                                 </div>
 
-                                {/* Photo Tips Popup */}
-                                {showPhotoTipsPopup && (
-                                    <div 
-                                        style={{
-                                            position: 'fixed',
-                                            top: 0,
-                                            left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            zIndex: 1000
-                                        }}
-                                        onClick={togglePhotoTipsPopup}
-                                    >
-                                        <div 
-                                            style={{
-                                                backgroundColor: 'white',
-                                                padding: '24px',
-                                                borderRadius: '8px',
-                                                maxWidth: '500px',
-                                                width: '90%',
-                                                maxHeight: '80vh',
-                                                overflow: 'auto',
-                                                position: 'relative',
-                                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
+                                <div className="additional-images">
+                                    <div className="additional-images-header">
+                                        <h6>Additional Photos</h6>
+                                        <button 
+                                            className="add-more-photos-btn" 
+                                            onClick={addSlot} 
+                                            type="button"
                                         >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                                <h4 style={{ margin: 0, color: '#333' }}>📋 Photo Tips</h4>
-                                                <button 
-                                                    onClick={togglePhotoTipsPopup}
-                                                    style={{
-                                                        background: 'none',
-                                                        border: 'none',
-                                                        fontSize: '24px',
-                                                        cursor: 'pointer',
-                                                        color: '#666',
-                                                        padding: '0',
-                                                        width: '30px',
-                                                        height: '30px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center'
-                                                    }}
-                                                >
-                                                    ×
-                                                </button>
-                                            </div>
-                                            <div>
-                                                <p style={{ marginBottom: '16px', color: '#666' }}>
-                                                    Follow these tips to capture the best photos of your property:
-                                                </p>
-                                                <ul style={{ paddingLeft: '20px', lineHeight: '1.6', color: '#555' }}>
-                                                    <li style={{ marginBottom: '8px' }}>Include exterior and interior shots</li>
-                                                    <li style={{ marginBottom: '8px' }}>Show key rooms: living room, kitchen, bedrooms</li>
-                                                    <li style={{ marginBottom: '8px' }}>Capture unique features and amenities</li>
-                                                    <li style={{ marginBottom: '8px' }}>Use good lighting for best results</li>
-                                                    <li style={{ marginBottom: '8px' }}>Take photos from different angles</li>
-                                                    <li style={{ marginBottom: '8px' }}>Ensure images are clear and high resolution</li>
-                                                    <li style={{ marginBottom: '8px' }}>Clean and declutter spaces before photographing</li>
-                                                    <li style={{ marginBottom: '8px' }}>Avoid using flash - natural light works best</li>
-                                                </ul>
-                                            </div>
-                                        </div>
+                                            + Add More
+                                        </button>
                                     </div>
-                                )}
+                                    
+                                    <div className="thumbnail-grid">
+                                        {Array.from({ length: slots - 1 }).map((_, index) => {
+                                            const actualIndex = index + 1;
+                                            return (
+                                                <div className="thumbnail-slot" key={actualIndex}>
+                                                    {images[actualIndex] ? (
+                                                        <div className="thumbnail-preview">
+                                                            <img
+                                                                src={images[actualIndex]}
+                                                                alt={`Property ${actualIndex + 1}`}
+                                                            />
+                                                            <div className="image-number">{actualIndex + 1}</div>
+                                                            {uploadingStates[actualIndex] && (
+                                                                <div className="upload-overlay">
+                                                                    <div className="upload-spinner">⏳</div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <label className="thumbnail-upload">
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                onChange={(e) => handleFileChange(e, actualIndex)}
+                                                                style={{ display: "none" }}
+                                                            />
+                                                            <div className="thumbnail-content">
+                                                                <div className="plus-icon">+</div>
+                                                                <span>Photo {actualIndex + 1}</span>
+                                                            </div>
+                                                        </label>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

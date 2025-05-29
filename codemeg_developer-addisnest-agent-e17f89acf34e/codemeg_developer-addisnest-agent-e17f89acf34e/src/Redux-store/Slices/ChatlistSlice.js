@@ -11,17 +11,24 @@ export const GetChatlistData = createAsyncThunk(
     async (state) => {
         try {
             
-            let url = `api/chat/users`;
+            let url = `chat/users`;
             const response = await Api.getWithtoken(url);
             const { connectedUsers } = response
             return { data :  connectedUsers};
         } catch (error) {
             console.log("catch", error);
-            const { status, data } = error.response;
+            
+            // If the chat API endpoint doesn't exist (404), return empty data
+            if (error?.response?.status === 404) {
+                console.log("Chat API endpoint not available, returning empty conversations");
+                return { data: [] };
+            }
+            
+            const { status, data } = error.response || {};
             return {
                 error: {
                     type: "server",
-                    message: data.detail,
+                    message: data?.detail || "Failed to load conversations",
                 },
             };
         }

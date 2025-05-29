@@ -108,7 +108,7 @@ const ActiveDropdown = ({ item }) => {
                 >
                     <ul>
                         <li>
-                            <Link to="#">
+                            <Link to={`/property-form?id=${item?.id || item?.propertyId}`}>
                                 <span>
                                     <SvgEditPencelIcon />
                                 </span>

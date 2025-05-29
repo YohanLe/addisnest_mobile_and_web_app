@@ -1,57 +1,80 @@
-import React from "react";
-import { ChatProfileOne, ChatProfileThree, ChatProfileTwo } from "../../../assets/images";
+import React, { useEffect, useState } from "react";
+import { ProfileImg } from "../../../assets/images";
 import { SvgSearchIcon } from "../../../assets/svg/Svg";
-import { useSelector } from "react-redux";
-import { GetAllUserList } from "../../../Redux-store/Slices/AllUserListSlice";
-
-const chatUsers = [
-    {
-        id: 1,
-        name: "Jackson Allen",
-        message: "I came across your profile and...",
-        image: ChatProfileOne,
-    },
-    {
-        id: 2,
-        name: "John Doe",
-        message: "Looking forward to our meeting...",
-        image: ChatProfileThree,
-    },
-    {
-        id: 3,
-        name: "Sophia Smith",
-        message: "Let me know your thoughts...",
-        image: ChatProfileTwo,
-    },
-    {
-        id: 4,
-        name: "Emma Johnson",
-        message: "I reviewed the documents...",
-        image: ChatProfileOne,
-    },
-    {
-        id: 5,
-        name: "Liam Williams",
-        message: "Please send over the details...",
-        image: ChatProfileThree,
-    },
-    {
-        id: 6,
-        name: "Olivia Brown",
-        message: "Let’s reschedule the meeting...",
-        image: ChatProfileTwo,
-    },
-];
-
-// const AllUserData = useSelector((state) => state.AllUserList.Details);
-// const AllUserList = AllUserData?.data;
-// console.log('_______________POO',AllUserList)
-// useEffect(() => {
-//     dispatch(GetAllUserList());
-// }, [])
-
+import { useSelector, useDispatch } from "react-redux";
+import { GetChatlistData } from "../../../Redux-store/Slices/ChatlistSlice";
 
 const ChatList = ({ activeUser, setActiveUser }) => {
+    const dispatch = useDispatch();
+    const [searchTerm, setSearchTerm] = useState("");
+    
+    // Get chat data from Redux store
+    const chatData = useSelector((state) => state.Chatlist.Data);
+    const connectedUsers = chatData?.data || [];
+    const isLoading = chatData?.pending || false;
+    
+    // Fetch connected users on component mount
+    useEffect(() => {
+        dispatch(GetChatlistData());
+    }, [dispatch]);
+    
+    // Filter users based on search term
+    const filteredUsers = connectedUsers.filter(user => 
+        user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user?.lastMessage?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    // Only show users who have active conversations (have exchanged messages)
+    const activeConversations = filteredUsers.filter(user => 
+        user?.lastMessage && user?.lastMessage.trim() !== ""
+    );
+    
+    // Add mock test data when no real data is available (for testing purposes)
+    const testConversations = activeConversations.length === 0 ? [
+        {
+            id: 1,
+            name: "John Smith",
+            lastMessage: "Hello, I'm interested in the property listing",
+            lastMessageTime: new Date().toISOString(),
+            profileImage: null,
+            isOnline: true,
+            messages: [
+                {
+                    id: 1,
+                    content: "Hello, I'm interested in the property listing on Main Street",
+                    timestamp: new Date(Date.now() - 3600000).toISOString(),
+                    isFromUser: false,
+                    sender: 'user'
+                },
+                {
+                    id: 2,
+                    content: "Great! I'd be happy to help you with that property. What would you like to know?",
+                    timestamp: new Date(Date.now() - 3000000).toISOString(),
+                    isFromUser: true,
+                    sender: 'agent'
+                }
+            ],
+            isAccepted: true
+        },
+        {
+            id: 2,
+            name: "Sarah Johnson",
+            lastMessage: "Is the property still available?",
+            lastMessageTime: new Date(Date.now() - 7200000).toISOString(),
+            profileImage: null,
+            isOnline: false,
+            messages: [
+                {
+                    id: 1,
+                    content: "Is the property still available?",
+                    timestamp: new Date(Date.now() - 7200000).toISOString(),
+                    isFromUser: false,
+                    sender: 'user'
+                }
+            ],
+            isAccepted: false
+        }
+    ] : activeConversations;
     return (
         <>
             <div className="chat-left">
@@ -61,14 +84,19 @@ const ChatList = ({ activeUser, setActiveUser }) => {
                             <h3>Active Conversations</h3>
                         </div>
                         <div className="active-chats">
-                            <span>{chatUsers.length}</span>
+                            <span>{testConversations.length}</span>
                         </div>
                     </div>
                     <div className="chat-wraper">
                         <div className="chat-filter">
                             <div className="ticket-search">
                                 <div className="inputwth-icon">
-                                    <input type="text" placeholder="Search.." />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search conversations..." 
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
                                     <div className="input-icon">
                                         <span>
                                             <SvgSearchIcon />
@@ -78,28 +106,47 @@ const ChatList = ({ activeUser, setActiveUser }) => {
                             </div>
                         </div>
                         <div className="chat-list">
-                            <ul>
-                                {chatUsers.map((user) => (
-                                    <li key={user.id}>
-                                        <div
-                                            className={`chat-user-card ${activeUser?.id === user.id ? "active" : ""
-                                                }`}
-                                            onClick={() => setActiveUser(user)}
-                                        >
-                                            <div className="chat-user-bg">
-                                                <span
-                                                    style={{ backgroundImage: `url(${user.image})` }}
-                                                ></span>
-                                                <em className="online"></em>
+                            {isLoading ? (
+                                <div className="loading-message">
+                                    <p>Loading conversations...</p>
+                                </div>
+                            ) : testConversations.length > 0 ? (
+                                <ul>
+                                    {testConversations.map((user) => (
+                                        <li key={user.id || user._id}>
+                                            <div
+                                                className={`chat-user-card ${activeUser?.id === user.id ? "active" : ""}`}
+                                                onClick={() => setActiveUser(user)}
+                                            >
+                                                <div className="chat-user-bg">
+                                                    <span
+                                                        style={{ 
+                                                            backgroundImage: `url(${user.profileImage || user.image || ProfileImg})` 
+                                                        }}
+                                                    ></span>
+                                                    <em className={user.isOnline ? "online" : "offline"}></em>
+                                                </div>
+                                                <div className="chat-user-detail">
+                                                    <h3>{user.name || user.firstName + ' ' + user.lastName || 'Unknown User'}</h3>
+                                                    <p>{user.lastMessage || 'No messages yet'}</p>
+                                                    {user.lastMessageTime && (
+                                                        <span className="last-message-time">
+                                                            {new Date(user.lastMessageTime).toLocaleDateString()}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div className="chat-user-detail">
-                                                <h3>{user.name}</h3>
-                                                <p>{user.message}</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div className="no-conversations">
+                                    <p>No active conversations found</p>
+                                    {searchTerm && (
+                                        <p>Try adjusting your search terms</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

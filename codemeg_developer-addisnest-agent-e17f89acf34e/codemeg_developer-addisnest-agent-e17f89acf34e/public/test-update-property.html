@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Update Property</title>
+</head>
+<body>
+    <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h2>Testing Property Update Functionality</h2>
+        <p>This page will set authentication tokens and redirect to the property form for editing.</p>
+        <button onclick="setupAuthAndRedirect()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Setup Auth & Test Property Update
+        </button>
+        <div id="status" style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 4px;"></div>
+    </div>
+
+    <script>
+        function setupAuthAndRedirect() {
+            const statusDiv = document.getElementById('status');
+            
+            // Set authentication tokens
+            localStorage.setItem('isLogin', '1');
+            localStorage.setItem('access_token', 'test-token-for-agent');
+            localStorage.setItem('user_id', '123');
+            localStorage.setItem('user_type', 'agent');
+            
+            statusDiv.innerHTML = `
+                <h4>✅ Authentication Setup Complete</h4>
+                <p><strong>Login Status:</strong> ${localStorage.getItem('isLogin')}</p>
+                <p><strong>Access Token:</strong> Set</p>
+                <p><strong>User Type:</strong> ${localStorage.getItem('user_type')}</p>
+                <p>Redirecting to property form for editing property ID 77...</p>
+            `;
+            
+            // Redirect to property form with ID 77 for editing
+            setTimeout(() => {
+                window.location.href = '/property-form?id=77';
+            }, 2000);
+        }
+        
+        // Show current auth status
+        window.onload = function() {
+            const statusDiv = document.getElementById('status');
+            const isLoggedIn = localStorage.getItem('isLogin');
+            const hasToken = localStorage.getItem('access_token');
+            
+            statusDiv.innerHTML = `
+                <h4>Current Authentication Status</h4>
+                <p><strong>Login Status:</strong> ${isLoggedIn || 'Not set'}</p>
+                <p><strong>Access Token:</strong> ${hasToken ? 'Present' : 'Not set'}</p>
+                <p><strong>User Type:</strong> ${localStorage.getItem('user_type') || 'Not set'}</p>
+            `;
+        };
+    </script>
+</body>
+</html>
