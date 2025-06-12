@@ -1,0 +1,779 @@
+/* Account Management Styles */
+
+/* Common Styles */
+.account-management {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+}
+
+.account-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background-color: #fff;
+  border-right: 1px solid #eee;
+  padding: 20px 0;
+  height: calc(100vh - 60px);
+  position: sticky;
+  top: 60px;
+}
+
+.account-content {
+  flex: 1;
+  padding: 20px 30px;
+  background-color: #f9f9f9;
+}
+
+/* Navigation Links Styling */
+.account-list {
+  margin-top: 20px;
+}
+
+.account-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.account-list li {
+  margin-bottom: 5px;
+}
+
+.account-tab-title {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #555;
+  position: relative;
+}
+
+.account-tab-title:hover {
+  background-color: rgba(141, 198, 63, 0.1);
+  color: #333;
+}
+
+.account-tab-title.active {
+  background-color: #8DC63F;
+  color: white;
+  font-weight: 500;
+}
+
+.account-tab-title em {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  color: inherit;
+}
+
+.tab-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Dashboard specific styles */
+.account-tab-title[data-tab="dashboard"] {
+  color: #444;
+}
+
+.account-tab-title[data-tab="dashboard"].active {
+  background-color: #8cc63f;
+}
+
+/* Listed Property Alert specific styles */
+.account-tab-title[data-tab="property-alert"] {
+  color: #444;
+}
+
+.account-tab-title[data-tab="property-alert"].active {
+  background-color: #e91e63;
+}
+
+/* Contact Us specific styles */
+.account-tab-title[data-tab="contact-us"] {
+  color: #444;
+}
+
+.account-tab-title[data-tab="contact-us"].active {
+  background-color: #4CAF50;
+}
+
+/* Review & Ratings specific styles */
+.account-tab-title[data-tab="reviews"] {
+  color: #444;
+}
+
+.account-tab-title[data-tab="reviews"].active {
+  background-color: #FF9800;
+}
+
+/* Badge for notification counts */
+.notification-badge {
+  display: inline-block;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background-color: #f44336;
+  color: white;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  margin-left: 8px;
+}
+
+/* Title for the sidebar */
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  padding: 0 20px 15px;
+  margin: 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Agent info at bottom of sidebar */
+.sidebar-agent-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 15px 20px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  display: flex;
+  align-items: center;
+}
+
+.agent-avatar {
+  width: 36px;
+  height: 36px;
+  background-color: #ddd;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #666;
+}
+
+.agent-details {
+  flex: 1;
+  overflow: hidden;
+}
+
+.agent-name {
+  font-weight: 500;
+  font-size: 14px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-email {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Dashboard Styles */
+.dashboard-container {
+  padding: 20px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.date-filter {
+  display: flex;
+  align-items: center;
+}
+
+.select-date-range {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.close-btn {
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.all-btn {
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.metrics-section {
+  margin-bottom: 30px;
+}
+
+.metric-item {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.metric-value {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.number {
+  font-size: 24px;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.percentage {
+  font-size: 14px;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.success {
+  background-color: rgba(69, 179, 107, 0.1);
+  color: #45b36b;
+}
+
+.metrics-tabs {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+  border-bottom-color: #8DC63F;
+  color: #8DC63F;
+  font-weight: bold;
+}
+
+.metrics-chart {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.placeholder-chart {
+  height: 300px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+}
+
+/* Messages Styles */
+.messages-container {
+  padding: 20px;
+}
+
+.messages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.messages-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn-compose {
+  background-color: #8DC63F;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  padding: 8px 12px;
+  padding-right: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  width: 200px;
+}
+
+.search-box i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.messages-list {
+  margin-bottom: 20px;
+}
+
+.message-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #ffffff;
+}
+
+.message-item.unread {
+  background-color: #f8f9fa;
+}
+
+.message-status {
+  width: 20px;
+  margin-right: 10px;
+}
+
+.unread-indicator {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background-color: #8DC63F;
+  border-radius: 50%;
+}
+
+.message-sender {
+  width: 150px;
+  font-weight: bold;
+}
+
+.message-subject {
+  width: 200px;
+  font-weight: 500;
+}
+
+.message-preview {
+  flex: 1;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-date {
+  width: 100px;
+  text-align: right;
+  color: #888;
+}
+
+.message-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  margin-left: 10px;
+}
+
+.messages-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-page {
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.page-numbers {
+  margin: 0 15px;
+}
+
+/* Property Alert Styles */
+.property-alert-container {
+  padding: 20px;
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.alert-actions {
+  display: flex;
+  align-items: center;
+}
+
+.filter-dropdown select {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+
+.btn-settings {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alerts-list {
+  margin-bottom: 20px;
+}
+
+.alert-item {
+  display: flex;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #ffffff;
+}
+
+.alert-item.unread {
+  background-color: #f8f9fa;
+}
+
+.alert-badge {
+  margin-right: 15px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badge.new {
+  background-color: #8DC63F;
+  color: white;
+}
+
+.badge.price {
+  background-color: #ff9800;
+  color: white;
+}
+
+.badge.status {
+  background-color: #2196f3;
+  color: white;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-details {
+  margin: 10px 0;
+  color: #666;
+}
+
+.price-info, .status-info {
+  margin-bottom: 5px;
+}
+
+.price-change, .status-change {
+  color: #888;
+  font-size: 13px;
+}
+
+.alert-description {
+  margin-top: 10px;
+  color: #555;
+}
+
+.alert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.alert-date {
+  color: #888;
+  font-size: 13px;
+}
+
+.btn-view, .btn-dismiss {
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.btn-view {
+  background-color: #8DC63F;
+  color: white;
+  border: none;
+}
+
+/* Contact Us Styles */
+.contact-us-container {
+  padding: 20px;
+}
+
+.contact-header {
+  margin-bottom: 30px;
+}
+
+.contact-content {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.contact-info {
+  flex: 1;
+  min-width: 300px;
+  margin-right: 30px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.info-item i {
+  font-size: 24px;
+  margin-right: 15px;
+  color: #8DC63F;
+}
+
+.contact-form {
+  flex: 2;
+  min-width: 300px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.btn-submit {
+  background-color: #8DC63F;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.faq-section {
+  margin-top: 40px;
+}
+
+.faq-item {
+  margin-bottom: 20px;
+}
+
+.faq-item h4 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.faq-item p {
+  color: #666;
+}
+
+/* Agent Info Styles */
+.agent-info-container {
+  padding: 20px;
+  margin-bottom: 30px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.agent-profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.agent-avatar {
+  margin-right: 20px;
+}
+
+.avatar-circle {
+  width: 60px;
+  height: 60px;
+  background-color: #8DC63F;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.agent-details {
+  flex: 1;
+}
+
+.agent-name {
+  margin: 0;
+  font-size: 18px;
+}
+
+.agent-email {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.agent-actions {
+  margin-left: 15px;
+}
+
+.btn-edit-profile {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8DC63F;
+}
+
+.agent-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  margin: 0 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.stat-label {
+  display: block;
+  color: #888;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.agent-actions-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.btn-action {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  padding: 10px 15px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-action i {
+  margin-right: 8px;
+  color: #8DC63F;
+}
+
+.agent-verification {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.verification-status {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.verification-status.verified i {
+  color: #8DC63F;
+  margin-right: 5px;
+}
+
+.account-status, .membership-info {
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
+
+.status-label, .membership-label {
+  color: #888;
+  margin-right: 5px;
+}
+
+.status-value.active {
+  color: #8DC63F;
+  font-weight: 500;
+}
+
+.membership-value.premium {
+  color: #ff9800;
+  font-weight: 500;
+}
+
+/* Agent info section in account tab detail */
+.agent-info-section {
+  margin-bottom: 30px;
+}

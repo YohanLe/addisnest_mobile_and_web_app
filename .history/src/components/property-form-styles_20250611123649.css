@@ -1,0 +1,31 @@
+/* Property Form Grid Layouts */
+
+/* 4-column layout for address fields */
+.form-row-4-cols {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+  gap: 15px;
+}
+
+.form-col-25 {
+  flex: 1 1 calc(25% - 15px);
+  min-width: 200px;
+}
+
+/* Add responsive behavior */
+@media (max-width: 992px) {
+  .form-row-4-cols {
+    gap: 10px;
+  }
+  
+  .form-col-25 {
+    flex: 1 1 calc(50% - 10px);
+  }
+}
+
+@media (max-width: 576px) {
+  .form-col-25 {
+    flex: 1 1 100%;
+  }
+}

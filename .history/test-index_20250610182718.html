@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Index</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4a6cf7;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a6cf7;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AddinEst Test Page</h1>
+        <p>This is a test page to diagnose the main application issue.</p>
+        
+        <h2>Test Links</h2>
+        <ul>
+            <li><a href="/">Main Application</a></li>
+            <li><a href="/test-page.html">Static HTML Test</a></li>
+            <li><a href="/test-react.html">React Component Test</a></li>
+        </ul>
+        
+        <h2>Diagnose Main Application</h2>
+        <p>The main application appears to be loading but not displaying content.</p>
+        <p>Possible issues:</p>
+        <ol>
+            <li>Missing CSS files</li>
+            <li>JavaScript errors preventing rendering</li>
+            <li>Routing issues</li>
+            <li>Backend API connection problems</li>
+        </ol>
+        
+        <a class="button" href="/" onclick="localStorage.clear(); return true;">Clear Local Storage & Try Again</a>
+    </div>
+</body>
+</html>

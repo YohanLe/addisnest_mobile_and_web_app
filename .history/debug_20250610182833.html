@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Main App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #4a6cf7;
+        }
+        .error-log {
+            background-color: #fff0f0;
+            border: 1px solid #ffcccc;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a6cf7;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AddinEst Debug Page</h1>
+        <p>This page will check for common issues and attempt to diagnose the main application.</p>
+        
+        <div id="diagnostic-results"></div>
+        <div id="error-log" class="error-log" style="display: none;"></div>
+        
+        <button id="runDiagnostics" class="button">Run Diagnostics</button>
+        <a href="/" class="button" style="margin-left: 10px;">Go to Main App</a>
+    </div>
+
+    <script>
+        document.getElementById('runDiagnostics').addEventListener('click', runDiagnostics);
+        
+        async function runDiagnostics() {
+            const results = document.getElementById('diagnostic-results');
+            const errorLog = document.getElementById('error-log');
+            results.innerHTML = '<p>Running diagnostics...</p>';
+            
+            // Array to store diagnostic results
+            const diagnosticResults = [];
+            
+            // Check if root element exists in index.html
+            try {
+                const indexResponse = await fetch('/index.html');
+                const indexHtml = await indexResponse.text();
+                const hasRootElement = indexHtml.includes('id="root"');
+                diagnosticResults.push(`Root element in index.html: ${hasRootElement ? '✅ Found' : '❌ Missing'}`);
+            } catch (error) {
+                diagnosticResults.push(`❌ Error checking index.html: ${error.message}`);
+            }
+            
+            // Check if main.jsx is being loaded
+            try {
+                const response = await fetch('/src/main.jsx');
+                diagnosticResults.push(`main.jsx: ${response.ok ? '✅ Accessible' : '❌ Not accessible'}`);
+            } catch (error) {
+                diagnosticResults.push(`❌ Error accessing main.jsx: ${error.message}`);
+            }
+            
+            // Check if required CSS files are accessible
+            const cssFiles = [
+                '/src/assets/css/style.css',
+                '/src/assets/css/image-uploader.css',
+                '/src/assets/css/uploader-demo.css',
+                '/src/assets/css/location-popup.css',
+                '/src/assets/css/mortgage-calculator.css',
+                '/src/assets/css/favorite.css',
+                '/src/assets/css/chat.css',
+                '/src/assets/css/notification.css',
+                '/src/assets/css/property-fix.css'
+            ];
+            
+            for (const cssFile of cssFiles) {
+                try {
+                    const response = await fetch(cssFile);
+                    diagnosticResults.push(`${cssFile}: ${response.ok ? '✅ Accessible' : '❌ Not accessible'}`);
+                } catch (error) {
+                    diagnosticResults.push(`❌ Error accessing ${cssFile}: ${error.message}`);
+                }
+            }
+            
+            // Check API connectivity
+            try {
+                const response = await fetch('http://localhost:7000/api');
+                const data = await response.json();
+                diagnosticResults.push(`API server: ${data.success ? '✅ Connected' : '❌ Error connecting'}`);
+            } catch (error) {
+                diagnosticResults.push(`❌ Error connecting to API: ${error.message}`);
+            }
+            
+            // Check for JavaScript errors on main page
+            try {
+                const originalConsoleError = console.error;
+                window.consoleErrors = [];
+                
+                console.error = function(...args) {
+                    window.consoleErrors.push(args.join(' '));
+                    originalConsoleError.apply(console, args);
+                };
+                
+                // Load the main app in an iframe to capture errors
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = '/';
+                document.body.appendChild(iframe);
+                
+                // Wait a bit for errors to happen
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Get the errors
+                const errors = window.consoleErrors;
+                document.body.removeChild(iframe);
+                
+                // Restore original console.error
+                console.error = originalConsoleError;
+                
+                if (errors.length > 0) {
+                    diagnosticResults.push(`❌ JavaScript errors detected: ${errors.length} errors`);
+                    errorLog.style.display = 'block';
+                    errorLog.innerText = errors.join('\n\n');
+                } else {
+                    diagnosticResults.push(`✅ No JavaScript errors detected`);
+                }
+            } catch (error) {
+                diagnosticResults.push(`❌ Error checking for JavaScript errors: ${error.message}`);
+            }
+            
+            // Display results
+            results.innerHTML = '<h2>Diagnostic Results</h2><ul>' + 
+                diagnosticResults.map(result => `<li>${result}</li>`).join('') + 
+                '</ul>';
+        }
+    </script>
+</body>
+</html>

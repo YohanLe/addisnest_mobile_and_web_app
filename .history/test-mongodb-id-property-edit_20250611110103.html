@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB ID Property Edit Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .property-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            border-left: 4px solid #27ae60;
+        }
+        .property-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 4px;
+            margin-right: 20px;
+            object-fit: cover;
+        }
+        .property-details {
+            flex: 1;
+        }
+        .property-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .property-address {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .property-price {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        .property-features {
+            display: flex;
+            gap: 15px;
+        }
+        .feature {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #34495e;
+        }
+        .feature-icon {
+            margin-right: 5px;
+            color: #3498db;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-right: 10px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        .btn-green {
+            background-color: #27ae60;
+        }
+        .btn-green:hover {
+            background-color: #219d55;
+        }
+        .btn-orange {
+            background-color: #e67e22;
+        }
+        .btn-orange:hover {
+            background-color: #d35400;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', monospace;
+        }
+        #status {
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #f39c12;
+            margin-top: 20px;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .steps {
+            margin-top: 20px;
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .steps ol {
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        .steps li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MongoDB ID Property Edit Test</h1>
+    
+    <div class="card">
+        <h2>About This Test</h2>
+        <p>This test verifies that the property edit functionality correctly handles MongoDB-style <code>_id</code> fields. 
+           The test simulates clicking the Edit button in the property listings grid and verifies that property data is correctly stored
+           and retrieved when using MongoDB's ObjectId format.</p>
+    </div>
+
+    <h2>Test Property (MongoDB Format)</h2>
+    <div class="property-card">
+        <img src="/uploads/test-property-image-1749260861596-438465535.jpg" alt="Property" class="property-image" onerror="this.src='/uploads/1749428928268-710498473-genMid.731631728_27_0.jpg'">
+        <div class="property-details">
+            <div class="property-title">20 rent property title</div>
+            <div class="property-address">dghjhj, hgggggggggggg, Afar Region</div>
+            <div class="property-price">Price: 2,112 ETB</div>
+            <div class="property-features">
+                <div class="feature">
+                    <span class="feature-icon">🛏️</span> 2 Bedrooms
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">🚿</span> 32 Bathrooms
+                </div>
+                <div class="feature">
+                    <span class="feature-icon">📏</span> 56,262 sqm
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <strong>MongoDB ID:</strong> <code>6849bd6a2b9f36399990f4fb</code>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Test Procedure</h2>
+        <button id="runTest" class="btn btn-green">Simulate Edit Button Click</button>
+        <button id="clearData" class="btn">Clear Stored Data</button>
+        <a href="http://localhost:5173/property-edit/6849bd6a2b9f36399990f4fb" target="_blank" class="btn btn-orange" id="gotoEdit">Go To Edit Form</a>
+        
+        <div id="status">Click "Simulate Edit Button Click" to begin the test</div>
+
+        <div class="steps">
+            <h3>Testing Steps:</h3>
+            <ol>
+                <li>Click "Simulate Edit Button Click" to store the test property data in localStorage</li>
+                <li>Click "Go To Edit Form" to navigate to the property edit form</li>
+                <li>Verify that the form is populated with the test property data</li>
+                <li>Make changes to the property data</li>
+                <li>Submit the form and verify that the changes are saved</li>
+            </ol>
+        </div>
+    </div>
+
+    <h2>Test Property Data</h2>
+    <pre id="propertyData">// Property data will appear here after running the test</pre>
+    
+    <script>
+        // Test property data (same as in the server test script)
+        const testProperty = {
+          _id: '6849bd6a2b9f36399990f4fb',
+          owner: '6845436d504a2bf073a4a7e2',
+          title: '20 rent property title',
+          description: 'hjgh',
+          propertyType: 'Commercial',
+          offeringType: 'For Sale',
+          status: 'active',
+          paymentStatus: 'none',
+          price: 2112,
+          area: 56262,
+          bedrooms: 2,
+          bathrooms: 32,
+          features: {
+            'parking-space': true,
+            '24-7-security': true,
+            'gym-fitness-center': true
+          },
+          address: {
+            street: 'dghjhj',
+            city: 'hgggggggggggg',
+            state: 'Afar Region',
+            country: 'Ethiopia'
+          },
+          images: [
+            {
+              url: '/uploads/test-property-image-1749260861596-438465535.jpg',
+              caption: 'Default Property Image',
+              _id: '6849bd6a2b9f36399990f4fc'
+            },
+            {
+              url: '/uploads/1749428928268-710498473-genMid.731631728_27_0.jpg',
+              caption: 'Default Property Image 2',
+              _id: '6849bd6a2b9f36399990f4fd'
+            }
+          ],
+          isPremium: false,
+          isVerified: false,
+          promotionType: 'Basic',
+          views: 0,
+          likes: 0,
+          createdAt: '2025-06-11T17:31:22.378+00:00',
+          updatedAt: '2025-06-11T17:31:22.378+00:00'
+        };
+
+        // Function to simulate Edit button click
+        function simulateEditButtonClick(property) {
+            // Create normalized property object (same logic as PropertyListingsTab.jsx)
+            const normalizedProperty = {
+                id: property.id || property._id,
+                propertyId: property.id || property._id,
+                _id: property._id || property.id, // Include MongoDB _id field explicitly
+                property_type: property.property_type || property.propertyType || "House",
+                property_for: property.property_for || (property.offeringType === "For Rent" ? "For Rent" : "For Sale"),
+                total_price: property.total_price || property.price || "",
+                property_address: property.property_address || 
+                    (property.address ? (typeof property.address === 'string' ? property.address : `${property.address.street || ''}, ${property.address.city || ''}`) : ""),
+                number_of_bedrooms: property.number_of_bedrooms || property.bedrooms || "",
+                number_of_bathrooms: property.number_of_bathrooms || property.bathrooms || "",
+                property_size: property.property_size || property.size || property.area || "",
+                regional_state: property.regional_state || property.region || (property.address ? property.address.state : ""),
+                city: property.city || (property.address ? property.address.city : ""),
+                description: property.description || "",
+                country: property.country || (property.address ? property.address.country : "Ethiopia"),
+                media: property.media || property.images || [],
+                amenities: property.amenities || 
+                    (property.features ? Object.keys(property.features).filter(key => property.features[key]) : [])
+            };
+            
+            // Store in localStorage with both keys
+            localStorage.setItem('property_edit_data', JSON.stringify(normalizedProperty));
+            localStorage.setItem(`property_edit_data_${property._id}`, JSON.stringify(normalizedProperty));
+            
+            // Also store in sessionStorage as a backup
+            sessionStorage.setItem(`property_edit_data_${property._id}`, JSON.stringify(normalizedProperty));
+            
+            // Force property edit mode
+            localStorage.setItem('force_property_edit', 'true');
+            
+            return normalizedProperty;
+        }
+
+        // Event Listeners
+        document.getElementById('runTest').addEventListener('click', function() {
+            const statusEl = document.getElementById('status');
+            const dataEl = document.getElementById('propertyData');
+            
+            try {
+                const normalizedProperty = simulateEditButtonClick(testProperty);
+                
+                statusEl.innerHTML = '<span class="success">✅ Test data successfully stored!</span><br>' +
+                    'Property data has been stored in localStorage and sessionStorage with MongoDB _id: ' +
+                    `<code>${testProperty._id}</code><br><br>` +
+                    'Now click "Go To Edit Form" to test the property edit form.';
+                
+                dataEl.textContent = JSON.stringify(normalizedProperty, null, 2);
+                
+                // Show the Go To Edit Form button
+                document.getElementById('gotoEdit').style.display = 'inline-block';
+            } catch (error) {
+                statusEl.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                dataEl.textContent = 'An error occurred during the test.';
+            }
+        });
+
+        document.getElementById('clearData').addEventListener('click', function() {
+            try {
+                localStorage.removeItem('property_edit_data');
+                localStorage.removeItem(`property_edit_data_${testProperty._id}`);
+                sessionStorage.removeItem(`property_edit_data_${testProperty._id}`);
+                localStorage.removeItem('force_property_edit');
+                
+                document.getElementById('status').innerHTML = 'All test data cleared from storage';
+                document.getElementById('propertyData').textContent = '// Property data will appear here after running the test';
+            } catch (error) {
+                document.getElementById('status').innerHTML = `<span class="error">❌ Error clearing data: ${error.message}</span>`;
+            }
+        });
+
+        // Initially hide the Go To Edit Form button
+        document.getElementById('gotoEdit').style.display = 'none';
+
+        // Check if we're returning from edit form
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('from') === 'edit') {
+                document.getElementById('status').innerHTML = '<span class="success">✅ Returned from edit form!</span><br>' +
+                    'If the form was populated correctly, the test is successful.';
+            }
+        });
+    </script>
+</body>
+</html>

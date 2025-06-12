@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MongoDB ID Property Edit Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #4a6cf7;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+        }
+        .property-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .property-detail {
+            margin-bottom: 10px;
+        }
+        .property-detail strong {
+            display: block;
+            color: #555;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4a6cf7;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #3a56d0;
+        }
+        .note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>MongoDB ID Property Edit Test</h1>
+    
+    <div class="note">
+        This page helps test the MongoDB ID property edit functionality. Click the button below to prepare the test data and follow the instructions.
+    </div>
+    
+    <h2>Test Property (MongoDB ID Format)</h2>
+    <div class="card">
+        <div class="property-details">
+            <div class="property-detail">
+                <strong>MongoDB ID:</strong>
+                <span id="mongo-id">6849bd6a2b9f36399990f4fb</span>
+            </div>
+            <div class="property-detail">
+                <strong>Property Type:</strong>
+                <span>House</span>
+            </div>
+            <div class="property-detail">
+                <strong>Price:</strong>
+                <span>25,000,000 ETB</span>
+            </div>
+            <div class="property-detail">
+                <strong>Bedrooms:</strong>
+                <span>4</span>
+            </div>
+            <div class="property-detail">
+                <strong>Bathrooms:</strong>
+                <span>3</span>
+            </div>
+            <div class="property-detail">
+                <strong>Address:</strong>
+                <span>123 MongoDB Street, Addis Ababa</span>
+            </div>
+        </div>
+        
+        <button class="button" id="prepare-test">Prepare Test Data</button>
+        <a href="#" class="button" id="edit-link" style="margin-left: 10px;">Edit Property</a>
+    </div>
+    
+    <h2>Test Instructions</h2>
+    <ol>
+        <li>Click the "Prepare Test Data" button above to create test property data in localStorage</li>
+        <li>Click the "Edit Property" button to navigate to the property edit form</li>
+        <li>Verify that the form is populated with the test property data</li>
+        <li>Make changes to the property and save</li>
+        <li>Verify that the changes are reflected in the property listing</li>
+    </ol>
+    
+    <h2>Expected Behavior</h2>
+    <ul>
+        <li>The edit form should load and display all property fields correctly</li>
+        <li>The form should show the MongoDB ID in the header</li>
+        <li>You should be able to make changes and save successfully</li>
+    </ul>
+    
+    <div class="note">
+        <strong>Note:</strong> This test requires both the backend server and frontend to be running. 
+        Use <code>start-mongodb-edit-test.bat</code> to start both servers automatically.
+    </div>
+    
+    <h2>Implementation Details</h2>
+    <p>The following changes have been made to support MongoDB ID property editing:</p>
+    <pre>
+1. Updated PropertyListingsTab.jsx to prioritize MongoDB _id fields
+2. Added dedicated MongoDB ID endpoint in propertyRoutes.js
+3. Enhanced property data normalization in EditPropertyForm.jsx
+4. Added test scripts for MongoDB ID testing
+</pre>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mongoId = document.getElementById('mongo-id').textContent;
+            const editLink = document.getElementById('edit-link');
+            editLink.href = `http://localhost:5173/property-edit/${mongoId}`;
+            
+            document.getElementById('prepare-test').addEventListener('click', function() {
+                // Create test property with MongoDB format ID
+                const mongoProperty = {
+                    _id: mongoId,
+                    id: mongoId,
+                    propertyId: mongoId,
+                    property_type: "House",
+                    property_for: "For Sale",
+                    total_price: "25000000",
+                    property_address: "123 MongoDB Street, Addis Ababa",
+                    number_of_bedrooms: "4",
+                    number_of_bathrooms: "3",
+                    property_size: "350",
+                    status: "ACTIVE",
+                    regional_state: "Addis Ababa City Administration",
+                    city: "Addis Ababa",
+                    country: "Ethiopia",
+                    description: "This is a test property with MongoDB ObjectId format for testing edit functionality.",
+                    media: ["/uploads/test-property-image-1749358937909-554283885.jpg"],
+                    amenities: ["parking_space", "garden_yard", "security_24_7", "gym_fitness"],
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Set force_property_edit flag
+                localStorage.setItem('force_property_edit', 'true');
+                
+                // Store with multiple keys to ensure it's found
+                localStorage.setItem('property_edit_data', JSON.stringify(mongoProperty));
+                localStorage.setItem(`property_edit_data_${mongoId}`, JSON.stringify(mongoProperty));
+                sessionStorage.setItem(`property_edit_data_${mongoId}`, JSON.stringify(mongoProperty));
+                localStorage.setItem('property_being_edited', JSON.stringify(mongoProperty));
+                
+                alert('Test data prepared successfully! Click the "Edit Property" button to continue.');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Edit Fix - Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      color: #4a6cf7;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .property-card {
+      background-color: #f8f9fa;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4a6cf7;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    .button:hover {
+      background-color: #3a5bd7;
+    }
+    .button.secondary {
+      background-color: #6c757d;
+    }
+    .button.secondary:hover {
+      background-color: #5a6268;
+    }
+    .button.success {
+      background-color: #28a745;
+    }
+    .button.success:hover {
+      background-color: #218838;
+    }
+    .results {
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      padding: 15px;
+      margin-top: 20px;
+      border-left: 4px solid #4a6cf7;
+    }
+    pre {
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .property-detail {
+      margin-bottom: 8px;
+    }
+    .property-detail strong {
+      display: inline-block;
+      width: 150px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Property Edit Fix - Test Page</h1>
+  
+  <div class="card">
+    <h2>Test Property Edit Functionality</h2>
+    <p>This page helps test the fix for property edit form data population. It simulates clicking the Edit button in the property grid and verifies that the correct data is passed to the EditPropertyForm component.</p>
+    
+    <div>
+      <button id="runTestsBtn" class="button">Run All Tests</button>
+      <button id="clearDataBtn" class="button secondary">Clear Stored Data</button>
+    </div>
+  </div>
+  
+  <div class="card property-card">
+    <h3>Test Case 1: Regular String Address</h3>
+    <div class="property-detail"><strong>ID:</strong> test123456789</div>
+    <div class="property-detail"><strong>Type:</strong> House</div>
+    <div class="property-detail"><strong>Offering:</strong> For Sale</div>
+    <div class="property-detail"><strong>Price:</strong> 250,000 ETB</div>
+    <div class="property-detail"><strong>Address:</strong> 123 Test Street, Sample Area</div>
+    <div class="property-detail"><strong>Bedrooms:</strong> 3</div>
+    <div class="property-detail"><strong>Bathrooms:</strong> 2</div>
+    
+    <div style="margin-top: 15px;">
+      <button id="testCase1Btn" class="button">Simulate Edit Click</button>
+      <a href="/property-edit/test123456789" target="_blank" class="button success">Open Edit Form</a>
+    </div>
+  </div>
+  
+  <div class="card property-card">
+    <h3>Test Case 2: Object Address Format</h3>
+    <div class="property-detail"><strong>ID:</strong> test987654321</div>
+    <div class="property-detail"><strong>Type:</strong> Apartment</div>
+    <div class="property-detail"><strong>Offering:</strong> For Rent</div>
+    <div class="property-detail"><strong>Price:</strong> 15,000 ETB</div>
+    <div class="property-detail"><strong>Address:</strong> <code>{ street: "456 Complex St", city: "Addis Ababa" }</code></div>
+    <div class="property-detail"><strong>Bedrooms:</strong> 2</div>
+    <div class="property-detail"><strong>Bathrooms:</strong> 1</div>
+    
+    <div style="margin-top: 15px;">
+      <button id="testCase2Btn" class="button">Simulate Edit Click</button>
+      <a href="/property-edit/test987654321" target="_blank" class="button success">Open Edit Form</a>
+    </div>
+  </div>
+  
+  <div class="card property-card">
+    <h3>Test Case 3: Object Amenities Format</h3>
+    <div class="property-detail"><strong>ID:</strong> test987654321</div>
+    <div class="property-detail"><strong>Amenities:</strong> <code>{ parking_space: true, internet_wifi: true, elevator: true }</code></div>
+    
+    <div style="margin-top: 15px;">
+      <button id="testCase3Btn" class="button">Test Object Amenities</button>
+    </div>
+  </div>
+  
+  <div id="results" class="results" style="display: none;">
+    <h3>Test Results</h3>
+    <div id="resultsContent"></div>
+  </div>
+  
+  <script src="test-edit-property-fix.js"></script>
+  <script>
+    document.getElementById('runTestsBtn').addEventListener('click', function() {
+      const results = testPropertyEdit.runTests();
+      showResults('All tests completed successfully!');
+    });
+    
+    document.getElementById('testCase1Btn').addEventListener('click', function() {
+      const result = testPropertyEdit.simulateEditButtonClick(testPropertyEdit.sampleProperty);
+      showResults('Test Case 1: Regular String Address', result);
+    });
+    
+    document.getElementById('testCase2Btn').addEventListener('click', function() {
+      const result = testPropertyEdit.simulateEditButtonClick(testPropertyEdit.samplePropertyWithObjectAddress);
+      showResults('Test Case 2: Object Address Format', result);
+    });
+    
+    document.getElementById('testCase3Btn').addEventListener('click', function() {
+      // Use the same property but focus on amenities
+      const result = testPropertyEdit.simulateEditButtonClick(testPropertyEdit.samplePropertyWithObjectAddress);
+      showResults('Test Case 3: Object Amenities Format', {
+        originalAmenities: testPropertyEdit.samplePropertyWithObjectAddress.amenities,
+        normalizedAmenities: result.amenities
+      });
+    });
+    
+    document.getElementById('clearDataBtn').addEventListener('click', function() {
+      localStorage.removeItem('property_edit_data');
+      localStorage.removeItem('property_edit_data_test123456789');
+      localStorage.removeItem('property_edit_data_test987654321');
+      localStorage.removeItem('force_property_edit');
+      sessionStorage.removeItem('property_edit_data_test123456789');
+      sessionStorage.removeItem('property_edit_data_test987654321');
+      showResults('Cleared all test data from storage');
+    });
+    
+    function showResults(title, data) {
+      const resultsDiv = document.getElementById('results');
+      const resultsContent = document.getElementById('resultsContent');
+      
+      let html = `<h4>${title}</h4>`;
+      
+      if (data) {
+        html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      }
+      
+      resultsContent.innerHTML = html;
+      resultsDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
