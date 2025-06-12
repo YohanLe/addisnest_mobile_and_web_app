@@ -11,6 +11,14 @@ import "../property-form.css";
 import "../../../components/property-form-styles.css";
 import { useDispatch, useSelector } from "react-redux";
 import { GetPropertyList } from "../../../Redux-store/Slices/PropertyListSlice";
+import { 
+  extractStreet, 
+  extractCity, 
+  extractRegionalState, 
+  normalizeAmenities, 
+  extractImages,
+  normalizePropertyData 
+} from "./property-edit-fix";
 
 const PropertyTypeList = [
     { value: 'House', label: 'House' },
@@ -444,26 +452,13 @@ const EditPropertyForm = () => {
             setActiveTab("For Sale");
         }
 
-        // Process images
+            // Process images using our utility function
         const processImages = () => {
-            const newImages = [];
-            const newMediaPaths = [];
-
-            if (propertyData.media && Array.isArray(propertyData.media)) {
-                propertyData.media.forEach((mediaItem) => {
-                    if (typeof mediaItem === 'string') {
-                        newImages.push(mediaItem);
-                        newMediaPaths.push(mediaItem);
-                    } else if (mediaItem && mediaItem.filePath) {
-                        newImages.push(mediaItem.filePath);
-                        newMediaPaths.push(mediaItem);
-                    }
-                });
-            }
-
+            const newImages = extractImages(propertyData);
+            
             if (newImages.length > 0) {
                 setImages(newImages);
-                setMediaPaths(newMediaPaths);
+                setMediaPaths(newImages);
                 setSlots(Math.max(4, newImages.length + 1));
                 toast.success(`Loaded ${newImages.length} existing image(s)`);
             } else {
@@ -475,42 +470,11 @@ const EditPropertyForm = () => {
 
         processImages();
 
-        // Process amenities (convert to simple string array format)
-        const amenitiesValue = getFieldValue(propertyData, ['amenities', 'features', 'property_amenities']);
-        if (amenitiesValue) {
-            let amenitiesObj = {};
-            
-            if (Array.isArray(amenitiesValue)) {
-                // If it's an array of strings, use them directly
-                amenitiesValue.forEach(amenity => {
-                    if (typeof amenity === 'string') {
-                        amenitiesObj[amenity] = true;
-                    }
-                });
-            } else if (typeof amenitiesValue === 'object') {
-                amenitiesObj = amenitiesValue;
-            } else if (typeof amenitiesValue === 'string') {
-                try {
-                    const parsed = JSON.parse(amenitiesValue);
-                    if (Array.isArray(parsed)) {
-                        parsed.forEach(amenity => {
-                            amenitiesObj[amenity] = true;
-                        });
-                    } else if (typeof parsed === 'object') {
-                        amenitiesObj = parsed;
-                    }
-                } catch (e) {
-                    // Handle comma-separated values
-                    amenitiesValue.split(',').forEach(amenity => {
-                        const trimmed = amenity.trim();
-                        if (trimmed) {
-                            amenitiesObj[trimmed] = true;
-                        }
-                    });
-                }
-            }
-            
+        // Process amenities using our utility function
+        const amenitiesObj = normalizeAmenities(propertyData);
+        if (Object.keys(amenitiesObj).length > 0) {
             setSelectedAmenities(amenitiesObj);
+            console.log('✅ Set amenities:', Object.keys(amenitiesObj).filter(k => amenitiesObj[k]));
         }
 
         toast.success('Property data populated successfully!');
