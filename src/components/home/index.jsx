@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import BannerSection from './sub-component/BannerSection';
 import FeaturedProperties from './sub-component/FeaturedProperties';
 import ServicesSection from './sub-component/ServicesSection';
@@ -8,8 +9,15 @@ import NeighborhoodGuide from './sub-component/NeighborhoodGuide';
 //import CTASection from './sub-component/CTASection';
 
 const HomePage = () => {
+  const homeData = useSelector((state) => state.Home?.HomeData);
+  
   useEffect(() => {
     console.log("HomePage component mounted");
+    
+    // Debug Redux state
+    if (homeData) {
+      console.log("HomeData in HomePage:", homeData);
+    }
     
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
@@ -20,7 +28,7 @@ const HomePage = () => {
     return () => {
       document.documentElement.style.scrollBehavior = '';
     };
-  }, []);
+  }, [homeData]);
 
   return (
     <div className="home-page" style={{ 

@@ -1,15 +1,27 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../Apis/Api';
 
-// Async thunk for fetching home page data (featured properties)
+// Async thunk for fetching home page data (all properties)
 export const GetHomeData = createAsyncThunk(
   'home/GetHomeData',
   async (params, { rejectWithValue }) => {
     try {
-      const { type = 'buy', page = 1, limit = 6 } = params;
-      const response = await api.get(`/properties?type=${type}&page=${page}&limit=${limit}&featured=true`);
+      const { type = 'buy', page = 1, limit = 12, featured = false } = params;
+      
+      // Enhanced logging for debugging
+      console.log('Fetching all properties for home page, not filtering by featured status');
+      console.log('API Request URL:', `/properties?type=${type}&page=${page}&limit=${limit}`);
+      
+      // Make the API request
+      const response = await api.get(`/properties?page=${page}&limit=${limit}`);
+      
+      // Log the response
+      console.log('API Response for properties:', response.data);
+      
+      // Return the data
       return response.data;
     } catch (error) {
+      console.error('Error fetching properties:', error);
       return rejectWithValue(error.response?.data || 'Failed to fetch home data');
     }
   }
