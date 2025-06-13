@@ -1,91 +1,103 @@
-# How to Test the Property Submission 500 Error Fix
+# How to Test the Property Submission Fix
 
-This guide provides instructions for testing the fix for the 500 Internal Server Error that was occurring during property submission when address fields were missing.
+This guide provides step-by-step instructions to test the fix for the 500 Internal Server Error that was occurring when submitting properties through the Choose Promotion page.
 
-## Option 1: Server-Side Test (Backend Only)
+## Prerequisites
 
-### Step 1: Run the Automated Test Script
-```
+- Ensure the AddiNest application is running with the latest code changes
+- Have access to a test user account
+
+## Test Steps
+
+### 1. Start the Application with Fix
+
+Run the application with the fix enabled:
+
+```bash
+# Windows
 run-property-submission-500-fix-test.bat
+
+# Unix/Linux/Mac
+node src/fix-property-submission.js
 ```
 
-This script will:
-1. Install necessary dependencies
-2. Submit a test property with missing address fields
-3. Verify that the server adds fallback values instead of returning a 500 error
-4. Display the test results
+### 2. Complete Property Listing Form
 
-### Step 2: Review Test Results
-If the test passes, you should see green success messages indicating that the property was created with fallback address values:
-- Street: "Unknown Street"
-- City: "Unknown City"
-- State: "Unknown State"
-- Country: "Ethiopia"
+1. Navigate to `/property-list-form`
+2. Fill out the property details form with test data:
+   - Property Type: Apartment
+   - Property For: For Sale
+   - Property Address: Test Street Address
+   - City: Test City
+   - Regional State: Addis Ababa City Administration
+   - Price: 1000000
+   - Upload at least one test image
+   - Fill out other required fields
 
-## Option 2: End-to-End Test (Backend + Frontend)
+3. Click "Continue" to proceed to the Choose Promotion page
 
-### Step 1: Start the Server with the Fixed Controller
-```
-start-property-fix.bat
-```
+### 3. Choose Promotion Plan
 
-This script will:
-1. Back up the original property controller
-2. Replace it with the fixed version
-3. Start the server
-4. Restore the original controller when you stop the server
+1. On the Choose Promotion page, select a promotion plan:
+   - Basic Plan (free)
+   - VIP Plan (paid)
+   - Diamond Plan (paid)
 
-### Step 2: Open the Frontend Application
-1. Navigate to `http://localhost:3000` in your browser
-2. Log in with a test account
+2. Observe that the plan selection works correctly and the price updates accordingly
 
-### Step 3: Create a New Property
-1. Go to "Add Property" or "List a Property"
-2. Fill in the property details
-3. **Important:** Leave address fields empty or partially complete to test the fix
-4. Submit the property
+### 4. Test Submission - Basic Plan
 
-### Step 4: Verify the Result
-1. If the fix is working, the property should be created successfully
-2. Navigate to your property listings to confirm it appears
-3. Check the property details to confirm fallback values were used for missing address fields
-4. Check the browser console to verify no 500 errors occurred
+1. Select the "Basic Plan"
+2. Click the "Continue" button
+3. Verify:
+   - No 500 error occurs
+   - You are redirected to the Account Management page
+   - The property appears in your property listings
 
-## What Changed?
+### 5. Test Submission - Premium Plans
 
-### Backend Changes
-1. Added `ensureAddressFields()` helper method to the property controller
-   - Automatically adds fallback values for missing address fields
-   - Handles both flat and nested address structures
+1. Return to the Choose Promotion page
+2. Select either "VIP Plan" or "Diamond Plan"
+3. Click the "Make Payment" button
+4. Verify:
+   - No 500 error occurs
+   - You are redirected to the Payment Process page
+   - The property and plan details are correctly passed to the payment page
 
-2. Added `sanitizePropertyData()` helper method to the property controller
-   - Cleans up property data to prevent validation errors
-   - Converts numerical fields to proper numbers
-   - Ensures correct format for arrays and objects
+### 6. Test with Edge Cases
 
-### Frontend Changes
-1. Modified `ChoosePropmotion.jsx` to include fallback values for address fields
-2. Removed problematic status and paymentStatus fields that could cause validation issues
-3. Enhanced error handling to provide better feedback
+1. **Test Mode**: 
+   - Enable "Test Mode" at the bottom of the Choose Promotion page
+   - Verify mock data is used instead of your real property data
+   - Submission should complete without errors
+
+2. **Missing Images**:
+   - Create a property without uploading any images
+   - Verify that default images are applied automatically
+   - Submission should complete without errors
+
+## Verification
+
+After testing, check the following to confirm the fix is working properly:
+
+1. The property has been saved to the database with the correct promotion type
+2. No 500 errors occur during any part of the submission process
+3. The property details are displayed correctly in the property listings
 
 ## Troubleshooting
 
-If you encounter issues:
+If you encounter any issues during testing:
 
-1. **Check Server Logs:**
-   - Look for validation errors or MongoDB-related messages
-   - Verify that fallback address values are being set
+1. Check browser console logs for any JavaScript errors
+2. Check server logs for any backend errors
+3. Verify the property data being sent in the Network tab of browser dev tools
+4. Ensure all required fields are properly filled out
 
-2. **Check Browser Console:**
-   - Look for any API errors or JavaScript exceptions
-   - Verify that the request payload includes all required fields
+## Reporting Issues
 
-3. **Database Inspection:**
-   - Use MongoDB Compass or another tool to inspect created properties
-   - Verify address fields are present with fallback values when not provided
+If you encounter any issues during testing, please report them with the following information:
 
-4. **Reset the Test:**
-   - If using Option 2, stop the server (Ctrl+C) and run `start-property-fix.bat` again
-   - Clear your browser cache and try again
-
-For more details about the fix implementation, refer to `PROPERTY_SUBMISSION_500_FIX.md`.
+1. Which test step failed
+2. Error message (if any)
+3. Browser console logs
+4. Screenshots of the error or unexpected behavior

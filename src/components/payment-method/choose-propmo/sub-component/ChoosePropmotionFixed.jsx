@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import Api from '../../../../Apis/Api';
 import { GetPropertyList } from '../../../../Redux-store/Slices/PropertyListSlice';
+import { formatPropertyForSubmission, validatePropertyData } from '../../../../fix-property-submission';
 import '../../choose-propmo/choose-promotion.css';
 
 // Default fallback images that will be used if no images are uploaded
@@ -208,113 +209,28 @@ const ChoosePromotion = () => {
 
   /**
    * FIXED VERSION OF savePropertyToDatabase
-   * - Removed status and paymentStatus fields
-   * - Let the server determine these values based on promotionType
+   * - Uses the utility functions from fix-property-submission.js
+   * - Removes status and paymentStatus fields
+   * - Lets the server determine these values based on promotionType
    */
   const savePropertyToDatabase = async (data, plan) => {
     try {
       // Log the input data for debugging
       console.log("Original property data from form:", data);
       
-      // Process features/amenities
-      const features = {};
-      if (data.amenities && Array.isArray(data.amenities)) {
-        data.amenities.forEach(amenity => {
-          features[amenity] = true;
-        });
+      // Validate the property data before submission
+      const validation = validatePropertyData(data);
+      if (!validation.valid) {
+        throw new Error(`Validation failed: ${validation.message}`);
       }
-
-      // Format property data for API call
-      const formattedData = {
-        title: data.title,
-        description: data.description,
-        propertyType: data.propertyType,
-        offeringType: data.offeringType,
-        // FIXED: Removed status and paymentStatus fields to avoid validation errors
-        // The server will set these values based on the promotion type
-        price: Number(data.price) || Number(data.total_price) || 0,
-        area: Number(data.area) || Number(data.property_size) || 0,
-        bedrooms: Number(data.bedrooms) || Number(data.number_of_bedrooms) || 0,
-        bathrooms: Number(data.bathrooms) || Number(data.number_of_bathrooms) || 0,
-        features: features,
-        
-        // Handle address fields - support both flat and nested structure
-        // Required flat fields for backward compatibility
-        street: data.street || data.property_address || (data.address && data.address.street) || '',
-        city: data.city || (data.address && data.address.city) || '',
-        state: data.regional_state || (data.address && data.address.state) || '',
-        country: data.country || (data.address && data.address.country) || 'Ethiopia',
-        
-        // Create nested address structure as required by backend
-        address: {
-          street: data.street || data.property_address || (data.address && data.address.street) || '',
-          city: data.city || (data.address && data.address.city) || '',
-          state: data.regional_state || (data.address && data.address.state) || '',
-          country: data.country || (data.address && data.address.country) || 'Ethiopia'
-        },
-        images: Array.isArray(data.images) ? data.images :
-          (data.media_paths ? 
-            Array.isArray(data.media_paths) ?
-              data.media_paths.map(path => {
-                console.log("Processing image path:", path);
-                // Handle different image object formats
-                if (typeof path === 'string') {
-                  return {url: path, caption: path.split('/').pop() || ''};
-                } else if (path && path.url) {
-                  // Already in correct format {url, caption}
-                  // Keep any existing _id field
-                  return {
-                    url: path.url,
-                    caption: path.caption || path.url.split('/').pop() || '',
-                    _id: path._id || undefined
-                  };
-                } else if (path && path._id) {
-                  // Format with _id field from MediaPaths
-                  return {
-                    url: path.url,
-                    caption: path.caption || path.url.split('/').pop() || '',
-                    _id: path._id
-                  };
-                }
-                return {url: String(path), caption: ''};
-              }) :
-              [{url: data.media_paths, caption: ''}] :
-            []),
-        isPremium: plan !== 'basic',
-        isVerified: false,
-        promotionType: plan === 'basic' ? 'Basic' : 
-                     plan === 'vip' ? 'VIP' : 
-                     plan === 'diamond' ? 'Diamond' : 'Basic',
-        views: 0,
-        likes: 0,
-        furnishingStatus: data.furnishingStatus || data.furnishing || "Unfurnished"
-      };
+      
+      // Use the utility function to format the property data
+      const formattedData = formatPropertyForSubmission(data, plan);
       
       console.log('Attempting to save property with formatted data:', formattedData);
       
-      // Log the final formatted data, especially the images field
-      // Ensure images are in the correct format expected by the server
-      if (formattedData.images && Array.isArray(formattedData.images)) {
-        // Convert all image objects to have only the url property
-        formattedData.images = formattedData.images.map(img => {
-          // If it's already a string or url is not defined, handle accordingly
-          if (typeof img === 'string') {
-            return { url: img };
-          } else if (img && typeof img === 'object') {
-            return { url: img.url || img.path || '' };
-          }
-          return { url: '' };
-        });
-        
-        // Filter out any empty URLs
-        formattedData.images = formattedData.images.filter(img => img.url && img.url.trim() !== '');
-        
-        // If no valid images, use default images
-        if (formattedData.images.length === 0) {
-          formattedData.images = DEFAULT_IMAGES.map(img => ({ url: img.url }));
-        }
-      } else {
-        // If no images at all, use default images
+      // Add default images if needed
+      if (!formattedData.images || !Array.isArray(formattedData.images) || formattedData.images.length === 0) {
         formattedData.images = DEFAULT_IMAGES.map(img => ({ url: img.url }));
       }
       
