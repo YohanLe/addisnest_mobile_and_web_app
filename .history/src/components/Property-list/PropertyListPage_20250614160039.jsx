@@ -430,7 +430,7 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="all">All Regions</option>
-                <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
+                <option value="Addis Ababa">Addis Ababa</option>
                 <option value="Afar Region">Afar Region</option>
                 <option value="Amhara Region">Amhara Region</option>
                 <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>
@@ -477,11 +477,11 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="all">All Types</option>
-                <option value="Apartment">Apartment</option>
-                <option value="House">House</option>
-                <option value="Villa">Villa</option>
-                <option value="Studio">Studio</option>
-                <option value="Land">Land</option>
+                <option value="apartment">Apartment</option>
+                <option value="house">House</option>
+                <option value="villa">Villa</option>
+                <option value="studio">Studio</option>
+                <option value="land">Land</option>
               </select>
             </div>
             

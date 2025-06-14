@@ -128,7 +128,6 @@ class PropertyController extends BaseController {
             { description: { $regex: searchQuery, $options: 'i' } },
             { 'address.city': { $regex: searchQuery, $options: 'i' } },
             { 'address.state': { $regex: searchQuery, $options: 'i' } },
-            { state: { $regex: searchQuery, $options: 'i' } },
             { propertyType: { $regex: searchQuery, $options: 'i' } }
         ];
     }
@@ -140,22 +139,7 @@ class PropertyController extends BaseController {
 
     // Handle regionalState filter
     if (regionalState && regionalState.toLowerCase() !== 'all') {
-        const stateCondition = {
-            $or: [
-                { state: regionalState },
-                { 'address.state': regionalState }
-            ]
-        };
-        if (query.$or) {
-            if (!query.$and) {
-                query.$and = [];
-            }
-            query.$and.push({ $or: query.$or });
-            query.$and.push(stateCondition);
-            delete query.$or;
-        } else {
-            query.$or = stateCondition.$or;
-        }
+        query['address.state'] = regionalState;
     }
 
     // Handle priceRange filter

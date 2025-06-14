@@ -430,7 +430,7 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="all">All Regions</option>
-                <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
+                <option value="Addis Ababa">Addis Ababa</option>
                 <option value="Afar Region">Afar Region</option>
                 <option value="Amhara Region">Amhara Region</option>
                 <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>

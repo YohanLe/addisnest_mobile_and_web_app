@@ -37,16 +37,16 @@ export const formatPropertyForSubmission = (data, plan) => {
     // Handle address fields - support both flat and nested structure
     street: data.street || data.property_address || (data.address && data.address.street) || '',
     city: data.city || (data.address && data.address.city) || '',
-    state: data.state || data.regional_state || data.regionalState || (data.address && data.address.state) || '',
-    regionalState: data.regional_state || data.regionalState || (data.address && data.address.regionalState) || '',
+    state: data.regional_state || (data.address && data.address.state) || '',
+    regionalState: data.regional_state || (data.address && data.address.regionalState) || '',
     country: data.country || (data.address && data.address.country) || 'Ethiopia',
     
     // Create nested address structure as required by backend
     address: {
       street: data.street || data.property_address || (data.address && data.address.street) || '',
       city: data.city || (data.address && data.address.city) || '',
-      state: data.state || data.regional_state || data.regionalState || (data.address && data.address.state) || '',
-      regionalState: data.regional_state || data.regionalState || (data.address && data.address.regionalState) || '',
+      state: data.regional_state || (data.address && data.address.state) || '',
+      regionalState: data.regional_state || (data.address && data.address.regionalState) || '',
       country: data.country || (data.address && data.address.country) || 'Ethiopia'
     },
     

@@ -37,7 +37,6 @@ class PropertyController extends BaseController {
         req.body.street = req.body.address.street || req.body.street;
         req.body.city = req.body.address.city || req.body.city;
         req.body.state = req.body.address.state || req.body.state;
-        req.body.regionalState = req.body.address.regionalState || req.body.regionalState;
         req.body.country = req.body.address.country || req.body.country || 'Ethiopia';
       } else if (req.body.street || req.body.city || req.body.state || req.body.country) {
         // If only flat fields are provided, create the nested structure
@@ -45,7 +44,6 @@ class PropertyController extends BaseController {
           street: req.body.street || '',
           city: req.body.city || '',
           state: req.body.state || '',
-          regionalState: req.body.regionalState || '',
           country: req.body.country || 'Ethiopia'
         };
       }
@@ -128,33 +126,31 @@ class PropertyController extends BaseController {
             { description: { $regex: searchQuery, $options: 'i' } },
             { 'address.city': { $regex: searchQuery, $options: 'i' } },
             { 'address.state': { $regex: searchQuery, $options: 'i' } },
-            { state: { $regex: searchQuery, $options: 'i' } },
             { propertyType: { $regex: searchQuery, $options: 'i' } }
         ];
     }
 
     // Handle propertyType filter
-    if (propertyType && propertyType.toLowerCase() !== 'all') {
+    if (propertyType && propertyType !== 'all') {
         query.propertyType = propertyType;
     }
 
     // Handle regionalState filter
-    if (regionalState && regionalState.toLowerCase() !== 'all') {
-        const stateCondition = {
+    if (regionalState && regionalState !== 'all') {
+        const regionalStateQuery = {
             $or: [
-                { state: regionalState },
-                { 'address.state': regionalState }
+                { 'address.state': regionalState },
+                { state: regionalState }
             ]
         };
         if (query.$or) {
-            if (!query.$and) {
-                query.$and = [];
-            }
-            query.$and.push({ $or: query.$or });
-            query.$and.push(stateCondition);
+            query.$and = [
+                { $or: query.$or },
+                regionalStateQuery
+            ];
             delete query.$or;
         } else {
-            query.$or = stateCondition.$or;
+            query.$or = regionalStateQuery.$or;
         }
     }
 
@@ -362,7 +358,6 @@ class PropertyController extends BaseController {
         req.body.street = req.body.address.street || req.body.street;
         req.body.city = req.body.address.city || req.body.city;
         req.body.state = req.body.address.state || req.body.state;
-        req.body.regionalState = req.body.address.regionalState || req.body.regionalState;
         req.body.country = req.body.address.country || req.body.country || 'Ethiopia';
       } else if (req.body.street || req.body.city || req.body.state || req.body.country) {
         // If only flat fields are provided, create the nested structure
@@ -370,7 +365,6 @@ class PropertyController extends BaseController {
           street: req.body.street || '',
           city: req.body.city || '',
           state: req.body.state || '',
-          regionalState: req.body.regionalState || '',
           country: req.body.country || 'Ethiopia'
         };
       }

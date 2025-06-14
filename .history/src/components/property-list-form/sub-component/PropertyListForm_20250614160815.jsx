@@ -539,7 +539,7 @@ const PropertyListForm = () => {
         address: {
             street: inps?.property_address || (testMode ? '123 Test Street' : ''),
             city: inps?.city || (testMode ? 'Addis Ababa' : ''),
-            state: inps?.regional_state || (testMode ? 'Addis Ababa City Administration' : ''),
+            state: inps?.state || (testMode ? 'Addis Ababa' : ''),
             regionalState: inps?.regional_state || (testMode ? 'Addis Ababa City Administration' : ''),
             country: inps?.country || 'Ethiopia'
         },
@@ -547,7 +547,7 @@ const PropertyListForm = () => {
         // Keep flat fields for backward compatibility
         street: inps?.property_address || (testMode ? '123 Test Street' : ''),
         city: inps?.city || (testMode ? 'Addis Ababa' : ''),
-        state: inps?.regional_state || (testMode ? 'Addis Ababa City Administration' : ''),
+        state: inps?.state || (testMode ? 'Addis Ababa' : ''),
         regionalState: inps?.regional_state || (testMode ? 'Addis Ababa City Administration' : ''),
         country: inps?.country || 'Ethiopia',
         

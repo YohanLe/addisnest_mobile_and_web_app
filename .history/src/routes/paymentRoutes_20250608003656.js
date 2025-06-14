@@ -12,7 +12,6 @@ router.route('/')
   .get(paymentController.getUserPayments);
 
 router.get('/property/:propertyId', paymentController.getPropertyPayments);
-router.get('/history', paymentController.getUserPayments);
 router.get('/:id', paymentController.getPayment);
 
 // Admin only routes
