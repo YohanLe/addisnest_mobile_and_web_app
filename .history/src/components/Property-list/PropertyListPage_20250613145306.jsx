@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { GetAllPropertyListings } from '../../Redux-store/Slices/HomeSlice';
 import { GetUserPayments } from '../../Redux-store/Slices/PaymentSlice';
 import { isAuthenticated } from '../../utils/tokenHandler';
@@ -12,51 +12,46 @@ const PropertyListPage = () => {
   const userPayments = useSelector((state) => state.Payments?.userPayments || { data: null, pending: false });
   const isLoggedIn = isAuthenticated();
   const [purchasedProperties, setPurchasedProperties] = useState([]);
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [priceRange, setPriceRange] = useState(queryParams.get('priceRange') || 'any');
-  const [propertyType, setPropertyType] = useState(queryParams.get('propertyType') || 'all');
-  const [bedrooms, setBedrooms] = useState(queryParams.get('bedrooms') || 'any');
-  const [bathrooms, setBathrooms] = useState(queryParams.get('bathrooms') || 'any');
-  const [regionalState, setRegionalState] = useState(queryParams.get('regionalState') || 'all');
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || 'newest');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState('any');
+  const [propertyType, setPropertyType] = useState('all');
+  const [bedrooms, setBedrooms] = useState('any');
+  const [bathrooms, setBathrooms] = useState('any');
+  const [regionalState, setRegionalState] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [offeringType, setOfferingType] = useState('For Sale');
   const [filtersVisible, setFiltersVisible] = useState(true);
-  const navigate = useNavigate();
+  const location = useLocation();
 
   const applyFilters = () => {
-    const queryParams = new URLSearchParams();
-    queryParams.set('for', location.search.includes('rent') ? 'rent' : 'buy');
-    if (searchQuery) queryParams.set('search', searchQuery);
-    if (priceRange !== 'any') queryParams.set('priceRange', priceRange);
-    if (propertyType !== 'all') queryParams.set('propertyType', propertyType);
-    if (bedrooms !== 'any') queryParams.set('bedrooms', bedrooms);
-    if (bathrooms !== 'any') queryParams.set('bathrooms', bathrooms);
-    if (regionalState !== 'all') queryParams.set('regionalState', regionalState);
-    if (sortBy !== 'newest') queryParams.set('sortBy', sortBy);
+    const queryParams = new URLSearchParams(location.search);
+    const type = queryParams.get('for') || 'buy';
 
-    navigate(`/property-list?${queryParams.toString()}`);
+    const filters = {
+      type,
+      page: 1,
+      limit: 50,
+      search: searchQuery,
+      priceRange,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      regionalState,
+      sortBy,
+      offeringType: offeringType === 'For Sale' ? ['For Sale', 'For Rent'] : offeringType,
+    };
+
+    dispatch(GetAllPropertyListings(filters));
   };
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const type = queryParams.get('for') || 'buy';
-    const searchParam = queryParams.get('search') || '';
-    const priceRangeParam = queryParams.get('priceRange') || 'any';
-    const propertyTypeParam = queryParams.get('propertyType') || 'all';
-    const bedroomsParam = queryParams.get('bedrooms') || 'any';
-    const bathroomsParam = queryParams.get('bathrooms') || 'any';
-    const regionalStateParam = queryParams.get('regionalState') || 'all';
-    const sortByParam = queryParams.get('sortBy') || 'newest';
+    const searchParam = queryParams.get('search');
 
-    setSearchQuery(searchParam);
-    setPriceRange(priceRangeParam);
-    setPropertyType(propertyTypeParam);
-    setBedrooms(bedroomsParam);
-    setBathrooms(bathroomsParam);
-    setRegionalState(regionalStateParam);
-    setSortBy(sortByParam);
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
 
     // Fetch initial properties when the component mounts or location changes
     dispatch(
@@ -64,13 +59,13 @@ const PropertyListPage = () => {
         type,
         page: 1,
         limit: 50,
-        search: searchParam,
-        priceRange: priceRangeParam,
-        propertyType: propertyTypeParam,
-        bedrooms: bedroomsParam,
-        bathrooms: bathroomsParam,
-        regionalState: regionalStateParam,
-        sortBy: sortByParam,
+        search: searchParam || '',
+        priceRange: 'any',
+        propertyType: 'all',
+        bedrooms: 'any',
+        bathrooms: 'any',
+        regionalState: 'all',
+        sortBy: 'newest',
         offeringType: offeringType === 'For Sale' ? ['For Sale', 'For Rent'] : offeringType,
       })
     );
@@ -311,7 +306,59 @@ const PropertyListPage = () => {
           <p className="text-muted">Find the perfect property to call home in Ethiopia</p>
         </div>
         
-        {/* Apply Filters button moved to inside the filters section */}
+        {/* Main search bar */}
+        <div className="search-filter mb-4">
+          <div className="input-group" style={{ 
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.07)',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            transition: 'all 0.3s ease'
+          }}>
+            <input 
+              type="text" 
+              placeholder="Search by location, property type, or keyword..." 
+              className="form-control form-control-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ 
+                border: '1px solid #f0f0f0', 
+                borderRight: 'none',
+                borderRadius: '12px 0 0 12px',
+                padding: '15px 20px',
+                fontSize: '16px',
+                fontWeight: '500',
+                color: '#444',
+                transition: 'all 0.2s ease'
+              }}
+            />
+            <button
+              className="btn btn-primary px-4"
+              onClick={applyFilters}
+              style={{
+                backgroundColor: '#a4ff2a',
+                color: '#222',
+                border: 'none',
+                fontWeight: '700',
+                borderRadius: '0 12px 12px 0',
+                padding: '15px 30px',
+                fontSize: '16px',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+                style={{ marginRight: '8px' }}
+              >
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+              </svg>
+              Search
+            </button>
+          </div>
+        </div>
         
         {/* Filter toggle button */}
         <div className="filters-toggle mb-3">
@@ -359,7 +406,24 @@ const PropertyListPage = () => {
             gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
             gap: '16px'
           }}>
-            {/* Offering Type filter removed as it's now handled by the header navigation */}
+            {/* Offering Type Filter */}
+            <div className="filter-item">
+              <label className="form-label" style={{ 
+                fontSize: '15px', 
+                fontWeight: '600', 
+                marginBottom: '8px', 
+                color: '#444'
+              }}>Offering Type</label>
+              <div className="btn-group" style={{ display: 'flex', width: '100%' }}>
+                <button 
+                  className={`btn ${offeringType === 'For Sale' || offeringType === 'For Rent' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setOfferingType(offeringType === 'For Sale' ? 'For Rent' : 'For Sale')}
+                  style={{ flex: 1, borderRadius: '10px' }}
+                >
+                  Buy/Rent
+                </button>
+              </div>
+            </div>
 
             {/* Price Range Filter */}
             <div className="filter-item">
@@ -391,7 +455,6 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="any">Any Price</option>
-                <option value="0-20000">ETB 0 - 20,000</option>
                 <option value="20000-1000000">ETB 20,000 - 1,000,000</option>
                 <option value="1000000-5000000">ETB 1,000,000 - 5,000,000</option>
                 <option value="5000000-10000000">ETB 5,000,000 - 10,000,000</option>
@@ -430,7 +493,7 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="all">All Regions</option>
-                <option value="Addis Ababa">Addis Ababa</option>
+                <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
                 <option value="Afar Region">Afar Region</option>
                 <option value="Amhara Region">Amhara Region</option>
                 <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>
@@ -595,51 +658,7 @@ const PropertyListPage = () => {
                 <option value="price-desc">Price (High to Low)</option>
               </select>
             </div>
-            
-            {/* Apply Filters button moved next to Sort By */}
-            <div className="filter-item">
-              <label className="form-label" style={{ 
-                fontSize: '15px', 
-                fontWeight: '600', 
-                marginBottom: '8px', 
-                color: '#444'
-              }}>Apply</label>
-              <button
-                className="btn btn-primary"
-                onClick={applyFilters}
-                style={{
-                  backgroundColor: '#a4ff2a',
-                  color: '#222',
-                  border: 'none',
-                  fontWeight: '700',
-                  borderRadius: '10px',
-                  padding: '12px 16px',
-                  fontSize: '14px',
-                  width: '100%',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.07)',
-                  height: '47px', // Match height of other filter inputs
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  style={{ marginRight: '8px' }}
-                >
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                </svg>
-                Apply Filters
-              </button>
-            </div>
           </div>
-          
-          {/* Removed duplicate Apply Filters button as it's now next to Sort By */}
         </div>
         
         {/* Property results count */}

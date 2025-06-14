@@ -137,10 +137,7 @@ class PropertyController extends BaseController {
 
     // Handle regionalState filter
     if (regionalState && regionalState !== 'all') {
-        query.$or = [
-            { 'address.state': regionalState },
-            { state: regionalState }
-        ];
+        query['address.state'] = regionalState;
     }
 
     // Handle priceRange filter

@@ -137,10 +137,12 @@ class PropertyController extends BaseController {
 
     // Handle regionalState filter
     if (regionalState && regionalState !== 'all') {
-        query.$or = [
-            { 'address.state': regionalState },
-            { state: regionalState }
-        ];
+        const regionalStateRegex = new RegExp(regionalState.replace(/\+/g, ' '), 'i');
+        if (regionalState === 'Addis Ababa City Administration') {
+            query['address.state'] = { $in: [new RegExp('Addis Ababa City Administration', 'i'), new RegExp('Addis Ababa', 'i')] };
+        } else {
+            query['address.state'] = { $regex: regionalStateRegex };
+        }
     }
 
     // Handle priceRange filter

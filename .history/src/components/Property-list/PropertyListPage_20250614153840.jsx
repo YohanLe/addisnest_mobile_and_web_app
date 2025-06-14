@@ -391,7 +391,6 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="any">Any Price</option>
-                <option value="0-20000">ETB 0 - 20,000</option>
                 <option value="20000-1000000">ETB 20,000 - 1,000,000</option>
                 <option value="1000000-5000000">ETB 1,000,000 - 5,000,000</option>
                 <option value="5000000-10000000">ETB 5,000,000 - 10,000,000</option>

@@ -8,7 +8,6 @@ import './BannerSection.css';
 
 const BannerSection = () => {
   const [searchType, setSearchType] = useState('buy');
-  const [buyRentToggle, setBuyRentToggle] = useState('buy'); // New state for Buy/Rent toggle
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
@@ -16,15 +15,7 @@ const BannerSection = () => {
   const handleSearch = (e, type) => {
     if (e) e.preventDefault();
     const currentSearchType = type || searchType;
-    
-    if (currentSearchType === 'buy-rent') {
-      // For the combined Buy/Rent button, use the toggle state to determine which type to fetch
-      if (buyRentToggle === 'buy') {
-        navigate(`/property-list?for=sale&search=${encodeURIComponent(searchQuery)}`);
-      } else {
-        navigate(`/property-list?for=rent&search=${encodeURIComponent(searchQuery)}`);
-      }
-    } else if (currentSearchType === 'rent') {
+    if (currentSearchType === 'rent') {
       navigate(`/property-list?for=rent&search=${encodeURIComponent(searchQuery)}`);
     } else if (currentSearchType === 'buy') {
       navigate(`/property-list?search=${encodeURIComponent(searchQuery)}`);
@@ -35,16 +26,6 @@ const BannerSection = () => {
     } else {
       navigate(`/property-list?search=${encodeURIComponent(searchQuery)}`);
     }
-  };
-
-  // Function to toggle between Buy and Rent
-  const toggleBuyRent = () => {
-    const newToggle = buyRentToggle === 'buy' ? 'rent' : 'buy';
-    setBuyRentToggle(newToggle);
-    setSearchType('buy-rent');
-    
-    // Immediately search for properties with the new toggle selection
-    handleSearch(null, 'buy-rent');
   };
 
   const handleTabClick = (type) => {
@@ -72,29 +53,18 @@ const BannerSection = () => {
                   <ul className="nav">
                     <li className="nav-item">
                       <button
-                        className={`nav-link ${searchType === 'buy-rent' ? 'active' : ''}`}
-                        onClick={() => {
-                          setSearchType('buy-rent');
-                          toggleBuyRent();
-                        }}
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          minWidth: '120px'
-                        }}
+                        className={`nav-link ${searchType === 'buy' ? 'active' : ''}`}
+                        onClick={() => setSearchType('buy')}
                       >
-                        <span>Buy/Rent</span>
-                        <span style={{ 
-                          marginLeft: '5px',
-                          fontSize: '12px',
-                          padding: '2px 6px',
-                          borderRadius: '10px',
-                          backgroundColor: buyRentToggle === 'buy' ? '#d9534f' : '#5bc0de',
-                          color: 'white'
-                        }}>
-                          {buyRentToggle === 'buy' ? 'Buy' : 'Rent'}
-                        </span>
+                        Buy
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${searchType === 'rent' ? 'active' : ''}`}
+                        onClick={() => setSearchType('rent')}
+                      >
+                        Rent
                       </button>
                     </li>
                     <li className="nav-item">

@@ -12,7 +12,6 @@ const Header = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showRegisterPopup, setShowRegisterPopup] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [buyRentMode, setBuyRentMode] = useState('buy'); // Track the Buy/Rent toggle state
   const navigate = useNavigate();
   const user = useSelector((state) => state.Auth.Details.data);
 
@@ -38,29 +37,18 @@ const Header = () => {
           <div className="nav-main">
             <ul className="navigation">
               <li>
-                <div 
-                  className={`${isActive('/property-list')} nav-link buy-rent-toggle`}
+                <Link
+                  to="/property-list?for=buy"
+                  className={`${isActive('/property-list')} nav-link`}
                   onClick={(e) => {
                     e.preventDefault();
-                    // Toggle between buy and rent
-                    const newMode = buyRentMode === 'buy' ? 'rent' : 'buy';
-                    setBuyRentMode(newMode);
-                    
-                    // Navigate to the appropriate page based on the new mode
-                    console.log(`Buy/Rent button clicked, toggling to ${newMode} mode`);
-                    if (newMode === 'buy') {
-                      navigate('/property-list?for=sale');
-                    } else {
-                      navigate('/property-list?for=rent');
-                    }
+                    console.log("Buy button clicked, navigating to property-list with for=buy");
+                    navigate('/property-list?for=buy');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                 >
-                  <span>Buy/Rent</span>
-                  <span className={`toggle-indicator ${buyRentMode}`}>
-                    {buyRentMode === 'buy' ? 'Buy' : 'Rent'}
-                  </span>
-                </div>
+                  Buy
+                </Link>
               </li>
               <li>
                 <Link
@@ -78,6 +66,19 @@ const Header = () => {
                   }}
                 >
                   Sell
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/property-list?for=rent"
+                  className={`${isActive('/property-list')} nav-link`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/property-list?for=rent');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  Rent
                 </Link>
               </li>
               <li>

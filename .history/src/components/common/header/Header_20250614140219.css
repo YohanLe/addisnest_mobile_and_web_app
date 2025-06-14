@@ -1,0 +1,234 @@
+.header {
+  padding: 15px 0;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-area .logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo-icon {
+  background-color: #b9f73e;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-right: 6px;
+}
+
+.logo-text {
+  color: #333333;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.nav-main {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.navigation {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 15px;
+  justify-content: center;
+}
+
+.navigation .nav-link {
+  padding: 5px 0;
+  text-decoration: none;
+  color: #555555;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+/* Styles for the Buy/Rent toggle button */
+.buy-rent-toggle {
+  padding: 5px 10px !important;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.buy-rent-toggle:hover {
+  background-color: #f5f5f5;
+}
+
+.buy-rent-toggle .toggle-indicator {
+  margin-left: 5px;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.buy-rent-toggle .toggle-indicator.buy {
+  background-color: #d9534f;
+}
+
+.buy-rent-toggle .toggle-indicator.rent {
+  background-color: #5bc0de;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.eng-button {
+  border: 1px solid #cccccc;
+  border-radius: 30px;
+  padding: 4px 10px;
+  color: #555555;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logged-in-indicator {
+  background-color: #a4ff2a;
+  color: #333;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.profile-picture-container {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #a4ff2a;
+  overflow: hidden;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-initial {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.user-menu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 10px 0;
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.user-info {
+  padding: 5px 15px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+}
+
+.user-name {
+  margin: 8px 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.user-menu-link {
+  display: block;
+  padding: 8px 15px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.logout-button {
+  padding: 8px 15px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+  border-top: 1px solid #eee;
+  margin-top: 5px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.login-btn {
+  background-color: #333333;
+  color: white;
+  padding: 6px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+.register-btn {
+  background-color: #a4ff2a;
+  color: #333;
+  padding: 6px 15px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}

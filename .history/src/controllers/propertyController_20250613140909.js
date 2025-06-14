@@ -86,146 +86,112 @@ class PropertyController extends BaseController {
     }
   });
 
+  // @desc    Get all properties
+  // @route   GET /api/properties
+  // @access  Public
   getAllProperties = this.asyncHandler(async (req, res) => {
-    const {
-        select,
-        sort,
-        page: pageStr = '1',
-        limit: limitStr = '10',
-        for: offeringTypeFor,
-        search,
-        priceRange,
-        propertyType,
-        bedrooms,
-        bathrooms,
-        regionalState,
-        sortBy
-    } = req.query;
-
-    const query = {};
-
-    // Handle 'for' parameter for offering type
+    // Copy req.query
+    const reqQuery = { ...req.query };
+    
+    // Fields to exclude
+    const removeFields = ['select', 'sort', 'page', 'limit'];
+    
+    // Loop over removeFields and delete them from reqQuery
+    removeFields.forEach(param => delete reqQuery[param]);
+    
+    // Handle the 'for' parameter separately for filtering by offering type
     if (req.query.for) {
-        const offeringTypeMap = {
-            'buy': 'For Sale',
-            'rent': 'For Rent',
-            'sell': 'For Sale',
-            'sale': 'For Sale'
-        };
-        if (offeringTypeMap[req.query.for]) {
-            query.offeringType = offeringTypeMap[req.query.for];
-            console.log(`Filtering for offeringType: ${query.offeringType}`);
-        }
-    }
-
-    // Handle search query
-    if (search) {
-        const searchQuery = search;
-        query.$or = [
-            { title: { $regex: searchQuery, $options: 'i' } },
-            { description: { $regex: searchQuery, $options: 'i' } },
-            { 'address.city': { $regex: searchQuery, $options: 'i' } },
-            { 'address.state': { $regex: searchQuery, $options: 'i' } },
-            { propertyType: { $regex: searchQuery, $options: 'i' } }
-        ];
-    }
-
-    // Handle propertyType filter
-    if (propertyType && propertyType !== 'all') {
-        query.propertyType = propertyType;
+      // Map 'for' parameter values to offeringType values in the database
+      const offeringTypeMap = {
+        'buy': 'For Sale',
+        'rent': 'For Rent',
+        'sell': 'For Sale'
+      };
+      
+      // Add offeringType filter based on 'for' parameter
+      if (offeringTypeMap[req.query.for]) {
+        reqQuery.offeringType = offeringTypeMap[req.query.for];
+        console.log(`Filtering properties by offeringType: ${reqQuery.offeringType}`);
+      }
+      
+      // Remove the 'for' parameter since we've handled it separately
+      delete reqQuery.for;
     }
 
     // Handle regionalState filter
-    if (regionalState && regionalState !== 'all') {
-        query.$or = [
-            { 'address.state': regionalState },
-            { state: regionalState }
-        ];
+    if (req.query.regionalState && req.query.regionalState !== 'all') {
+      reqQuery['address.state'] = req.query.regionalState;
+      console.log(`Filtering properties by regionalState: ${reqQuery['address.state']}`);
     }
-
-    // Handle priceRange filter
-    if (priceRange && priceRange !== 'any') {
-        if (priceRange.includes('-')) {
-            const [min, max] = priceRange.split('-');
-            query.price = {};
-            if (min) query.price.$gte = parseInt(min, 10);
-            if (max) query.price.$lte = parseInt(max, 10);
-        } else if (priceRange.endsWith('+')) {
-            const min = priceRange.slice(0, -1);
-            query.price = { $gte: parseInt(min, 10) };
-        }
-    }
-
-    // Handle bedrooms filter
-    if (bedrooms && bedrooms !== 'any') {
-        query.bedrooms = { $gte: parseInt(bedrooms, 10) };
-    }
-
-    // Handle bathrooms filter
-    if (bathrooms && bathrooms !== 'any') {
-        query.bathrooms = { $gte: parseInt(bathrooms, 10) };
-    }
-
-    console.log('Final property filter query:', JSON.stringify(query));
-
+    delete reqQuery.regionalState;
+>>>>>>> REPLACE
+    
+    // Create query string
+    let queryStr = JSON.stringify(reqQuery);
+    
+    // Create operators ($gt, $gte, etc)
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+    
+    console.log('Final property filter query:', queryStr);
+    
     // Finding resource
-    let findQuery = Property.find(query)
-        .populate({
-            path: 'owner',
-            select: 'firstName lastName email phone'
-        })
-        .populate({
-            path: 'images',
-            select: 'url'
-        });
+    let query = Property.find(JSON.parse(queryStr))
+    .populate({
+      path: 'owner',
+      select: 'firstName lastName email phone'
+    })
+    .populate({
+      path: 'images',
+      select: 'url'
+    });
 
     // Select Fields
-    if (select) {
-        const fields = select.split(',').join(' ');
-        findQuery = findQuery.select(fields);
+    if (req.query.select) {
+      const fields = req.query.select.split(',').join(' ');
+      query = query.select(fields);
     }
 
     // Sort
-    if (sortBy) {
-        const sortQuery = sortBy.split(',').join(' ');
-        findQuery = findQuery.sort(sortQuery);
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
     } else {
-        findQuery = findQuery.sort('-createdAt');
+      query = query.sort('-createdAt');
     }
 
     // Pagination
-    const page = parseInt(pageStr, 10);
-    const limit = parseInt(limitStr, 10);
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    const total = await Property.countDocuments(query);
+    const total = await Property.countDocuments(JSON.parse(queryStr));
 
-    findQuery = findQuery.skip(startIndex).limit(limit);
+    query = query.skip(startIndex).limit(limit);
 
     // Executing query
-    const properties = await findQuery;
+    const properties = await query;
 
     // Pagination result
     const pagination = {};
 
     if (endIndex < total) {
-        pagination.next = {
-            page: page + 1,
-            limit
-        };
+      pagination.next = {
+        page: page + 1,
+        limit
+      };
     }
 
     if (startIndex > 0) {
-        pagination.prev = {
-            page: page - 1,
-            limit
-        };
+      pagination.prev = {
+        page: page - 1,
+        limit
+      };
     }
 
     this.sendResponse(res, {
-        count: properties.length,
-        pagination,
-        data: properties
+      count: properties.length,
+      pagination,
+      data: properties
     });
   });
 

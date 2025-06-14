@@ -55,9 +55,19 @@ const Header = () => {
                     }
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                 >
                   <span>Buy/Rent</span>
-                  <span className={`toggle-indicator ${buyRentMode}`}>
+                  <span 
+                    style={{ 
+                      marginLeft: '5px',
+                      fontSize: '12px',
+                      padding: '2px 6px',
+                      borderRadius: '10px',
+                      backgroundColor: buyRentMode === 'buy' ? '#d9534f' : '#5bc0de',
+                      color: 'white'
+                    }}
+                  >
                     {buyRentMode === 'buy' ? 'Buy' : 'Rent'}
                   </span>
                 </div>

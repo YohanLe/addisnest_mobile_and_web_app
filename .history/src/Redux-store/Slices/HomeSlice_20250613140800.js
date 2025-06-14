@@ -43,7 +43,6 @@ export const GetAllPropertyListings = createAsyncThunk(
         bathrooms = 'any',
         regionalState = 'all',
         sortBy = 'newest',
-        offeringType = 'For Sale',
       } = params;
 
       // Build the query string
@@ -58,7 +57,6 @@ export const GetAllPropertyListings = createAsyncThunk(
         bathrooms,
         regionalState,
         sortBy,
-        offeringType,
       });
 
       console.log(`Fetching properties with query: ${queryParams.toString()}`);

@@ -105,16 +105,14 @@ class PropertyController extends BaseController {
     const query = {};
 
     // Handle 'for' parameter for offering type
-    if (req.query.for) {
+    if (offeringTypeFor) {
         const offeringTypeMap = {
             'buy': 'For Sale',
             'rent': 'For Rent',
-            'sell': 'For Sale',
-            'sale': 'For Sale'
+            'sell': 'For Sale'
         };
-        if (offeringTypeMap[req.query.for]) {
-            query.offeringType = offeringTypeMap[req.query.for];
-            console.log(`Filtering for offeringType: ${query.offeringType}`);
+        if (offeringTypeMap[offeringTypeFor]) {
+            query.offeringType = offeringTypeMap[offeringTypeFor];
         }
     }
 
@@ -137,10 +135,7 @@ class PropertyController extends BaseController {
 
     // Handle regionalState filter
     if (regionalState && regionalState !== 'all') {
-        query.$or = [
-            { 'address.state': regionalState },
-            { state: regionalState }
-        ];
+        query['address.state'] = regionalState;
     }
 
     // Handle priceRange filter

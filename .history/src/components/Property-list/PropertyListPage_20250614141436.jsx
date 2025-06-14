@@ -12,17 +12,16 @@ const PropertyListPage = () => {
   const userPayments = useSelector((state) => state.Payments?.userPayments || { data: null, pending: false });
   const isLoggedIn = isAuthenticated();
   const [purchasedProperties, setPurchasedProperties] = useState([]);
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const [searchQuery, setSearchQuery] = useState(queryParams.get('search') || '');
-  const [priceRange, setPriceRange] = useState(queryParams.get('priceRange') || 'any');
-  const [propertyType, setPropertyType] = useState(queryParams.get('propertyType') || 'all');
-  const [bedrooms, setBedrooms] = useState(queryParams.get('bedrooms') || 'any');
-  const [bathrooms, setBathrooms] = useState(queryParams.get('bathrooms') || 'any');
-  const [regionalState, setRegionalState] = useState(queryParams.get('regionalState') || 'all');
-  const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || 'newest');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState('any');
+  const [propertyType, setPropertyType] = useState('all');
+  const [bedrooms, setBedrooms] = useState('any');
+  const [bathrooms, setBathrooms] = useState('any');
+  const [regionalState, setRegionalState] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
   const [offeringType, setOfferingType] = useState('For Sale');
   const [filtersVisible, setFiltersVisible] = useState(true);
+  const location = useLocation();
   const navigate = useNavigate();
 
   const applyFilters = () => {
@@ -42,21 +41,11 @@ const PropertyListPage = () => {
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const type = queryParams.get('for') || 'buy';
-    const searchParam = queryParams.get('search') || '';
-    const priceRangeParam = queryParams.get('priceRange') || 'any';
-    const propertyTypeParam = queryParams.get('propertyType') || 'all';
-    const bedroomsParam = queryParams.get('bedrooms') || 'any';
-    const bathroomsParam = queryParams.get('bathrooms') || 'any';
-    const regionalStateParam = queryParams.get('regionalState') || 'all';
-    const sortByParam = queryParams.get('sortBy') || 'newest';
+    const searchParam = queryParams.get('search');
 
-    setSearchQuery(searchParam);
-    setPriceRange(priceRangeParam);
-    setPropertyType(propertyTypeParam);
-    setBedrooms(bedroomsParam);
-    setBathrooms(bathroomsParam);
-    setRegionalState(regionalStateParam);
-    setSortBy(sortByParam);
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
 
     // Fetch initial properties when the component mounts or location changes
     dispatch(
@@ -64,13 +53,13 @@ const PropertyListPage = () => {
         type,
         page: 1,
         limit: 50,
-        search: searchParam,
-        priceRange: priceRangeParam,
-        propertyType: propertyTypeParam,
-        bedrooms: bedroomsParam,
-        bathrooms: bathroomsParam,
-        regionalState: regionalStateParam,
-        sortBy: sortByParam,
+        search: searchParam || '',
+        priceRange: 'any',
+        propertyType: 'all',
+        bedrooms: 'any',
+        bathrooms: 'any',
+        regionalState: 'all',
+        sortBy: 'newest',
         offeringType: offeringType === 'For Sale' ? ['For Sale', 'For Rent'] : offeringType,
       })
     );
@@ -391,7 +380,6 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="any">Any Price</option>
-                <option value="0-20000">ETB 0 - 20,000</option>
                 <option value="20000-1000000">ETB 20,000 - 1,000,000</option>
                 <option value="1000000-5000000">ETB 1,000,000 - 5,000,000</option>
                 <option value="5000000-10000000">ETB 5,000,000 - 10,000,000</option>
@@ -430,7 +418,7 @@ const PropertyListPage = () => {
                 }}
               >
                 <option value="all">All Regions</option>
-                <option value="Addis Ababa">Addis Ababa</option>
+                <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
                 <option value="Afar Region">Afar Region</option>
                 <option value="Amhara Region">Amhara Region</option>
                 <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>

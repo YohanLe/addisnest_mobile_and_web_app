@@ -1,0 +1,84 @@
+.banner-section {
+  background-size: cover;
+  background-position: center;
+  padding: 80px 0;
+  color: #fff;
+  position: relative;
+  box-shadow: none;
+}
+
+.banner-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  text-align: left;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.search-tabs-container {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  max-width: 650px;
+  overflow: hidden;
+}
+
+.search-tabs {
+  background-color: #f7f7f7;
+  padding: 0;
+}
+
+.search-tabs .nav {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-tabs .nav-link {
+  background: transparent;
+  color: #666;
+  border: none;
+  padding: 12px 20px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+}
+
+.search-tabs .nav-link.active {
+  background: white;
+  color: #000;
+  border-bottom: 3px solid #d9534f;
+}
+
+.search-form {
+  padding: 20px;
+  display: flex;
+}
+
+.search-input {
+  height: 48px;
+  font-size: 16px;
+  border-right: none;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  padding: 12px 15px;
+  flex: 1;
+  box-shadow: none;
+}
+
+.search-button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+}

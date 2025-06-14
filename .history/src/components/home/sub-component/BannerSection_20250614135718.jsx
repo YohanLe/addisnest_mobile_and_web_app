@@ -42,9 +42,6 @@ const BannerSection = () => {
     const newToggle = buyRentToggle === 'buy' ? 'rent' : 'buy';
     setBuyRentToggle(newToggle);
     setSearchType('buy-rent');
-    
-    // Immediately search for properties with the new toggle selection
-    handleSearch(null, 'buy-rent');
   };
 
   const handleTabClick = (type) => {
@@ -77,24 +74,8 @@ const BannerSection = () => {
                           setSearchType('buy-rent');
                           toggleBuyRent();
                         }}
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          minWidth: '120px'
-                        }}
                       >
-                        <span>Buy/Rent</span>
-                        <span style={{ 
-                          marginLeft: '5px',
-                          fontSize: '12px',
-                          padding: '2px 6px',
-                          borderRadius: '10px',
-                          backgroundColor: buyRentToggle === 'buy' ? '#d9534f' : '#5bc0de',
-                          color: 'white'
-                        }}>
-                          {buyRentToggle === 'buy' ? 'Buy' : 'Rent'}
-                        </span>
+                        {buyRentToggle === 'buy' ? 'Buy/Rent (Buy)' : 'Buy/Rent (Rent)'}
                       </button>
                     </li>
                     <li className="nav-item">
