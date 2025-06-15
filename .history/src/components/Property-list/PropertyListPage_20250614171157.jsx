@@ -24,6 +24,7 @@ const PropertyListPage = () => {
   const [offeringType, setOfferingType] = useState('For Sale');
   const [filtersVisible, setFiltersVisible] = useState(true);
   const navigate = useNavigate();
+  const [hovered, setHovered] = useState(null);
 
   const applyFilters = () => {
     const queryParams = new URLSearchParams();
@@ -178,11 +179,6 @@ const PropertyListPage = () => {
 
   return (
     <div className="property-list-page py-5">
-      <style>{`
-        .property-card .property-image img:hover {
-          transform: scale(1.1);
-        }
-      `}</style>
       <div className="container">
         {/* Purchased Properties Section */}
         {purchasedProperties.length > 0 && (
@@ -193,105 +189,100 @@ const PropertyListPage = () => {
             <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
               {purchasedProperties.map((property) => (
                 <div key={`purchased-${property._id}`} className="col-lg-4 col-md-6" style={{ flex: '0 0 calc(33.333% - 20px)' }}>
-                  <div 
-                    className="property-card"
-                    style={{
-                      background: 'white',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
-                      height: '100%',
-                      border: '1px solid #f0f0f0',
-                      position: 'relative',
-                      transition: 'all 0.3s ease',
-                      marginBottom: '20px'
-                    }}
+                  <Link
+                    to={`/property/${property._id || '648a97f4d254d67c1e5f461b'}`}
+                    style={{ textDecoration: 'none', color: 'inherit' }}
+                    onMouseEnter={() => setHovered(property._id)}
+                    onMouseLeave={() => setHovered(null)}
                   >
-                    <div 
-                      className="property-image"
+                    <div
+                      className="property-card"
                       style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: hovered === property._id ? '0 12px 24px rgba(0, 0, 0, 0.12)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                        height: '100%',
+                        border: '1px solid #f0f0f0',
                         position: 'relative',
-                        height: '200px',
-                        overflow: 'hidden'
+                        transition: 'all 0.3s ease',
+                        marginBottom: '20px',
+                        transform: hovered === property._id ? 'scale(1.02)' : 'scale(1)',
                       }}
                     >
-                      <img 
-                        src={property.images?.[0]?.url || property.imageUrl || Property1} 
-                        alt={property.title}
+                      <div
+                        className="property-image"
                         style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transition: 'transform 0.3s ease'
-                        }}
-                      />
-                      
-                      {/* Purchased tag */}
-                      <div 
-                        className="property-tag"
-                        style={{
-                          position: 'absolute',
-                          top: '15px',
-                          left: '15px',
-                          background: '#007bff',
-                          color: '#fff',
-                          fontSize: '0.85rem',
-                          fontWeight: '600',
-                          padding: '5px 15px',
-                          borderRadius: '6px',
-                          zIndex: 2
+                          position: 'relative',
+                          height: '200px',
+                          overflow: 'hidden'
                         }}
                       >
-                        Purchased
+                        <img
+                          src={property.images?.[0]?.url || property.imageUrl || Property1}
+                          alt={property.title}
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.3s ease'
+                          }}
+                        />
+                        
+                        {/* Purchased tag */}
+                        <div
+                          className="property-tag"
+                          style={{
+                            position: 'absolute',
+                            top: '15px',
+                            left: '15px',
+                            background: '#007bff',
+                            color: '#fff',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            padding: '5px 15px',
+                            borderRadius: '6px',
+                            zIndex: 2
+                          }}
+                        >
+                          Purchased
+                        </div>
                       </div>
-                    </div>
 
-                    <div style={{ padding: '20px' }}>
-                      <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
-                        {formatPrice(property)}
-                      </h3>
-                      
-                      <div style={{ 
-                        display: 'flex', 
-                        gap: '15px',
-                        fontSize: '0.9rem',
-                        color: '#666',
-                        marginBottom: '10px'
-                      }}>
-                        <span>{getBeds(property)} beds</span>
-                        <span>•</span>
-                        <span>{getBaths(property)} baths</span>
-                        <span>•</span>
-                        <span>{getArea(property).size} {getArea(property).unit}</span>
+                      <div style={{ padding: '20px' }}>
+                        <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
+                          {formatPrice(property)}
+                        </h3>
+                        
+                        <div style={{
+                          display: 'flex',
+                          gap: '15px',
+                          fontSize: '0.9rem',
+                          color: '#666',
+                          marginBottom: '10px'
+                        }}>
+                          <span>{getBeds(property)} beds</span>
+                          <span>•</span>
+                          <span>{getBaths(property)} baths</span>
+                          <span>•</span>
+                          <span>{getArea(property).size} {getArea(property).unit}</span>
+                        </div>
+                        
+                        <p style={{
+                          fontSize: '0.95rem',
+                          fontWeight: '500',
+                          color: '#333',
+                          marginBottom: '5px'
+                        }}>
+                          {getAddress(property)}
+                        </p>
+                        
+                        <p style={{ fontSize: '0.9rem', color: '#666' }}>
+                          {property.title}
+                        </p>
                       </div>
-                      
-                      <p style={{ 
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: '#333',
-                        marginBottom: '5px'
-                      }}>
-                        {getAddress(property)}
-                      </p>
-                      
-                      <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                        {property.title}
-                      </p>
                     </div>
-                    
-                    <Link 
-                      to={`/property/${property._id || '648a97f4d254d67c1e5f461b'}`} 
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        zIndex: 1
-                      }}
-                      aria-label={`View details for ${property.title}`}
-                    />
-                  </div>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -666,119 +657,115 @@ const PropertyListPage = () => {
           <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
             {properties.map((property) => (
               <div key={property._id} className="col-lg-4 col-md-6" style={{ flex: '0 0 calc(33.333% - 20px)' }}>
-                <div 
-                  className="property-card"
-                  style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
-                    height: '100%',
-                    border: '1px solid #f0f0f0',
-                    position: 'relative',
-                    transition: 'all 0.3s ease',
-                    marginBottom: '20px'
-                  }}
+                <Link
+                  to={`/property/${property._id || '648a97f4d254d67c1e5f461b'}`}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                  onMouseEnter={() => setHovered(property._id)}
+                  onMouseLeave={() => setHovered(null)}
                 >
-                  <div 
-                    className="property-image"
+                  <div
+                    className="property-card"
                     style={{
+                      background: 'white',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      boxShadow: hovered === property._id ? '0 12px 24px rgba(0, 0, 0, 0.12)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
+                      height: '100%',
+                      border: '1px solid #f0f0f0',
                       position: 'relative',
-                      height: '200px',
-                      overflow: 'hidden'
+                      transition: 'all 0.3s ease',
+                      marginBottom: '20px',
+                      transform: hovered === property._id ? 'scale(1.02)' : 'scale(1)',
                     }}
                   >
-                    <img 
-                      src={property.images?.[0]?.url || property.imageUrl || Property1} 
-                      alt={property.title}
+                    <div
+                      className="property-image"
                       style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transition: 'transform 0.3s ease'
-                      }}
-                    />
-                    
-                    {/* For sale tag */}
-                    <div 
-                      className="property-tag"
-                      style={{
-                        position: 'absolute',
-                        top: '15px',
-                        left: '15px',
-                        background: '#a4ff2a',
-                        color: '#222',
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        padding: '5px 15px',
-                        borderRadius: '6px',
-                        zIndex: 2
+                        position: 'relative',
+                        height: '200px',
+                        overflow: 'hidden'
                       }}
                     >
-                      <Link 
-                        to="/property-list" 
-                        style={{ 
-                          textDecoration: 'none', 
-                          color: '#222'
+                      <img
+                        src={property.images?.[0]?.url || property.imageUrl || Property1}
+                        alt={property.title}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease'
                         }}
-                        onClick={() => {
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                          if (window.location.pathname === '/property-list') {
-                            window.location.reload();
-                          }
+                      />
+                      
+                      {/* For sale tag */}
+                      <div
+                        className="property-tag"
+                        style={{
+                          position: 'absolute',
+                          top: '15px',
+                          left: '15px',
+                          background: '#a4ff2a',
+                          color: '#222',
+                          fontSize: '0.85rem',
+                          fontWeight: '600',
+                          padding: '5px 15px',
+                          borderRadius: '6px',
+                          zIndex: 2
                         }}
                       >
-                        {location.search.includes('rent') ? 'For Rent' : 'For Sale'}
-                      </Link>
+                        <Link
+                          to="/property-list"
+                          style={{
+                            textDecoration: 'none',
+                            color: '#222'
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            if (window.location.pathname === '/property-list') {
+                              window.location.reload();
+                            }
+                          }}
+                        >
+                          {location.search.includes('rent') ? 'For Rent' : 'For Sale'}
+                        </Link>
+                      </div>
                     </div>
-                  </div>
 
-                  <div style={{ padding: '20px' }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
-                      {formatPrice(property)}
-                    </h3>
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '15px',
-                      fontSize: '0.9rem',
-                      color: '#666',
-                      marginBottom: '10px'
-                    }}>
-                      <span>{getBeds(property)} beds</span>
-                      <span>•</span>
-                      <span>{getBaths(property)} baths</span>
-                      <span>•</span>
-                      <span>{getArea(property).size} {getArea(property).unit}</span>
+                    <div style={{ padding: '20px' }}>
+                      <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
+                        {formatPrice(property)}
+                      </h3>
+                      
+                      <div style={{
+                        display: 'flex',
+                        gap: '15px',
+                        fontSize: '0.9rem',
+                        color: '#666',
+                        marginBottom: '10px'
+                      }}>
+                        <span>{getBeds(property)} beds</span>
+                        <span>•</span>
+                        <span>{getBaths(property)} baths</span>
+                        <span>•</span>
+                        <span>{getArea(property).size} {getArea(property).unit}</span>
+                      </div>
+                      
+                      <p style={{
+                        fontSize: '0.95rem',
+                        fontWeight: '500',
+                        color: '#333',
+                        marginBottom: '5px'
+                      }}>
+                        {getAddress(property)}
+                      </p>
+                      
+                      <p style={{ fontSize: '0.9rem', color: '#666' }}>
+                        {property.title}
+                      </p>
                     </div>
-                    
-                    <p style={{ 
-                      fontSize: '0.95rem',
-                      fontWeight: '500',
-                      color: '#333',
-                      marginBottom: '5px'
-                    }}>
-                      {getAddress(property)}
-                    </p>
-                    
-                    <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                      {property.title}
-                    </p>
                   </div>
-                  
-                  <Link 
-                    to={`/property/${property._id || '648a97f4d254d67c1e5f461b'}`} 
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      zIndex: 1
-                    }}
-                    aria-label={`View details for ${property.title}`}
-                  />
-                </div>
+                </Link>
               </div>
             ))}
           </div>

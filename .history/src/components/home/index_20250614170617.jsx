@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { GetHomeData } from '../../Redux-store/Slices/HomeSlice';
 import BannerSection from './sub-component/BannerSection';
-import PropertyListPage from '../Property-list/PropertyListPage';
+import FeaturedProperties from './sub-component/FeaturedProperties';
 import ServicesSection from './sub-component/ServicesSection';
 import WhyChooseUs from './sub-component/WhyChooseUs';
 import NeighborhoodGuide from './sub-component/NeighborhoodGuide';
@@ -41,7 +41,7 @@ const HomePage = () => {
       <BannerSection />
       
       <div style={{ marginTop: '40px', marginBottom: '20px' }}>
-        <PropertyListPage />
+        <FeaturedProperties />
       </div>
       
       <div style={{ marginTop: '50px', marginBottom: '50px', backgroundColor: 'white', padding: '50px 0' }}>

@@ -24,6 +24,7 @@ const PropertyListPage = () => {
   const [offeringType, setOfferingType] = useState('For Sale');
   const [filtersVisible, setFiltersVisible] = useState(true);
   const navigate = useNavigate();
+  const [hovered, setHovered] = useState(null);
 
   const applyFilters = () => {
     const queryParams = new URLSearchParams();
@@ -178,11 +179,6 @@ const PropertyListPage = () => {
 
   return (
     <div className="property-list-page py-5">
-      <style>{`
-        .property-card .property-image img:hover {
-          transform: scale(1.1);
-        }
-      `}</style>
       <div className="container">
         {/* Purchased Properties Section */}
         {purchasedProperties.length > 0 && (
@@ -193,18 +189,21 @@ const PropertyListPage = () => {
             <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
               {purchasedProperties.map((property) => (
                 <div key={`purchased-${property._id}`} className="col-lg-4 col-md-6" style={{ flex: '0 0 calc(33.333% - 20px)' }}>
-                  <div 
+                  <div
                     className="property-card"
+                    onMouseEnter={() => setHovered(property._id)}
+                    onMouseLeave={() => setHovered(null)}
                     style={{
                       background: 'white',
                       borderRadius: '12px',
                       overflow: 'hidden',
-                      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+                      boxShadow: hovered === property._id ? '0 12px 24px rgba(0, 0, 0, 0.12)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
                       height: '100%',
                       border: '1px solid #f0f0f0',
                       position: 'relative',
                       transition: 'all 0.3s ease',
-                      marginBottom: '20px'
+                      marginBottom: '20px',
+                      transform: hovered === property._id ? 'scale(1.02)' : 'scale(1)',
                     }}
                   >
                     <div 
@@ -666,18 +665,21 @@ const PropertyListPage = () => {
           <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
             {properties.map((property) => (
               <div key={property._id} className="col-lg-4 col-md-6" style={{ flex: '0 0 calc(33.333% - 20px)' }}>
-                <div 
+                <div
                   className="property-card"
+                  onMouseEnter={() => setHovered(property._id)}
+                  onMouseLeave={() => setHovered(null)}
                   style={{
                     background: 'white',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
+                    boxShadow: hovered === property._id ? '0 12px 24px rgba(0, 0, 0, 0.12)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
                     height: '100%',
                     border: '1px solid #f0f0f0',
                     position: 'relative',
                     transition: 'all 0.3s ease',
-                    marginBottom: '20px'
+                    marginBottom: '20px',
+                    transform: hovered === property._id ? 'scale(1.02)' : 'scale(1)',
                   }}
                 >
                   <div 

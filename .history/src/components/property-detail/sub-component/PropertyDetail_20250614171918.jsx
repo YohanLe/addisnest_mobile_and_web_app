@@ -140,7 +140,7 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                 }}></span>
                                 
                                 {/* Navigation controls - we keep these visible */}
-                                <div className="image-navigation" style={{ background: 'transparent' }}>
+                                <div className="image-navigation">
                                     <button onClick={(e) => {
                                         e.stopPropagation();
                                         prevImage();
@@ -536,6 +536,33 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                         </div>
                                     </div>
                                     
+                                    {/* Lot Size */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>🌄</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Lot Size</div>
+                                            <div>{PropertyDetails?.lotSize || PropertyDetails?.specifications?.lotSize || 0} sqm</div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Year Built */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>🏗️</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Year Built</div>
+                                            <div>{PropertyDetails?.yearBuilt || 'Not specified'}</div>
+                                        </div>
+                                    </div>
                                     
                                     {/* Days on Addisnest */}
                                     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -551,7 +578,47 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                         </div>
                                     </div>
                                     
+                                    {/* Price per SQ.M */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>💰</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Price per SQ.M</div>
+                                            <div>ETB 20,000</div>
+                                        </div>
+                                    </div>
                                     
+                                    {/* Parking */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>🚗</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Parking</div>
+                                            <div>{PropertyDetails?.parking || 'Not available'}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Heating & AC */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>🌡️</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Furnishing</div>
+                                            <div>{PropertyDetails?.furnishing || 'Not specified'}</div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Property Features Section */}

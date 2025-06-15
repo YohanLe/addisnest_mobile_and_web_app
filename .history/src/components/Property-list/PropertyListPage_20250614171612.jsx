@@ -179,8 +179,9 @@ const PropertyListPage = () => {
   return (
     <div className="property-list-page py-5">
       <style>{`
-        .property-card .property-image img:hover {
-          transform: scale(1.1);
+        .property-card:hover {
+          transform: scale(1.02);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
         }
       `}</style>
       <div className="container">
@@ -788,4 +789,167 @@ const PropertyListPage = () => {
   );
 };
 
-export default PropertyListPage;
+export default PropertyListPage;<environment_details>
+# VSCode Visible Files
+src/components/Property-list/PropertyListPage.jsx
+
+# VSCode Open Tabs
+.env
+src/.env
+src/TestApp.jsx
+debug.html
+src/SimpleTest.jsx
+app-launcher.js
+src/routes/propertySubmitRoute.js
+src/models/User.js
+src/property-submit-fix.js
+src/property-submit-fix-implementation.js
+src/middleware/auth.js
+src/client-side-fix.js
+IMAGE_HANDLING_FIX.md
+launch-with-test-data.js
+src/components/account-management/sub-component/account-tab/PropertyAlertFixed.jsx
+src/components/account-management/sub-component/AccountMainFixed.jsx
+fixed-property-launcher.js
+property-image-display-test.html
+src/components/account-management/sub-component/account-tab/Dashboard.jsx
+HOW_TO_RUN_PROPERTY_EDIT_TEST.md
+run-mongodb-id-test.bat
+start-app-with-property-test.bat
+start-app.bat
+MONGODB_ID_PROPERTY_EDIT_FIX.md
+MONGODB_ID_PROPERTY_EDIT_FIX_DOCUMENTATION.md
+start-app-with-edit-fix.bat
+src/components/property-form-styles.css
+src/components/payment-method/payment-process/sub-component/MobilePaymentForm.jsx
+run-address-validation-test.bat
+run-with-fix.js
+src/middleware/async.js
+restart-app.js
+PROPERTY_SUBMISSION_FIXES_APPLIED.md
+test.js
+babel.config.js
+jest.config.js
+src/components/auth/SigninPage.jsx
+src/utils/errorResponse.js
+src/routes/propertyRoutes.js
+test-property-detail-fix.js
+PROPERTY_DETAIL_FIX_DOCUMENTATION.md
+HOW_TO_TEST_PROPERTY_DETAIL_FIX.md
+PROPERTY_DETAIL_COMPONENT_FIX.md
+test-property-detail-component-fix.js
+test-homepage-buy-property-flow.js
+run-homepage-buy-property-flow-test.bat
+HOMEPAGE_BUY_PROPERTY_FLOW_DOCUMENTATION.md
+launch-with-buy-property-flow.js
+PROPERTY_SUBMISSION_FIX_DOCUMENTATION.md
+HOW_TO_TEST_PROPERTY_SUBMISSION_FIX.md
+run-property-submission-500-fix-test.bat
+run-featured-properties-test.bat
+FEATURED_PROPERTIES_IMPLEMENTATION_DOCUMENTATION.md
+seed-property-data.js
+FEATURED_PROPERTIES_FIX_DOCUMENTATION.md
+HOW_TO_TEST_FEATURED_PROPERTIES_FIX.md
+run-featured-properties-fix-test.bat
+test-all-properties-display.js
+run-all-properties-display-test.bat
+run-with-property-data.bat
+debug-api-connection.js
+test-all-properties-final.js
+ALL_PROPERTIES_DISPLAY_DOCUMENTATION.md
+run-all-properties-test.bat
+check-database-properties.js
+update-property-status.js
+run-complete-all-properties-fix.bat
+src/components/payment-method/choose-propmo/sub-component/ChoosePropmotion.jsx
+README.md
+.gitignore
+src/components/property-edit-form/sub-component/property-edit-fix.js
+src/routes/propertyRoutes-fix.js
+fixed-homepage-properties-test.js
+HOMEPAGE_PROPERTIES_DISPLAY_FIX.md
+fixed-homepage-properties-launcher.js
+test-property-detail-navigation-fix.js
+run-property-detail-navigation-fix-test.bat
+launch-with-property-navigation-fix.js
+src/components/account-management/sub-component/account-tab/PropertyListingsTab.jsx
+src/components/property-card-hover.css
+src/components/test-property-card/ClickablePropertyCard.jsx
+run-clickable-cards-test.bat
+test-homepage-properties-clickable.js
+.env.example
+src/Redux-store/Slices/HomeSlice.js
+src/components/home/sub-component/BannerSection.css
+src/components/home/sub-component/BannerSection.jsx
+run-buy-rent-toggle-test.bat
+src/components/common/header/Header.jsx
+test-buy-rent-toggle.js
+src/components/common/header/Header.css
+BUY_RENT_TOGGLE_IMPLEMENTATION.md
+src/models/Property.js
+src/controllers/propertyController-nested.js
+src/controllers/propertyController-flat-address.js
+src/components/property-list-form/sub-component/PropertyListForm.jsx
+src/components/payment-method/choose-propmo/sub-component/ChoosePropmotionFixed.jsx
+src/controllers/propertyController.js
+src/controllers/paymentController.js
+src/routes/paymentRoutes.js
+src/components/property-detail/sub-component/PropertyDetail.jsx
+src/fix-property-submission.js
+src/controllers/propertyController-fix.js
+test-property-detail-fix-improved.js
+run-property-detail-fix-test.bat
+PROPERTY_DETAIL_DATABASE_FIX.md
+src/PropertyDetailDebug.jsx
+src/TestClickableCards.jsx
+src/App.jsx
+src/components/home/sub-component/FeaturedProperties.jsx
+src/components/home/index.jsx
+src/components/Property-list/PropertyListPage.jsx
+src/routes/propertyRoutes-working.js
+PROPERTY_DETAIL_FIX_FINAL.md
+PROPERTY_DETAIL_ADDRESS_FIX.md
+test-property-detail-address-fix.js
+PROPERTY_DETAIL_ADDRESS_FIX_DOCUMENTATION.md
+run-property-detail-address-fix-test.bat
+start-app-with-address-fix.bat
+test-auth-fix.js
+run-auth-fix-test.bat
+src/routes/index.js
+src/controllers/property-mongo-id-fix.js
+run-property-detail-fix-final-test.bat
+seed-test-property-data.js
+run-seed-test-property.bat
+MONGODB_ID_PROPERTY_LOOKUP_FIX.md
+test-property-mongo-id-fix.js
+run-property-mongo-id-fix-test.bat
+HOW_TO_TEST_MONGODB_ID_FIX.md
+launch-with-mongo-id-fix.js
+start-app-with-mongo-id-fix.bat
+src/server-with-mongo-id-fix.js
+src/components/property-detail/index.jsx
+PROPERTY_DETAIL_ROUTE_FIX.md
+PROPERTY_FEATURES_IMPLEMENTATION.md
+run-property-features-test.bat
+HOW_TO_TEST_PROPERTY_FEATURES.md
+restart-server.js
+restart-server.bat
+test-property-features.js
+src/Redux-store/Slices/PropertyDetailSlice.js
+src/package.json
+src/components/property-detail/sub-component/test-property-features-grid.js
+src/Apis/Api.js
+src/routes/propertyRoutes-mongo-id-fix.js
+test-property-detail-fix-final.js
+check-app-status.js
+src/components/account-management/sub-component/AccountMain.jsx
+
+# Current Time
+6/14/2025, 5:13:06 PM (America/Los_Angeles, UTC-7:00)
+
+# Context Window Usage
+204,733 / 1,048.576K tokens used (20%)
+
+# Current Mode
+ACT MODE
+</environment_details>

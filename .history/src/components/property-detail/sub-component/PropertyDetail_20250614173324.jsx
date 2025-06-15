@@ -536,6 +536,19 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                         </div>
                                     </div>
                                     
+                                    {/* Lot Size */}
+                                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                                        <div style={{ 
+                                            fontSize: '18px', 
+                                            marginRight: '8px', 
+                                            width: '24px',
+                                            textAlign: 'center' 
+                                        }}>🌄</div>
+                                        <div>
+                                            <div style={{ fontWeight: '600', color: '#555', marginBottom: '4px' }}>Lot Size</div>
+                                            <div>{PropertyDetails?.lotSize || PropertyDetails?.specifications?.lotSize || 0} sqm</div>
+                                        </div>
+                                    </div>
                                     
                                     {/* Days on Addisnest */}
                                     <div style={{ display: 'flex', alignItems: 'flex-start' }}>
