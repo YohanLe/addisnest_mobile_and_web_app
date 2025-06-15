@@ -740,29 +740,173 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                 </div>
             </div>
 
-            {/* Find Your Perfect Time to Visit - Tour Scheduling */}
+            {/* Three boxes in one row: Message, Schedule Visit, and Mortgage Calculator */}
             <div className="container" style={{ marginBottom: '40px' }}>
-                <div className="row">
-                    <div className="col-md-7">
+                <div className="row" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', margin: '0 -10px' }}>
+                    {/* Message Box - Send a message to the agent */}
+                    <div style={{ width: '30%', padding: '0 10px', boxSizing: 'border-box' }}>
                         <div style={{
-                            padding: '24px',
+                            padding: '16px',
                             backgroundColor: '#ffffff',
                             borderRadius: '8px',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            height: '100%'
                         }}>
                             <h2 style={{
-                                fontSize: '22px',
+                                fontSize: '18px',
                                 fontWeight: '600',
-                                marginBottom: '20px',
+                                marginBottom: '12px',
+                                color: '#333'
+                            }}>Message the Agent</h2>
+                            
+                            {/* Message form */}
+                            <div style={{ marginBottom: '12px' }}>
+                                <p style={{ 
+                                    fontSize: '14px', 
+                                    fontWeight: '500', 
+                                    marginBottom: '8px',
+                                    color: '#555'
+                                }}>Have questions about this property?</p>
+                                
+                                {/* Name input */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Your name"
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            outline: 'none',
+                                            transition: 'border-color 0.3s ease',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Email input */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <input 
+                                        type="email" 
+                                        placeholder="Your email"
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            outline: 'none',
+                                            transition: 'border-color 0.3s ease',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Message textarea */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <textarea 
+                                        placeholder="I'm interested in this property and would like to know more about..."
+                                        rows="3"
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            outline: 'none',
+                                            resize: 'vertical',
+                                            transition: 'border-color 0.3s ease',
+                                            boxSizing: 'border-box',
+                                            fontFamily: 'inherit'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Checkbox for terms */}
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'flex-start',
+                                    gap: '10px',
+                                    marginBottom: '10px'
+                                }}>
+                                    <input 
+                                        type="checkbox" 
+                                        id="terms-consent"
+                                        style={{
+                                            marginTop: '3px'
+                                        }}
+                                    />
+                                    <label 
+                                        htmlFor="terms-consent"
+                                        style={{
+                                            fontSize: '14px',
+                                            color: '#666',
+                                            lineHeight: '1.4'
+                                        }}
+                                    >
+                                        I agree to be contacted by Addisnest regarding this property and other relevant services.
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            {/* Send Message Button */}
+                            <button 
+                                onClick={() => {
+                                    if (!isAuthenticated()) {
+                                        setShowLoginPopup(true);
+                                    } else {
+                                        // Handle sending message for authenticated users
+                                        console.log("Send message functionality for logged in users");
+                                    }
+                                }}
+                                style={{
+                                    width: '100%',
+                                    backgroundColor: '#2196F3',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: '600',
+                                    fontSize: '16px',
+                                    padding: '10px 16px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 4px 10px rgba(33, 150, 243, 0.3)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1E88E5'}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
+                            >
+                                <span style={{ fontSize: '18px', marginRight: '8px' }}>📧</span> Send Message
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {/* Find Your Perfect Time box */}
+                    <div style={{ width: '30%', padding: '0 10px', boxSizing: 'border-box' }}>
+                        <div style={{
+                            padding: '16px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            height: '100%'
+                        }}>
+                            <h2 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                marginBottom: '12px',
                                 color: '#333'
                             }}>Find Your Perfect Time to Visit</h2>
                             
                             {/* Tour Type Selection */}
-                            <div style={{ marginBottom: '20px' }}>
+                            <div style={{ marginBottom: '12px' }}>
                                 <p style={{ 
-                                    fontSize: '15px', 
+                                    fontSize: '14px', 
                                     fontWeight: '500', 
-                                    marginBottom: '10px',
+                                    marginBottom: '8px',
                                     color: '#555'
                                 }}>Select tour type:</p>
                                 
@@ -776,7 +920,7 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                             flex: '1',
                                             border: `2px solid ${selectedTourType === 'in-person' ? '#4a6cf7' : '#e0e0e0'}`,
                                             borderRadius: '8px',
-                                            padding: '15px',
+                                            padding: '10px',
                                             textAlign: 'center',
                                             cursor: 'pointer',
                                             backgroundColor: selectedTourType === 'in-person' ? '#f0f5ff' : 'white',
@@ -812,23 +956,23 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                         }}>
                                             Video Tour
                                         </span>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+            </div>
                             
                             {/* Date Selection - Enhanced */}
-                            <div style={{ marginBottom: '24px' }}>
+                            <div style={{ marginBottom: '12px' }}>
                                 <p style={{ 
-                                    fontSize: '16px', 
+                                    fontSize: '14px', 
                                     fontWeight: '600', 
-                                    marginBottom: '12px',
+                                    marginBottom: '8px',
                                     color: '#333'
                                 }}>Select Date</p>
                                 
                                 <div style={{
                                     border: '1px solid #e0e0e0',
                                     borderRadius: '8px',
-                                    padding: '12px 16px',
+                                    padding: '8px 12px',
                                     backgroundColor: 'white',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -861,116 +1005,43 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                 </div>
                             </div>
                             
-                            {/* Time Selection - Enhanced with visible dropdown */}
-                            <div style={{ marginBottom: '30px' }}>
+                            {/* Time Selection - Simplified */}
+                            <div style={{ marginBottom: '15px' }}>
                                 <p style={{ 
-                                    fontSize: '16px', 
+                                    fontSize: '14px', 
                                     fontWeight: '600', 
-                                    marginBottom: '12px',
+                                    marginBottom: '8px',
                                     color: '#333'
                                 }}>Select Time</p>
                                 
-                                <div style={{
-                                    border: '1px solid #e0e0e0',
+                                <select style={{
+                                    width: '100%',
+                                    padding: '8px 12px',
                                     borderRadius: '8px',
-                                    padding: '16px',
+                                    border: '1px solid #e0e0e0',
+                                    fontSize: '15px',
                                     backgroundColor: 'white',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                    marginBottom: '0px'
                                 }}>
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        marginBottom: '15px'
-                                    }}>
-                                        <div style={{
-                                            width: '30px',
-                                            height: '30px',
-                                            borderRadius: '50%',
-                                            border: '2px solid #4a6cf7',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginRight: '12px',
-                                            backgroundColor: '#f0f5ff'
-                                        }}>
-                                            <span style={{ 
-                                                color: '#4a6cf7', 
-                                                fontSize: '16px', 
-                                                fontWeight: 'bold' 
-                                            }}>✓</span>
-                                        </div>
-                                        
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ 
-                                                fontSize: '15px', 
-                                                fontWeight: '600',
-                                                color: '#333'
-                                            }}>
-                                                Set time
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        backgroundColor: '#f0f5ff',
-                                        borderRadius: '8px',
-                                        padding: '8px 12px',
-                                        border: '1px solid #e6effd',
-                                        height: '50px'
-                                    }}>
-                                        <div style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '10px',
-                                            width: '100%'
-                                        }}>
-                                            <span style={{ 
-                                                color: '#2196F3', 
-                                                fontSize: '20px' 
-                                            }}>⏱️</span>
-                                            
-                                            <select style={{
-                                                width: '100%',
-                                                border: 'none',
-                                                outline: 'none',
-                                                fontSize: '15px',
-                                                fontWeight: '500',
-                                                color: '#2196F3',
-                                                backgroundColor: 'transparent',
-                                                cursor: 'pointer',
-                                                WebkitAppearance: 'none',
-                                                MozAppearance: 'none',
-                                                appearance: 'none',
-                                                backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%232196F3\'%3e%3cpath d=\'M7 10l5 5 5-5z\'/%3e%3c/svg%3e")',
-                                                backgroundRepeat: 'no-repeat',
-                                                backgroundPosition: 'right 12px center',
-                                                backgroundSize: '20px',
-                                                paddingRight: '32px'
-                                            }}>
-                                                <option value="">Select a time</option>
-                                                <option value="09:00">9:00 AM</option>
-                                                <option value="09:30">9:30 AM</option>
-                                                <option value="10:00">10:00 AM</option>
-                                                <option value="10:30">10:30 AM</option>
-                                                <option value="11:00">11:00 AM</option>
-                                                <option value="11:30">11:30 AM</option>
-                                                <option value="12:00">12:00 PM</option>
-                                                <option value="12:30">12:30 PM</option>
-                                                <option value="13:00">1:00 PM</option>
-                                                <option value="13:30">1:30 PM</option>
-                                                <option value="14:00">2:00 PM</option>
-                                                <option value="14:30">2:30 PM</option>
-                                                <option value="15:00">3:00 PM</option>
-                                                <option value="15:30">3:30 PM</option>
-                                                <option value="16:00">4:00 PM</option>
-                                                <option value="16:30">4:30 PM</option>
-                                                <option value="17:00">5:00 PM</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
+                                    <option value="">Select a time</option>
+                                    <option value="09:00">9:00 AM</option>
+                                    <option value="09:30">9:30 AM</option>
+                                    <option value="10:00">10:00 AM</option>
+                                    <option value="10:30">10:30 AM</option>
+                                    <option value="11:00">11:00 AM</option>
+                                    <option value="11:30">11:30 AM</option>
+                                    <option value="12:00">12:00 PM</option>
+                                    <option value="12:30">12:30 PM</option>
+                                    <option value="13:00">1:00 PM</option>
+                                    <option value="13:30">1:30 PM</option>
+                                    <option value="14:00">2:00 PM</option>
+                                    <option value="14:30">2:30 PM</option>
+                                    <option value="15:00">3:00 PM</option>
+                                    <option value="15:30">3:30 PM</option>
+                                    <option value="16:00">4:00 PM</option>
+                                    <option value="16:30">4:30 PM</option>
+                                    <option value="17:00">5:00 PM</option>
+                                </select>
                             </div>
                             
                             {/* Schedule Button */}
@@ -982,7 +1053,7 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                 borderRadius: '8px',
                                 fontWeight: '600',
                                 fontSize: '16px',
-                                padding: '14px 20px',
+                                padding: '10px 16px',
                                 cursor: 'pointer',
                                 transition: 'all 0.3s ease',
                                 boxShadow: '0 4px 10px rgba(76, 175, 80, 0.3)',
@@ -997,6 +1068,153 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                             </button>
                         </div>
                     </div>
+                    
+                    {/* Calculate Mortgage Box */}
+                    <div style={{ width: '30%', padding: '0 10px', boxSizing: 'border-box' }}>
+                        <div style={{
+                            padding: '16px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            height: '100%',
+                            position: 'relative'
+                        }}>
+                            <h2 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                marginBottom: '12px',
+                                color: '#333'
+                            }}>Calculate Your Mortgage</h2>
+                            
+                            {/* Simple mortgage calculator */}
+                            <div>
+                                {/* Home Price */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <label style={{ 
+                                        display: 'block', 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        marginBottom: '5px',
+                                        color: '#555'
+                                    }}>
+                                        Home Price
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        defaultValue={formatPrice(PropertyDetails?.total_price || PropertyDetails?.price || 450000)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Down Payment */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <label style={{ 
+                                        display: 'block', 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        marginBottom: '5px',
+                                        color: '#555'
+                                    }}>
+                                        Down Payment (20%)
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        defaultValue={formatPrice((PropertyDetails?.total_price || PropertyDetails?.price || 450000) * 0.2)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Interest Rate */}
+                                <div style={{ marginBottom: '10px' }}>
+                                    <label style={{ 
+                                        display: 'block', 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        marginBottom: '5px',
+                                        color: '#555'
+                                    }}>
+                                        Interest Rate (%)
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        defaultValue="5.75"
+                                        style={{
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e0e0e0',
+                                            fontSize: '15px',
+                                            boxSizing: 'border-box'
+                                        }}
+                                    />
+                                </div>
+                                
+                                {/* Loan Term */}
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ 
+                                        display: 'block', 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        marginBottom: '5px',
+                                        color: '#555'
+                                    }}>
+                                        Loan Term (years)
+                                    </label>
+                                    <select style={{
+                                        width: '100%',
+                                        padding: '8px 12px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #e0e0e0',
+                                        fontSize: '15px',
+                                        boxSizing: 'border-box'
+                                    }}>
+                                        <option value="30">30 years</option>
+                                        <option value="20">20 years</option>
+                                        <option value="15">15 years</option>
+                                        <option value="10">10 years</option>
+                                    </select>
+                                </div>
+                                
+                                {/* Calculate Button */}
+                                <button 
+                                    style={{
+                                        width: '100%',
+                                        backgroundColor: '#4CAF50',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        fontWeight: '600',
+                                        fontSize: '16px',
+                                        padding: '10px 16px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease',
+                                        boxShadow: '0 4px 10px rgba(76, 175, 80, 0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
+                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                                >
+                                    <span style={{ fontSize: '18px', marginRight: '8px' }}>💰</span> Calculate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1004,8 +1222,8 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
 
             {/* Safety Tips Section - Removed as it's now part of the right sidebar */}
 
-            {/* Mortgage Calculator Section */}
-            <div className="container" style={{ marginBottom: '50px' }}>
+            {/* Mortgage Calculator Section - Original, now hidden */}
+            <div className="container" style={{ marginBottom: '50px', display: 'none' }}>
                 <div className="row">
                     <div className="col-md-12">
                         <div style={{
