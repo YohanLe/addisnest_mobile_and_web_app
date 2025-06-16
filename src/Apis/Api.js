@@ -87,7 +87,7 @@ api.getPublic = async (endpoint) => {
     const response = await axios.get(`${API_BASE_URL.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`, {
       headers: { 
         'Content-Type': 'application/json',
-        // Remove any Authorization header for truly public endpoints
+        'Authorization': undefined,
       },
       // No timestamp needed, caching is handled by the browser
     });

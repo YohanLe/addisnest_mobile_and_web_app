@@ -280,6 +280,79 @@ class UserController extends BaseController {
     this.sendResponse(res, users);
   });
 
+  // @desc    Get all agents with filtering
+  // @route   GET /api/agents/list
+  // @access  Public
+  getAllAgents = this.asyncHandler(async (req, res) => {
+    console.log('getAllAgents called with query:', req.query);
+    const {
+      region,
+      specialty,
+      language,
+      rating,
+      verifiedOnly,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    const query = { role: { $in: ['agent', 'AGENT'] } };
+
+    if (region) {
+      // Support both new field structure and legacy field structure
+      query.$or = [
+        { 'address.state': { $regex: region, $options: 'i' } },
+        { region: { $regex: region, $options: 'i' } }
+      ];
+    }
+    if (specialty) {
+      // Support both field names
+      query.$or = query.$or || [];
+      query.$or.push(
+        { specialties: { $in: [specialty] } },
+        { specialization: { $in: [specialty] } }
+      );
+    }
+    if (language) {
+      // Support both field names
+      query.$or = query.$or || [];
+      query.$or.push(
+        { languagesSpoken: { $in: [language] } },
+        { languages: { $in: [language] } }
+      );
+    }
+    if (rating) {
+      query.averageRating = { $gte: Number(rating) };
+    }
+    if (verifiedOnly === 'true') {
+      query.isVerified = true;
+    }
+
+    console.log('Constructed query:', query);
+
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const agents = await User.find(query)
+      .select('-password -otp -otpExpire')
+      .skip(skip)
+      .limit(limitNumber);
+
+    console.log('Found agents:', agents.length);
+
+    const totalCount = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limitNumber);
+
+    this.sendResponse(res, {
+      data: {
+        agents,
+        totalCount,
+        currentPage: pageNumber,
+        totalPages,
+      },
+    });
+  });
+
   // @desc    Get user by ID (admin only)
   // @route   GET /api/users/:id
   // @access  Private/Admin

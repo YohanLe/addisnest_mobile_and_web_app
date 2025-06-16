@@ -6,9 +6,22 @@ export const GetAgentAll = createAsyncThunk(
   "agent/getAllAgents",
   async (params, { rejectWithValue }) => {
     try {
+      // Build query string from params
+      const queryParams = new URLSearchParams();
+      
+      if (params.region) queryParams.append('region', params.region);
+      if (params.specialty) queryParams.append('specialty', params.specialty);
+      if (params.language) queryParams.append('language', params.language);
+      if (params.minRating) queryParams.append('minRating', params.minRating);
+      if (params.minExperience) queryParams.append('minExperience', params.minExperience);
+      if (params.city) queryParams.append('city', params.city);
+      if (params.verified) queryParams.append('verified', params.verified);
+      
+      const queryString = queryParams.toString();
+      
       // In a real implementation, this would call the API with params
-      const response = await Api.getWithtoken(`agents/list?city=${params.city || ''}`);
-      return response;
+      const response = await Api.getPublic(`agents/list${queryString ? `?${queryString}` : ''}`);
+      return response.data;
     } catch (error) {
       console.error("Error fetching agents:", error);
       return rejectWithValue({
