@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import LoginPopup from '../../../helper/LoginPopup';
 import CustomerRegisterPopup from '../../../helper/CustomerRegisterPopup';
+import MortgageCalculatorPopup from '../../../components/helper/MortgageCalculatorPopup';
 import { isAuthenticated } from '../../../utils/tokenHandler';
 import { useSelector } from 'react-redux';
 import './Header.css';
@@ -12,6 +13,7 @@ const Header = () => {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [showRegisterPopup, setShowRegisterPopup] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMortgageCalculator, setShowMortgageCalculator] = useState(false);
   const [buyRentMode, setBuyRentMode] = useState('buy'); // Track the Buy/Rent toggle state
   const navigate = useNavigate();
   const user = useSelector((state) => state.Auth.Details.data);
@@ -30,8 +32,15 @@ const Header = () => {
         <div className="header-main">
           <div className="logo-area">
             <Link to="/" className="logo">
-              <div className="logo-icon">a</div>
-              <div className="logo-text">Addisnest</div>
+              <div className="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="house-icon">
+                  <path d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1zm0 2.691l6 5.4V19h-3v-6H9v6H6v-8.809l6-5.4z" />
+                </svg>
+              </div>
+              <div className="logo-text">
+                <span className="addis">Addis</span>
+                <span className="nest">Nest</span>
+              </div>
             </Link>
           </div>
 
@@ -81,12 +90,13 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/mortgage-calculator"
+                <div
                   className={`${isActive('/mortgage-calculator')} nav-link`}
+                  onClick={() => setShowMortgageCalculator(true)}
+                  style={{ cursor: 'pointer' }}
                 >
                   Mortgage Calculator
-                </Link>
+                </div>
               </li>
               <li>
                 <Link
@@ -194,6 +204,7 @@ const Header = () => {
         setShowRegisterPopup(false);
         setShowLoginPopup(true);
       }} />}
+      {showMortgageCalculator && <MortgageCalculatorPopup handlePopup={() => setShowMortgageCalculator(false)} />}
     </header>
   );
 };

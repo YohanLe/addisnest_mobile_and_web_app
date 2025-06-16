@@ -55,6 +55,15 @@ api.interceptors.response.use(
     if (error.response) {
       // Server responded with an error status
       const status = error.response.status;
+      
+      // Special handling for payment history endpoint - silently handle 401 errors
+      if (status === 401 && error.config && error.config.url && 
+         (error.config.url.includes('/payments/history') || error.config.url.includes('/api/payments'))) {
+        // For payment-related endpoints, don't log 401 errors - handle silently
+        // This prevents console errors when users aren't logged in
+        return Promise.reject(error);
+      }
+      
       if (status === 401) {
         // Handle unauthorized access
         console.log('Unauthorized access - redirecting to login');

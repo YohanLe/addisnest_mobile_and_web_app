@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
@@ -49,10 +49,25 @@ const MortgageCalculatorModern = ({
   const [monthlyPmi, setMonthlyPmi] = useState(0);
   const [monthlyHoa, setMonthlyHoa] = useState(0);
   const [totalMonthlyPayment, setTotalMonthlyPayment] = useState(0);
+  const [showResults, setShowResults] = useState(false);
   
   // Chart data
   const [chartData, setChartData] = useState([]);
+  const [chartReady, setChartReady] = useState(false);
   const COLORS = ['#4CAF50', '#FFC107', '#03A9F4', '#673AB7', '#E91E63'];
+  
+  // Refs for tracking container dimensions
+  const containerRef = useRef(null);
+  
+  // Set up chart dimensions after component mounts
+  useEffect(() => {
+    // Small delay to ensure the container is fully rendered
+    const timer = setTimeout(() => {
+      setChartReady(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Reset calculator to initial values
   const resetCalculator = () => {
@@ -67,19 +82,11 @@ const MortgageCalculatorModern = ({
     setHoa(initialValues.hoa);
   };
 
-  // Calculate mortgage details when inputs change
+  // Initialize calculation on component mount
   useEffect(() => {
+    // Initial calculation when component mounts
     calculateMortgage();
-  }, [
-    homePrice,
-    downPayment,
-    loanTerm,
-    interestRate,
-    propertyTax,
-    homeInsurance,
-    pmi,
-    hoa
-  ]);
+  }, []);
 
   // Keep downPayment and downPaymentPercent in sync
   const updateDownPayment = (value) => {
@@ -193,7 +200,7 @@ const MortgageCalculatorModern = ({
             </label>
             <input
               type="text"
-              value={currency + homePrice.toLocaleString()}
+              value={homePrice.toLocaleString()}
               onChange={(e) => {
                 const value = e.target.value.replace(/[^0-9]/g, '');
                 setHomePrice(Number(value));
@@ -223,7 +230,7 @@ const MortgageCalculatorModern = ({
             <div style={{ display: 'flex', gap: '10px' }}>
               <input
                 type="text"
-                value={currency + downPayment.toLocaleString()}
+              value={downPayment.toLocaleString()}
                 onChange={(e) => {
                   const value = e.target.value.replace(/[^0-9]/g, '');
                   updateDownPayment(Number(value));
@@ -263,7 +270,7 @@ const MortgageCalculatorModern = ({
                     fontWeight: '500'
                   }}
                 />
-                <span style={{ marginLeft: '5px' }}>%</span>
+                <span style={{ marginLeft: '5px' }}></span>
               </div>
             </div>
           </div>
@@ -287,25 +294,26 @@ const MortgageCalculatorModern = ({
               borderRadius: '8px'
             }}>
               <input
-                type="number"
+                type="text"
                 value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
-                min="0"
-                max={config.interestRateMax}
-                step="0.1"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const numericValue = parseFloat(value);
+                  setInterestRate(isNaN(numericValue) ? value : numericValue);
+                }}
+                placeholder="Enter interest rate"
                 style={{
                   flex: '1',
                   border: 'none',
                   fontSize: '16px',
-                  fontWeight: '500',
-                  textAlign: 'right'
+                  fontWeight: '500'
                 }}
               />
               <span style={{ marginLeft: '5px' }}>%</span>
             </div>
           </div>
-
-          {/* Loan Type/Term */}
+          
+          {/* Loan Term */}
           <div style={{ marginBottom: '25px' }}>
             <label style={{ 
               display: 'block', 
@@ -314,32 +322,26 @@ const MortgageCalculatorModern = ({
               marginBottom: '10px',
               color: '#333'
             }}>
-              Loan Type
+              Loan Term
             </label>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              padding: '12px 15px',
-              border: '1px solid #ddd',
-              borderRadius: '8px'
-            }}>
-              <input
-                type="number"
-                value={loanTerm}
-                onChange={(e) => setLoanTerm(Number(e.target.value))}
-                min="5"
-                max="30"
-                step="1"
-                style={{
-                  flex: '1',
-                  border: 'none',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  textAlign: 'right'
-                }}
-              />
-              <span style={{ marginLeft: '5px' }}>Years</span>
-            </div>
+            <input
+              type="text"
+              value={loanTerm}
+              onChange={(e) => {
+                const value = e.target.value;
+                const numericValue = parseInt(value);
+                setLoanTerm(isNaN(numericValue) ? value : numericValue);
+              }}
+              placeholder="Enter loan term"
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '500'
+              }}
+            />
           </div>
         </div>
 
@@ -373,13 +375,25 @@ const MortgageCalculatorModern = ({
             </div>
             
             <p style={{ margin: '0 0 20px 0', color: '#666' }}>
-              Estimate Costs for this home {currency}{totalMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}/month
+              Estimate Costs for this home {totalMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}/month
             </p>
 
             {/* Payment Visualization */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', height: '220px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+            <div 
+              ref={containerRef}
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                marginBottom: '20px', 
+                height: '220px', 
+                width: '100%', 
+                minHeight: '220px', 
+                minWidth: '300px' 
+              }}
+            >
+              {chartReady && (
+                <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={200} aspect={undefined}>
+                <PieChart width={300} height={200}>
                   <Pie
                     data={chartData}
                     cx="50%"
@@ -399,112 +413,58 @@ const MortgageCalculatorModern = ({
                     Est. Payment
                   </text>
                   <text x="50%" y="50%" dy="20" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                    {currency}{totalMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 0})}
+                    {totalMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 0})}
                   </text>
                   <text x="50%" y="50%" dy="40" textAnchor="middle" dominantBaseline="middle" style={{ fontSize: '12px', fill: '#666' }}>
                     / Month
                   </text>
                 </PieChart>
               </ResponsiveContainer>
-            </div>
-
-            {/* Payment Breakdown */}
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ 
-                    width: '12px', 
-                    height: '12px', 
-                    borderRadius: '50%', 
-                    backgroundColor: COLORS[0],
-                    display: 'inline-block',
-                    marginRight: '8px'
-                  }}></span>
-                  <span>Principal & Interest</span>
-                </div>
-                <span style={{ fontWeight: '500' }}>{currency}{monthlyPrincipalInterest.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ 
-                    width: '12px', 
-                    height: '12px', 
-                    borderRadius: '50%', 
-                    backgroundColor: COLORS[1],
-                    display: 'inline-block',
-                    marginRight: '8px'
-                  }}></span>
-                  <span>Property Taxes</span>
-                </div>
-                <span style={{ fontWeight: '500' }}>{currency}{monthlyPropertyTax.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ 
-                    width: '12px', 
-                    height: '12px', 
-                    borderRadius: '50%', 
-                    backgroundColor: COLORS[2],
-                    display: 'inline-block',
-                    marginRight: '8px'
-                  }}></span>
-                  <span>Home Insurance</span>
-                </div>
-                <span style={{ fontWeight: '500' }}>{currency}{monthlyHomeInsurance.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
-              </div>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span style={{ 
-                    width: '12px', 
-                    height: '12px', 
-                    borderRadius: '50%', 
-                    backgroundColor: COLORS[3],
-                    display: 'inline-block',
-                    marginRight: '8px'
-                  }}></span>
-                  <span>Association Fee</span>
-                </div>
-                <span style={{ fontWeight: '500' }}>{currency}{monthlyHoa.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
-              </div>
-              
-              {downPaymentPercent < 20 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span style={{ 
-                      width: '12px', 
-                      height: '12px', 
-                      borderRadius: '50%', 
-                      backgroundColor: COLORS[4],
-                      display: 'inline-block',
-                      marginRight: '8px'
-                    }}></span>
-                    <span>Mortgage Insurance</span>
-                  </div>
-                  <span style={{ fontWeight: '500' }}>{currency}{monthlyPmi.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
-                </div>
               )}
             </div>
 
-            {/* Get Pre-Approved Button */}
-            <button style={{
-              width: '100%',
-              backgroundColor: '#A5D959',
-              color: '#333',
-              fontWeight: 'bold',
-              fontSize: '16px',
-              padding: '15px',
-              borderRadius: '8px',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              marginTop: '10px'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#93C74F'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#A5D959'}>
-              Get Pre-Approved
+            {/* Payment Summary */}
+            <div style={{ 
+              marginBottom: '20px',
+              borderTop: '1px solid #eee',
+              paddingTop: '15px'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '10px',
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#333'
+              }}>
+                <span>Total Monthly Payment</span>
+                <span>{totalMonthlyPayment.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
+              </div>
+            </div>
+
+            {/* Calculate Button */}
+            <button 
+              onClick={() => {
+                calculateMortgage();
+                setShowResults(true);
+              }}
+              style={{
+                width: '100%',
+                backgroundColor: '#A5D959',
+                color: '#333',
+                fontWeight: 'bold',
+                fontSize: '16px',
+                padding: '15px',
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                marginTop: '10px'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#93C74F'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#A5D959'}>
+              Calculate
             </button>
           </div>
         </div>

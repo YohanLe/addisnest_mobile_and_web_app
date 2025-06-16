@@ -6,7 +6,7 @@ import ChatlistReducer, { GetChatlistData } from './ChatlistSlice';
 import WishListReducer, { GetWishList, clearWishlistData } from './WishListSlice';
 import AgentAllReducer, { GetAgentAll, clearAgentData } from './AgentAllSlice';
 import PropertyListReducer from './PropertyListSlice';
-import PropertyDetailReducer, { getPropertyDetails, clearPropertyDetails } from './PropertyDetailSlice';
+import PropertyDetailReducer, { getPropertyDetails, clearPropertyDetails, getSimilarProperties } from './PropertyDetailSlice';
 import RatesListReducer from './RatesListSlice';
 import PaymentReducer, { GetUserPayments, resetPayments } from './PaymentSlice';
 import HelpSupportReducer, { 
@@ -63,6 +63,7 @@ export {
   GetHomeData,
   getPropertyDetails,
   clearPropertyDetails,
+  getSimilarProperties,
   GetUserPayments,
   resetPayments
 };

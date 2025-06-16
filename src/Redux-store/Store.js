@@ -4,7 +4,6 @@ import { persistStore, persistReducer } from "redux-persist";
 import {
     ServicesListSlice,
     AuthSlice,
-    PropertyDetailSlice,
     ChatlistSlice,
     ClientlistSlice,
     TicketListSlice,
@@ -17,6 +16,7 @@ import {
     PropertyListSlice,
     RatesListSlice
 } from "./Slices";
+import PropertyDetailSlice from "./Slices/PropertyDetailSlice";
 import PaymentSlice from "./Slices/PaymentSlice";
 import AgentSlice from "./Slices/AgentSlice";
 

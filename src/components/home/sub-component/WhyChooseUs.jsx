@@ -37,7 +37,7 @@ const WhyChooseUs = () => {
                   color: '#333'
                 }}
               >
-                Why Choose Addisnest
+                Why Choose Us
               </h2>
               <p 
                 className="section-subtitle mb-3"
@@ -49,7 +49,7 @@ const WhyChooseUs = () => {
                   margin: '0 auto'
                 }}
               >
-                Addisnest is Ethiopia's trusted real estate platform, dedicated to making property 
+                We are Ethiopia's trusted real estate platform, dedicated to making property 
                 transactions simple, transparent, and rewarding for everyone. We combine local 
                 expertise with innovative technology to deliver an exceptional real estate experience.
               </p>

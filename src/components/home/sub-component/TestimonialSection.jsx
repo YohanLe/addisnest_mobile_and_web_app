@@ -12,7 +12,7 @@ const TestimonialSection = () => {
       position: 'Homeowner',
       avatar: Agent1,
       stars: 5,
-      testimonial: 'Working with Addisnest was a game-changer for our family. We found our dream home in just two weeks! The platform is intuitive and the agents are incredibly knowledgeable about the Ethiopian market.'
+      testimonial: 'Working with our team was a game-changer for our family. We found our dream home in just two weeks! The platform is intuitive and the agents are incredibly knowledgeable about the Ethiopian market.'
     },
     {
       id: 2,
@@ -20,7 +20,7 @@ const TestimonialSection = () => {
       position: 'Property Investor',
       avatar: Agent2,
       stars: 5,
-      testimonial: 'As an investor, I need reliable market information and connections with serious sellers. Addisnest provided both. Their property listings are detailed and accurate, and their agent network is unmatched.'
+      testimonial: 'As an investor, I need reliable market information and connections with serious sellers. Our platform provided both. Their property listings are detailed and accurate, and their agent network is unmatched.'
     },
     {
       id: 3,
@@ -28,7 +28,7 @@ const TestimonialSection = () => {
       position: 'First-time Buyer',
       avatar: Agent3,
       stars: 5,
-      testimonial: 'I was nervous about buying my first property, but Addisnest made the process smooth and transparent. Their mortgage calculator and neighborhood guides were incredibly helpful in making my decision.'
+      testimonial: 'I was nervous about buying my first property, but they made the process smooth and transparent. Their mortgage calculator and neighborhood guides were incredibly helpful in making my decision.'
     }
   ];
 
@@ -47,7 +47,7 @@ const TestimonialSection = () => {
           <div className="col-md-12">
             <div className="section-title text-center">
               <h2>What Our Clients Are Saying</h2>
-              <p>Thousands of satisfied customers trust Addisnest for their real estate needs</p>
+              <p>Thousands of satisfied customers trust us for their real estate needs</p>
             </div>
           </div>
         </div>

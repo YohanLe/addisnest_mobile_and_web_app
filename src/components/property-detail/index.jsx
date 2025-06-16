@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import PropertyDetail from './sub-component/PropertyDetail';
 import { toast } from 'react-toastify';
-import { getPropertyDetails, clearPropertyDetails } from '../../Redux-store/Slices';
+import { getPropertyDetails, clearPropertyDetails, getSimilarProperties } from '../../Redux-store/Slices/PropertyDetailSlice';
 
 const PropertyDetailMain = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const { property, loading, error } = useSelector((state) => state.PropertyDetail);
+  const { property, similarProperties, loading, loadingSimilar, error } = useSelector((state) => state.PropertyDetail);
   
   useEffect(() => {
     console.log('PropertyDetailMain mounted');
@@ -19,6 +19,12 @@ const PropertyDetailMain = () => {
     // The Redux slice will handle invalid IDs and return mock data
     dispatch(getPropertyDetails(id))
       .unwrap()
+      .then((propertyData) => {
+        // After getting the property details, fetch similar properties
+        if (propertyData) {
+          dispatch(getSimilarProperties(propertyData));
+        }
+      })
       .catch((err) => {
         console.error("Error fetching property details:", err);
         toast.error("Failed to load property details. Please try again.");
@@ -49,7 +55,7 @@ const PropertyDetailMain = () => {
 
   // If we have a property, show it - the mock data will be provided by the redux slice
   // if the ID is invalid or there's an error
-  return <PropertyDetail PropertyDetails={property || {}} />;
+  return <PropertyDetail PropertyDetails={property || {}} similarProperties={similarProperties || []} />;
 };
 
 export default PropertyDetailMain;

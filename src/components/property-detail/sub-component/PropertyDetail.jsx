@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getSimilarProperties } from "../../../Redux-store/Slices/PropertyDetailSlice";
 import { isAuthenticated } from "../../../utils/tokenHandler";
 import LoginPopup from "../../../helper/LoginPopup";
 import PaymentModal from "../PaymentModal";
 import "../../../assets/css/property-detail-enhanced.css";
 import "../../../assets/css/about-place.css";
+import "../../../assets/css/nearby-properties-slider.css";
 import AboutThisHome from "./AboutThisHome";
 import SafetyTipsSection from "./SafetyTipsSection";
 import MortgageCalculatorModern from "../../mortgage-calculator/MortgageCalculatorModern";
@@ -74,8 +77,43 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
         window.scrollTo(0, 0);
     }, []);
     
-    // Create a default array if no similar properties are provided
-    const nearbyProperties = similarProperties || [];
+    // Fetch similar properties from the Redux store
+    const dispatch = useDispatch();
+    const similarPropertiesFromRedux = useSelector((state) => state.propertyDetail?.similarProperties || []);
+    const loadingSimilar = useSelector((state) => state.propertyDetail?.loadingSimilar);
+    const [nearbyProperties, setNearbyProperties] = useState([]);
+    
+    // Fetch similar properties when PropertyDetails loads - using propertyId to prevent infinite updates
+    useEffect(() => {
+        if (PropertyDetails && PropertyDetails._id) {
+            // Dispatch action to get similar properties - only pass the ID to avoid re-renders
+            dispatch(getSimilarProperties({ _id: PropertyDetails._id }));
+        }
+    }, [dispatch, PropertyDetails?._id]);
+    
+    // Update nearby properties when similar properties data changes
+    // Using a ref to track if this is the first mount to avoid unnecessary updates
+    const initialRender = React.useRef(true);
+    
+    useEffect(() => {
+        // Skip the first render to avoid update loops
+        if (initialRender.current) {
+            initialRender.current = false;
+            
+            // Set initial data on first render
+            if (similarPropertiesFromRedux && similarPropertiesFromRedux.length > 0) {
+                setNearbyProperties(similarPropertiesFromRedux);
+            } else if (similarProperties && similarProperties.length > 0) {
+                setNearbyProperties(similarProperties);
+            }
+            return;
+        }
+        
+        // Only update if Redux state changes, not when component re-renders
+        if (similarPropertiesFromRedux && similarPropertiesFromRedux.length > 0) {
+            setNearbyProperties(similarPropertiesFromRedux);
+        }
+    }, [similarPropertiesFromRedux]);
     
     // If PropertyDetails is empty or undefined, show a fallback message
     if (!PropertyDetails || Object.keys(PropertyDetails).length === 0) {
@@ -1189,29 +1227,89 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                     </select>
                                 </div>
                                 
-                                {/* Calculate Button */}
-                                <button 
-                                    style={{
+                                {/* Result Field */}
+                                <div style={{ marginBottom: '15px' }}>
+                                    <label style={{ 
+                                        display: 'block', 
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        marginBottom: '5px',
+                                        color: '#555'
+                                    }}>
+                                        Result
+                                    </label>
+                                    <div style={{
                                         width: '100%',
-                                        backgroundColor: '#4CAF50',
-                                        color: 'white',
-                                        border: 'none',
+                                        padding: '8px 12px',
                                         borderRadius: '8px',
+                                        border: '1px solid #e0e0e0',
+                                        backgroundColor: '#f9f9f9',
+                                        fontSize: '15px',
                                         fontWeight: '600',
-                                        fontSize: '16px',
-                                        padding: '10px 16px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: '0 4px 10px rgba(76, 175, 80, 0.3)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-                                >
-                                    <span style={{ fontSize: '18px', marginRight: '8px' }}>💰</span> Calculate
-                                </button>
+                                        color: '#333',
+                                        minHeight: '20px',
+                                        boxSizing: 'border-box'
+                                    }}>
+                                        <span id="mortgage-calculation-result"></span>
+                                    </div>
+                                </div>
+                                
+                                {/* Calculate Button - Half size */}
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                                    <button 
+                                        style={{
+                                            width: '50%',
+                                            backgroundColor: '#4CAF50',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '8px',
+                                            fontWeight: '600',
+                                            fontSize: '16px',
+                                            padding: '10px 16px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                            boxShadow: '0 4px 10px rgba(76, 175, 80, 0.3)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                        onClick={() => {
+                                            // Simple mortgage calculation logic
+                                            const inputs = document.querySelectorAll('.property-detail-page input, .property-detail-page select');
+                                            const homePrice = parseFloat(inputs[5].value.replace(/[^0-9.-]+/g, ''));
+                                            const downPayment = parseFloat(inputs[6].value.replace(/[^0-9.-]+/g, ''));
+                                            const interestRate = parseFloat(inputs[7].value) / 100;
+                                            const loanTerm = parseInt(inputs[8].value);
+                                            
+                                            // Calculate loan amount
+                                            const loanAmount = homePrice - downPayment;
+                                            
+                                            // Calculate monthly interest rate
+                                            const monthlyRate = interestRate / 12;
+                                            
+                                            // Calculate number of payments
+                                            const numberOfPayments = loanTerm * 12;
+                                            
+                                            // Calculate monthly payment
+                                            const monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
+                                            
+                                            // Format the result
+                                            const formattedResult = new Intl.NumberFormat('en-US', {
+                                                style: 'currency',
+                                                currency: 'USD',
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            }).format(monthlyPayment);
+                                            
+                                            // Update the result field
+                                            document.getElementById('mortgage-calculation-result').textContent = `Monthly Payment: ${formattedResult}`;
+                                        }}
+                                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
+                                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                                    >
+                                        <span style={{ fontSize: '18px', marginRight: '8px' }}>💰</span> Calculate
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1222,8 +1320,9 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
 
             {/* Safety Tips Section - Removed as it's now part of the right sidebar */}
 
-            {/* Mortgage Calculator Section - Original, now hidden */}
-            <div className="container" style={{ marginBottom: '50px', display: 'none' }}>
+            {/* We don't render the MortgageCalculatorModern when it's hidden to prevent chart sizing errors */}
+            {/* 
+            <div className="container" style={{ marginBottom: '50px' }}>
                 <div className="row">
                     <div className="col-md-12">
                         <div style={{
@@ -1264,579 +1363,203 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                     </div>
                 </div>
             </div>
+            */}
             
-            {/* Featured Properties Section */}
-            <div className="container" style={{ marginBottom: '50px' }}>
-                <div className="featured-properties">
-                    <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                        <h2 style={{ 
-                            fontSize: '32px', 
-                            fontWeight: '700', 
-                            color: '#2d3748',
-                            marginBottom: '15px'
-                        }}>
-                            Featured Properties
-                        </h2>
-                        <p style={{ 
-                            fontSize: '18px', 
-                            color: '#4a5568',
-                            maxWidth: '700px',
-                            margin: '0 auto'
-                        }}>
-                            Discover your dream home among our featured listings
-                        </p>
-                    </div>
-                    
-                    <div style={{ 
-                        display: 'flex', 
-                        flexWrap: 'nowrap', 
-                        gap: '30px',
-                        justifyContent: 'space-between',
-                        overflowX: 'auto',
-                        paddingBottom: '10px'
-                    }}>
-                        {/* Property Card 1 */}
-                        <div style={{ 
-                            width: '100%', 
-                            maxWidth: '380px',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                            backgroundColor: 'white'
-                        }}>
-                            {/* Property Image Container */}
-                            <div style={{ 
-                                position: 'relative',
-                                height: '250px',
-                                overflow: 'hidden'
-                            }}>
-                                {/* Status Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    left: '15px',
-                                    backgroundColor: '#059669',
-                                    color: 'white',
-                                    padding: '5px 12px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    zIndex: '2'
-                                }}>
-                                    OPEN SAT, 1PM TO 3PM
-                                </div>
-                                
-                                {/* Year Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    right: '15px',
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
-                                    color: 'white',
-                                    padding: '5px 10px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '500',
-                                    zIndex: '2'
-                                }}>
-                                    2023
-                                </div>
-                                
-                                {/* Location Icon */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    bottom: '15px',
-                                    left: '15px',
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
-                                    color: '#333',
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    zIndex: '2',
-                                    cursor: 'pointer'
-                                }}>
-                                    <SvgLocationIcon />
-                                </div>
-                                
-                                {/* Property Image */}
-                                <img 
-                                    src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=765&auto=format&fit=crop" 
-                                    alt="Property" 
-                                    style={{ 
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.3s ease',
-                                        ":hover": {
-                                            transform: 'scale(1.05)'
-                                        }
-                                    }} 
-                                />
+            {/* Nearby Properties Section - Enhanced with slider functionality */}
+            <div id="nearby-properties" style={{ marginBottom: '50px', backgroundColor: '#f9f9f9', padding: '40px 0', boxShadow: '0 -1px 5px rgba(0,0,0,0.05), 0 1px 5px rgba(0,0,0,0.05)' }}>
+                <div className="container">
+                    <div className="property-slider">
+                        <div className="property-slider-title">
+                            <div className="property-slider-header">
+                                <h4>Other Nearby Homes to Explore</h4>
+                                <p>Nearby listings with similar features and price range in the area.</p>
                             </div>
-                            
-                            {/* Property Info */}
-                            <div style={{ padding: '20px' }}>
-                                {/* Price and Actions */}
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: '15px'
-                                }}>
-                                    <h3 style={{ 
-                                        fontSize: '24px', 
-                                        fontWeight: '700',
-                                        color: '#1a202c',
-                                        margin: '0'
-                                    }}>
-                                        $2,583,929
-                                    </h3>
-                                    <div style={{ 
-                                        display: 'flex',
-                                        gap: '8px'
-                                    }}>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}>
-                                            <SvgShareIcon />
-                                        </button>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}>
-                                            <SvgFavoriteIcon />
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                {/* Address */}
-                                <p style={{ 
-                                    fontSize: '16px',
-                                    fontWeight: '500',
-                                    color: '#4a5568',
-                                    marginBottom: '15px'
-                                }}>
-                                    3135 SE Van Waters St, Milwaukie, OR 97222
-                                </p>
-                                
-                                {/* Specs */}
-                                <div style={{ 
-                                    display: 'flex',
-                                    gap: '15px',
-                                    marginBottom: '15px'
-                                }}>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        7 beds
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        4 baths
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        9361 sq ft
-                                    </div>
-                                </div>
-                                
-                                {/* Agent */}
-                                <div style={{ 
-                                    fontSize: '14px',
-                                    color: '#718096',
-                                    borderTop: '1px solid #e2e8f0',
-                                    paddingTop: '15px'
-                                }}>
-                                    Redfin
-                                </div>
+                            <div className="all-view">
+                                <Link to="/property-list">View all</Link>
                             </div>
                         </div>
-                        
-                        {/* Property Card 2 */}
-                        <div style={{ 
-                            width: '100%', 
-                            maxWidth: '380px',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                            backgroundColor: 'white'
-                        }}>
-                            {/* Property Image Container */}
-                            <div style={{ 
-                                position: 'relative',
-                                height: '250px',
-                                overflow: 'hidden'
+                        <div className="property-list">
+                            <div className="property-slider-aroow">
+                                <span>
+                                    <SvgArrowLeftIcon />
+                                </span>
+                                <span>
+                                    <SvgArrowRightIcon />
+                                </span>
+                            </div>
+                            <ul style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                gap: '20px',
+                                padding: 0,
+                                margin: 0,
+                                listStyle: 'none'
                             }}>
-                                {/* Status Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    left: '15px',
-                                    backgroundColor: '#2563eb',
-                                    color: 'white',
-                                    padding: '5px 12px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    zIndex: '2'
-                                }}>
-                                    NEW 1 HR AGO
-                                </div>
-                                
-                                {/* Year Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    right: '15px',
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
-                                    color: 'white',
-                                    padding: '5px 10px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '500',
-                                    zIndex: '2'
-                                }}>
-                                    2023
-                                </div>
-                                
-                                {/* Location Icon */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    bottom: '15px',
-                                    left: '15px',
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
-                                    color: '#333',
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    zIndex: '2',
-                                    cursor: 'pointer'
-                                }}>
-                                    <SvgLocationIcon />
-                                </div>
-                                
-                                {/* Property Image */}
-                                <img 
-                                    src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=753&auto=format&fit=crop" 
-                                    alt="Property" 
-                                    style={{ 
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.3s ease',
-                                        ":hover": {
-                                            transform: 'scale(1.05)'
-                                        }
-                                    }} 
-                                />
-                            </div>
-                            
-                            {/* Property Info */}
-                            <div style={{ padding: '20px' }}>
-                                {/* Price and Actions */}
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: '15px'
-                                }}>
-                                    <h3 style={{ 
-                                        fontSize: '24px', 
-                                        fontWeight: '700',
-                                        color: '#1a202c',
-                                        margin: '0'
-                                    }}>
-                                        $510,128
-                                    </h3>
-                                    <div style={{ 
-                                        display: 'flex',
-                                        gap: '8px'
-                                    }}>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
+                                {/* If we have nearby properties, display them */}
+                                {nearbyProperties && nearbyProperties.length > 0 ? (
+                                    nearbyProperties.slice(0, 3).map((item, index) => (
+                                        <li key={index} style={{ 
+                                            width: '100%',
+                                            boxSizing: 'border-box'
                                         }}>
-                                            <SvgShareIcon />
-                                        </button>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}>
-                                            <SvgFavoriteIcon />
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                {/* Address */}
-                                <p style={{ 
-                                    fontSize: '16px',
-                                    fontWeight: '500',
-                                    color: '#4a5568',
-                                    marginBottom: '15px'
-                                }}>
-                                    8626 SE 28th Pl, Milwaukie, OR 97222
-                                </p>
-                                
-                                {/* Specs */}
-                                <div style={{ 
-                                    display: 'flex',
-                                    gap: '15px',
-                                    marginBottom: '15px'
-                                }}>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        2 beds
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        2 baths
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        1002 sq ft
-                                    </div>
-                                </div>
-                                
-                                {/* Agent */}
-                                <div style={{ 
-                                    fontSize: '14px',
-                                    color: '#718096',
-                                    borderTop: '1px solid #e2e8f0',
-                                    paddingTop: '15px'
-                                }}>
-                                    Tedi McKnight-Heikes • Engel & Volkers West Portland
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {/* Property Card 3 */}
-                        <div style={{ 
-                            width: '100%', 
-                            maxWidth: '380px',
-                            borderRadius: '8px',
-                            overflow: 'hidden',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-                            backgroundColor: 'white'
-                        }}>
-                            {/* Property Image Container */}
-                            <div style={{ 
-                                position: 'relative',
-                                height: '250px',
-                                overflow: 'hidden'
-                            }}>
-                                {/* Status Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    left: '15px',
-                                    backgroundColor: '#e53e3e',
-                                    color: 'white',
-                                    padding: '5px 12px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    zIndex: '2'
-                                }}>
-                                    LISTED BY REDFIN 29 MINS AGO
-                                </div>
-                                
-                                {/* Year Tag */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    top: '15px',
-                                    right: '15px',
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
-                                    color: 'white',
-                                    padding: '5px 10px',
-                                    borderRadius: '4px',
-                                    fontSize: '13px',
-                                    fontWeight: '500',
-                                    zIndex: '2'
-                                }}>
-                                    2023
-                                </div>
-                                
-                                {/* Location Icon */}
-                                <div style={{ 
-                                    position: 'absolute',
-                                    bottom: '15px',
-                                    left: '15px',
-                                    backgroundColor: 'rgba(255,255,255,0.9)',
-                                    color: '#333',
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    zIndex: '2',
-                                    cursor: 'pointer'
-                                }}>
-                                    <SvgLocationIcon />
-                                </div>
-                                
-                                {/* Property Image */}
-                                <img 
-                                    src="https://images.unsplash.com/photo-1628133287860-41dd6e266500?q=80&w=870&auto=format&fit=crop" 
-                                    alt="Property" 
-                                    style={{ 
-                                        width: '100%',
-                                        height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.3s ease',
-                                        ":hover": {
-                                            transform: 'scale(1.05)'
-                                        }
-                                    }} 
-                                />
-                            </div>
-                            
-                            {/* Property Info */}
-                            <div style={{ padding: '20px' }}>
-                                {/* Price and Actions */}
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: '15px'
-                                }}>
-                                    <h3 style={{ 
-                                        fontSize: '24px', 
-                                        fontWeight: '700',
-                                        color: '#1a202c',
-                                        margin: '0'
-                                    }}>
-                                        $624,502
-                                    </h3>
-                                    <div style={{ 
-                                        display: 'flex',
-                                        gap: '8px'
-                                    }}>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}>
-                                            <SvgShareIcon />
-                                        </button>
-                                        <button style={{ 
-                                            width: '34px',
-                                            height: '34px',
-                                            borderRadius: '50%',
-                                            border: '1px solid #e2e8f0',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}>
-                                            <SvgFavoriteIcon />
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                {/* Address */}
-                                <p style={{ 
-                                    fontSize: '16px',
-                                    fontWeight: '500',
-                                    color: '#4a5568',
-                                    marginBottom: '15px'
-                                }}>
-                                    10410 SE 55th Ave, Milwaukie, OR 97222
-                                </p>
-                                
-                                {/* Specs */}
-                                <div style={{ 
-                                    display: 'flex',
-                                    gap: '15px',
-                                    marginBottom: '15px'
-                                }}>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        3 beds
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        2 baths
-                                    </div>
-                                    <div style={{ 
-                                        fontSize: '14px',
-                                        color: '#4a5568'
-                                    }}>
-                                        2261 sq ft
-                                    </div>
-                                </div>
-                                
-                                {/* Agent */}
-                                <div style={{ 
-                                    fontSize: '14px',
-                                    color: '#718096',
-                                    borderTop: '1px solid #e2e8f0',
-                                    paddingTop: '15px'
-                                }}>
-                                    Kristen Downer • The Agency Portland
-                                </div>
-                            </div>
+                                            <a 
+                                                onClick={() => { 
+                                                    navigate(`/property-detail/${item?._id || item?.id}`);
+                                                    // Use setTimeout to ensure navigation completes before scrolling
+                                                    setTimeout(() => {
+                                                        window.scrollTo(0, 0);
+                                                    }, 100);
+                                                }} 
+                                                className="property-card"
+                                            >
+                                                <div className="card">
+                                                    <div
+                                                        className="property-img"
+                                                        style={{ backgroundImage: `url(${item?.media?.[0]?.filePath || item?.media?.[0] || 'https://via.placeholder.com/800x600?text=No+Image'})` }}
+                                                    >
+                                                        <span>{item.status || 'For Sale'}</span>
+                                                        <p>
+                                                            <em>
+                                                                <SvgClockIcon />
+                                                            </em>
+                                                            {MakeFormat(item?.createdAt)}
+                                                        </p>
+                                                    </div>
+                                                    <div className="property-detail">
+                                                        <div className="property-title">
+                                                            <h3>{new Intl.NumberFormat('en-US').format(item.price || item.total_price || 0)}</h3>
+                                                            <div className="property-share-icon">
+                                                                <span>
+                                                                    <SvgShareIcon />
+                                                                </span>
+                                                                <span>
+                                                                    {item?.is_wishlist === true ? <SvgFavoriteFillIcon /> : <SvgFavoriteIcon />}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="property-area">
+                                                            <span>{item?.beds || item?.number_of_bedrooms || item?.bedrooms || 0} bed</span>
+                                                            <span>
+                                                                <em></em>
+                                                                {item?.bathroom_information?.length || item?.specifications?.bathrooms || item?.number_of_bathrooms || item?.bathrooms || 0} bath
+                                                            </span>
+                                                            <span>
+                                                                <em></em>
+                                                                {item?.property_size || item?.specifications?.area?.size || item?.size || 0} sq.m
+                                                            </span>
+                                                        </div>
+                                                        <div className="property-location">
+                                                            <SvgLocationIcon />
+                                                            <span>
+                                                                {typeof item?.address === 'object' 
+                                                                    ? `${item.address.street || ''}, ${item.address.city || ''}, ${item.address.state || item.address.country || 'Ethiopia'}` 
+                                                                    : (item?.address || 
+                                                                       item?.location?.address || 
+                                                                       (item?.city ? `${item.city}, ${item.regional_state || 'Ethiopia'}` : 'Address not available'))}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    ))
+                                ) : (
+                                    /* If no properties available, show sample data */
+                                    [...Array(3)].map((_, index) => {
+                                        // Sample property data
+                                        const sampleProperties = [
+                                            {
+                                                id: 'sample1',
+                                                price: 2350000,
+                                                bedrooms: 3,
+                                                bathrooms: 2,
+                                                size: 220,
+                                                address: 'Bole, Addis Ababa, Ethiopia',
+                                                createdAt: new Date('2025-05-15'),
+                                                status: 'For Sale'
+                                            },
+                                            {
+                                                id: 'sample2',
+                                                price: 1890000,
+                                                bedrooms: 2,
+                                                bathrooms: 1,
+                                                size: 180,
+                                                address: 'Kazanchis, Addis Ababa, Ethiopia',
+                                                createdAt: new Date('2025-06-01'),
+                                                status: 'For Sale'
+                                            },
+                                            {
+                                                id: 'sample3',
+                                                price: 3200000,
+                                                bedrooms: 4,
+                                                bathrooms: 3,
+                                                size: 280,
+                                                address: 'CMC, Addis Ababa, Ethiopia',
+                                                createdAt: new Date('2025-05-22'),
+                                                status: 'For Sale'
+                                            }
+                                        ];
+                                        
+                                        const item = sampleProperties[index];
+                                        return (
+                                            <li key={`sample-${index}`} style={{ 
+                                                width: '100%',
+                                                boxSizing: 'border-box'
+                                            }}>
+                                                <a className="property-card">
+                                                    <div className="card">
+                                                        <div
+                                                            className="property-img"
+                                                            style={{ backgroundImage: `url(https://via.placeholder.com/800x600?text=Sample+Property+${index + 1})` }}
+                                                        >
+                                                            <span>{item.status}</span>
+                                                            <p>
+                                                                <em>
+                                                                    <SvgClockIcon />
+                                                                </em>
+                                                                {MakeFormat(item.createdAt)}
+                                                            </p>
+                                                        </div>
+                                                        <div className="property-detail">
+                                                            <div className="property-title">
+                                                                <h3>{new Intl.NumberFormat('en-US').format(item.price)}</h3>
+                                                                <div className="property-share-icon">
+                                                                    <span>
+                                                                        <SvgShareIcon />
+                                                                    </span>
+                                                                    <span>
+                                                                        <SvgFavoriteIcon />
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="property-area">
+                                                                <span>{item.bedrooms} bed</span>
+                                                                <span>
+                                                                    <em></em>
+                                                                    {item.bathrooms} bath
+                                                                </span>
+                                                                <span>
+                                                                    <em></em>
+                                                                    {item.size} sq.m
+                                                                </span>
+                                                            </div>
+                                                            <div className="property-location">
+                                                                <SvgLocationIcon />
+                                                                <span>{item.address}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        );
+                                    })
+                                )}
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
+            
             {/* Payment Modal */}
             {showPaymentModal && (
               <PaymentModal 
@@ -1850,106 +1573,6 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
     );
 };
 
-// Separate component for Nearby Properties slider
-const NearbyPropertiesSlider = ({ HomeList }) => {
-    const navigate = useNavigate();
-    const GotoDetail = (item) => {
-        navigate(`/property-detail/${item?.id}`);
-        // Use setTimeout to ensure navigation completes before scrolling
-        setTimeout(() => {
-            window.scrollTo(0, 0);
-        }, 100);
-    };
-    
-    return (
-        <div className="container">
-            <div className="property-slider">
-                <div className="property-slider-title">
-                    <div className="property-slider-header">
-                        <h4>Other Nearby Homes to Explore</h4>
-                        <p>
-                            Nearby listings with similar features and price range in the area.
-                        </p>
-                    </div>
-                    <div className="all-view">
-                        <Link to="/property-list">View all</Link>
-                    </div>
-                </div>
-                <div className="property-list">
-                    <div className="property-slider-aroow">
-                        <span>
-                            <SvgArrowLeftIcon />
-                        </span>
-                        <span>
-                            <SvgArrowRightIcon />
-                        </span>
-                    </div>
-                    <ul>
-                        {HomeList && HomeList.slice(0, 3).map((item, index) => (
-                            <li key={index}>
-                                <a 
-                                    onClick={() => { GotoDetail(item) }} 
-                                    className="property-card"
-                                >
-                                    <div className="card">
-                                        <div
-                                            className="property-img"
-                                            style={{ backgroundImage: `url(${item?.media?.[0]?.filePath || item?.media?.[0]})` }}
-                                        >
-                                            <span>{item.status || 'For Sale'}</span>
-                                            <p>
-                                                <em>
-                                                    <SvgClockIcon />
-                                                </em>
-                                                {MakeFormat(item?.createdAt)}
-                                            </p>
-                                        </div>
-                                        <div className="property-detail">
-                                            <div className="property-title">
-                                                <h3>{new Intl.NumberFormat('en-US').format(item.price || 0)}</h3>
-                                                <div className="property-share-icon">
-                                                <span>
-                                                    <SvgShareIcon />
-                                                </span>
-                                                <span>
-                                                    {item?.is_wishlist === true ? <SvgFavoriteFillIcon /> : <SvgFavoriteIcon />}
-                                                </span>
-                                                </div>
-                                            </div>
-                                            <div className="property-area">
-                                                <span>{item?.beds || 0} bed</span>
-                                                <span>
-                                                    <em></em>
-                                                    {item?.bathroom_information?.length || item?.specifications?.bathrooms || 0} bath
-                                                </span>
-                                                <span>
-                                                    <em></em>
-                                                    {item?.property_size || item?.specifications?.area?.size || 0} sq.m
-                                                </span>
-                                            </div>
-                                            <div className="property-location">
-                                                <SvgLocationIcon />
-                                                <span>{item?.address || item?.location?.address || 'Address not available'}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </li>
-                        ))}
-
-                        {/* If no nearby properties are available, show placeholder */}
-                        {(!HomeList || HomeList.length === 0) && (
-                            <div className="no-properties-message">
-                                <p>No nearby properties found at this time.</p>
-                                <Link to="/property-list" className="view-all-link">Browse all properties</Link>
-                            </div>
-                        )}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 // Safety tips section for the property
 const SafetyTips = () => {

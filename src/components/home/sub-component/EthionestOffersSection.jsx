@@ -10,7 +10,7 @@ const EthionestOffersSection = () => {
         <div className="row">
           <div className="col-md-12">
             <div className="section-title text-center">
-              <h2>What Addisnest Offers</h2>
+              <h2>What We Offer</h2>
               <p>Find the perfect property solution for your needs</p>
             </div>
           </div>

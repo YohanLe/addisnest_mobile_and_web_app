@@ -58,7 +58,7 @@ const ServicesSection = () => {
                 margin: '0 auto'
               }}
             >
-              Addisnest provides comprehensive real estate services to make your property
+              We provide comprehensive real estate services to make your property
               journey smooth and successful, whether you're buying, selling, or renting.
             </p>
           </div>
