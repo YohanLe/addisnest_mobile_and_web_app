@@ -5,8 +5,9 @@ import { GetAllPropertyListings } from '../../Redux-store/Slices/HomeSlice';
 import { GetUserPayments } from '../../Redux-store/Slices/PaymentSlice';
 import { isAuthenticated } from '../../utils/tokenHandler';
 import { Property1, Property2, Property3 } from '../../assets/images';
+import { applyFilters, parseQueryParams, createFilterParams, FILTER_OPTIONS } from '../../utils/propertyFilters';
 
-const PropertyListPage = () => {
+const PropertyListPage = ({ isHomePage = false }) => {
   const dispatch = useDispatch();
   const { data, pending } = useSelector((state) => state.Home?.HomeData || { data: null, pending: false });
   const userPayments = useSelector((state) => state.Payments?.userPayments || { data: null, pending: false });
@@ -22,62 +23,48 @@ const PropertyListPage = () => {
   const [regionalState, setRegionalState] = useState(queryParams.get('regionalState') || 'all');
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || 'newest');
   const [offeringType, setOfferingType] = useState(location.search.includes('rent') ? 'For Rent' : 'For Sale');
-  const [filtersVisible, setFiltersVisible] = useState(true);
+  const [filtersVisible, setFiltersVisible] = useState(!isHomePage);
   const navigate = useNavigate();
 
-  const applyFilters = () => {
-    const queryParams = new URLSearchParams();
-    queryParams.set('for', location.search.includes('rent') ? 'rent' : 'buy');
-    if (searchQuery) queryParams.set('search', searchQuery);
-    if (priceRange && priceRange !== 'any') queryParams.set('priceRange', priceRange);
-    if (propertyType && propertyType !== 'all') queryParams.set('propertyType', propertyType);
-    if (bedrooms && bedrooms !== 'any') queryParams.set('bedrooms', bedrooms);
-    if (bathrooms && bathrooms !== 'any') queryParams.set('bathrooms', bathrooms);
-    if (regionalState && regionalState !== 'all') queryParams.set('regionalState', regionalState);
-    if (sortBy !== 'newest') queryParams.set('sortBy', sortBy);
-
-    navigate(`/property-list?${queryParams.toString()}`);
+  // Use the filter utility to apply filters
+  const handleApplyFilters = () => {
+    applyFilters(navigate, {
+      searchQuery,
+      priceRange,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      regionalState,
+      sortBy,
+      offeringType
+    });
   };
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const type = queryParams.get('for') || 'buy';
-    const searchParam = queryParams.get('search') || '';
-    const priceRangeParam = queryParams.get('priceRange') || 'any';
-    const propertyTypeParam = queryParams.get('propertyType') || 'all';
-    const bedroomsParam = queryParams.get('bedrooms') || 'any';
-    const bathroomsParam = queryParams.get('bathrooms') || 'any';
-    const regionalStateParam = queryParams.get('regionalState') || 'all';
-    const sortByParam = queryParams.get('sortBy') || 'newest';
     
-    // Update offeringType based on URL query parameter
-    const newOfferingType = location.search.includes('rent') ? 'For Rent' : 'For Sale';
-    setOfferingType(newOfferingType);
+    // Use the utility function to parse filter values from URL
+    const filterValues = parseQueryParams(queryParams);
+    
+    // Update local state with the parsed values
+    setSearchQuery(filterValues.searchQuery);
+    setPriceRange(filterValues.priceRange);
+    setPropertyType(filterValues.propertyType);
+    setBedrooms(filterValues.bedrooms);
+    setBathrooms(filterValues.bathrooms);
+    setRegionalState(filterValues.regionalState);
+    setSortBy(filterValues.sortBy);
+    setOfferingType(filterValues.offeringType);
 
-    setSearchQuery(searchParam);
-    setPriceRange(priceRangeParam);
-    setPropertyType(propertyTypeParam);
-    setBedrooms(bedroomsParam);
-    setBathrooms(bathroomsParam);
-    setRegionalState(regionalStateParam);
-    setSortBy(sortByParam);
-
-    // Fetch initial properties when the component mounts or location changes
-    dispatch(
-      GetAllPropertyListings({
-        type,
-        page: 1,
-        limit: 50,
-        search: searchParam,
-        priceRange: priceRangeParam,
-        propertyType: propertyTypeParam,
-        bedrooms: bedroomsParam,
-        bathrooms: bathroomsParam,
-        regionalState: regionalStateParam,
-        sortBy: sortByParam,
-        offeringType: newOfferingType, // Use the updated offeringType value
-      })
-    );
+    // Create filter parameters for API request using our utility function
+    const filterParams = createFilterParams({
+      ...filterValues,
+      page: 1,
+      limit: 50
+    });
+    
+    // Fetch properties with the filter parameters
+    dispatch(GetAllPropertyListings(filterParams));
 
     if (isLoggedIn) {
       dispatch(GetUserPayments());
@@ -250,38 +237,38 @@ const PropertyListPage = () => {
                       </div>
                     </div>
 
-                    <div style={{ padding: '20px' }}>
-                      <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
-                        {formatPrice(property)}
-                      </h3>
-                      
-                      <div style={{ 
-                        display: 'flex', 
-                        gap: '15px',
-                        fontSize: '0.9rem',
-                        color: '#666',
-                        marginBottom: '10px'
-                      }}>
-                        <span>{getBeds(property)} beds</span>
-                        <span>•</span>
-                        <span>{getBaths(property)} baths</span>
-                        <span>•</span>
-                        <span>{getArea(property).size} {getArea(property).unit}</span>
-                      </div>
-                      
-                      <p style={{ 
-                        fontSize: '0.95rem',
-                        fontWeight: '500',
-                        color: '#333',
-                        marginBottom: '5px'
-                      }}>
-                        {getAddress(property)}
-                      </p>
-                      
-                      <p style={{ fontSize: '0.9rem', color: '#666' }}>
-                        {property.title}
-                      </p>
+                  <div style={{ padding: '20px 20px 10px 20px' }}>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
+                      {formatPrice(property)}
+                    </h3>
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '15px',
+                      fontSize: '0.9rem',
+                      color: '#666',
+                      marginBottom: '10px'
+                    }}>
+                      <span>{getBeds(property)} beds</span>
+                      <span>•</span>
+                      <span>{getBaths(property)} baths</span>
+                      <span>•</span>
+                      <span>{getArea(property).size} {getArea(property).unit}</span>
                     </div>
+                    
+                    <p style={{ 
+                      fontSize: '0.95rem',
+                      fontWeight: '500',
+                      color: '#333',
+                      marginBottom: '5px'
+                    }}>
+                      {getAddress(property)}
+                    </p>
+                    
+                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0' }}>
+                      {property.title}
+                    </p>
+                  </div>
                     
                     <Link 
                       to={`/property/${property._id || '648a97f4d254d67c1e5f461b'}`} 
@@ -321,48 +308,50 @@ const PropertyListPage = () => {
         </div>
         
         {/* Apply Filters button moved to inside the filters section */}
+        {/* Filter toggle button - Hide on home page */}
+        {!isHomePage && (
+          <div className="filters-toggle mb-3">
+            <button 
+              className="btn" 
+              onClick={toggleFilters}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: filtersVisible ? '#e8f7c4' : 'white',
+                border: '1px solid #e8e8e8',
+                borderRadius: '8px',
+                padding: '10px 16px',
+                fontSize: '15px',
+                fontWeight: '600',
+                color: '#444',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '8px' }}>
+                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
+              </svg>
+              {filtersVisible ? 'Hide Filters' : 'Show Filters'}
+            </button>
+          </div>
+        )}
         
-        {/* Filter toggle button */}
-        <div className="filters-toggle mb-3">
-          <button 
-            className="btn" 
-            onClick={toggleFilters}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: filtersVisible ? '#e8f7c4' : 'white',
-              border: '1px solid #e8e8e8',
-              borderRadius: '8px',
-              padding: '10px 16px',
-              fontSize: '15px',
-              fontWeight: '600',
-              color: '#444',
-              transition: 'all 0.2s ease'
+        {/* Collapsible filters section - Hide on home page */}
+        {!isHomePage && (
+          <div 
+            className="filters-section mb-4" 
+            style={{ 
+              backgroundColor: 'white', 
+              borderRadius: '16px', 
+              boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)', 
+              padding: filtersVisible ? '20px' : '0',
+              border: '1px solid #f0f0f0',
+              transition: 'all 0.3s ease',
+              overflow: 'hidden',
+              maxHeight: filtersVisible ? '1000px' : '0',
+              opacity: filtersVisible ? 1 : 0,
+              marginBottom: filtersVisible ? '24px' : '0'
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '8px' }}>
-              <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-            </svg>
-            {filtersVisible ? 'Hide Filters' : 'Show Filters'}
-          </button>
-        </div>
-        
-        {/* Collapsible filters section */}
-        <div 
-          className="filters-section mb-4" 
-          style={{ 
-            backgroundColor: 'white', 
-            borderRadius: '16px', 
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)', 
-            padding: filtersVisible ? '20px' : '0',
-            border: '1px solid #f0f0f0',
-            transition: 'all 0.3s ease',
-            overflow: 'hidden',
-            maxHeight: filtersVisible ? '1000px' : '0',
-            opacity: filtersVisible ? 1 : 0,
-            marginBottom: filtersVisible ? '24px' : '0'
-          }}
-        >
           <div className="filter-grid" style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -399,13 +388,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="any">Any Price</option>
-                <option value="0-20000">ETB 0 - 20,000</option>
-                <option value="20000-1000000">ETB 20,000 - 1,000,000</option>
-                <option value="1000000-5000000">ETB 1,000,000 - 5,000,000</option>
-                <option value="5000000-10000000">ETB 5,000,000 - 10,000,000</option>
-                <option value="10000000-20000000">ETB 10,000,000 - 20,000,000</option>
-                <option value="20000000+">ETB 20,000,000+</option>
+                {FILTER_OPTIONS.priceRanges.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -438,21 +423,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="all">All Regions</option>
-                <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
-                <option value="Afar Region">Afar Region</option>
-                <option value="Amhara Region">Amhara Region</option>
-                <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>
-                <option value="Dire Dawa City Administration">Dire Dawa City Administration</option>
-                <option value="Gambela Region">Gambela Region</option>
-                <option value="Harari Region">Harari Region</option>
-                <option value="Oromia Region">Oromia Region</option>
-                <option value="Sidama Region">Sidama Region</option>
-                <option value="Somali Region">Somali Region</option>
-                <option value="South Ethiopia Region">South Ethiopia Region</option>
-                <option value="South West Ethiopia Peoples' Region">South West Ethiopia Peoples' Region</option>
-                <option value="Tigray Region">Tigray Region</option>
-                <option value="Central Ethiopia Region">Central Ethiopia Region</option>
+                {FILTER_OPTIONS.regionalStates.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -485,12 +458,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="all">All Types</option>
-                <option value="Apartment">Apartment</option>
-                <option value="House">House</option>
-                <option value="Villa">Villa</option>
-                <option value="Studio">Studio</option>
-                <option value="Land">Land</option>
+                {FILTER_OPTIONS.propertyTypes.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -523,12 +493,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="any">Any</option>
-                <option value="1">1+</option>
-                <option value="2">2+</option>
-                <option value="3">3+</option>
-                <option value="4">4+</option>
-                <option value="5">5+</option>
+                {FILTER_OPTIONS.bedBathOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -561,12 +528,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="any">Any</option>
-                <option value="1">1+</option>
-                <option value="2">2+</option>
-                <option value="3">3+</option>
-                <option value="4">4+</option>
-                <option value="5">5+</option>
+                {FILTER_OPTIONS.bedBathOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -599,9 +563,9 @@ const PropertyListPage = () => {
                   backgroundPosition: 'right 12px center'
                 }}
               >
-                <option value="newest">Newest</option>
-                <option value="price-asc">Price (Low to High)</option>
-                <option value="price-desc">Price (High to Low)</option>
+                {FILTER_OPTIONS.sortOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
             
@@ -615,7 +579,7 @@ const PropertyListPage = () => {
               }}>Apply</label>
               <button
                 className="btn btn-primary"
-                onClick={applyFilters}
+                onClick={handleApplyFilters}
                 style={{
                   backgroundColor: '#a4ff2a',
                   color: '#222',
@@ -649,7 +613,8 @@ const PropertyListPage = () => {
           </div>
           
           {/* Removed duplicate Apply Filters button as it's now next to Sort By */}
-        </div>
+          </div>
+        )}
         
         {/* Property results count */}
         <div className="results-header mb-4">
@@ -737,7 +702,7 @@ const PropertyListPage = () => {
                     </div>
                   </div>
 
-                  <div style={{ padding: '20px' }}>
+                  <div style={{ padding: '20px 20px 10px 20px' }}>
                     <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
                       {formatPrice(property)}
                     </h3>
@@ -765,7 +730,7 @@ const PropertyListPage = () => {
                       {getAddress(property)}
                     </p>
                     
-                    <p style={{ fontSize: '0.9rem', color: '#666' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0' }}>
                       {property.title}
                     </p>
                   </div>

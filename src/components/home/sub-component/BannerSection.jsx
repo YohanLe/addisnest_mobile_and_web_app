@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { PropertyImage3, EthisnestBg } from '../../../assets/images';
+import { PropertyImage3, BannerImage } from '../../../assets/images';
 import { SvgSearchIcon } from '../../../assets/svg-files/SvgFiles.jsx';
 import { useNavigate } from 'react-router-dom';
 import { GetHomeData } from '../../../Redux-store/Slices/HomeSlice';
 import { isAuthenticated } from '../../../utils/tokenHandler';
+import { applyFilters, FILTER_OPTIONS } from '../../../utils/propertyFilters';
 import './BannerSection.css';
 
 const BannerSection = () => {
@@ -13,29 +14,39 @@ const BannerSection = () => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  
+  // Filter states
+  const [priceRange, setPriceRange] = useState('any');
+  const [propertyType, setPropertyType] = useState('all');
+  const [bedrooms, setBedrooms] = useState('any');
+  const [bathrooms, setBathrooms] = useState('any');
+  const [regionalState, setRegionalState] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleSearch = (e, type) => {
     if (e) e.preventDefault();
     const currentSearchType = type || searchType;
     
+    // Determine offering type based on the search type or toggle
+    let offeringType = 'For Sale'; // Default
+    
     if (currentSearchType === 'buy-rent') {
-      // For the combined Buy/Rent button, use the toggle state to determine which type to fetch
-      if (buyRentToggle === 'buy') {
-        navigate(`/property-list?for=sale&search=${encodeURIComponent(searchQuery)}`);
-      } else {
-        navigate(`/property-list?for=rent&search=${encodeURIComponent(searchQuery)}`);
-      }
-    } else if (currentSearchType === 'rent') {
-      navigate(`/property-list?for=rent&search=${encodeURIComponent(searchQuery)}`);
-    } else if (currentSearchType === 'buy') {
-      navigate(`/property-list?search=${encodeURIComponent(searchQuery)}`);
-    } else if (currentSearchType === 'for-sale') {
-      navigate(`/property-list?for=sale&search=${encodeURIComponent(searchQuery)}`);
-    } else if (currentSearchType === 'for-rent') {
-      navigate(`/property-list?for=rent&search=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate(`/property-list?search=${encodeURIComponent(searchQuery)}`);
+      // For the combined Buy/Rent button, use the toggle state
+      offeringType = buyRentToggle === 'buy' ? 'For Sale' : 'For Rent';
+    } else if (currentSearchType === 'rent' || currentSearchType === 'for-rent') {
+      offeringType = 'For Rent';
     }
+    
+    // Use the filter utility to apply filters and navigate
+    applyFilters(navigate, {
+      searchQuery,
+      offeringType,
+      priceRange,
+      propertyType,
+      bedrooms,
+      bathrooms,
+      regionalState
+    });
   };
 
   // Function to toggle between Buy and Rent
@@ -52,12 +63,16 @@ const BannerSection = () => {
     setSearchType(type);
     handleSearch(null, type);
   };
+  
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
 
   return (
     <section
       className="banner-section"
       style={{
-        backgroundImage: `url(${EthisnestBg})`,
+        backgroundImage: `url(${BannerImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height: '360px',
@@ -152,38 +167,204 @@ const BannerSection = () => {
                     <SvgSearchIcon style={{ width: '20px', height: '20px' }} />
                   </button>
                 </form>
-                
-                <div style={{ marginTop: '15px', textAlign: 'center' }}>
+
+                {/* Filter toggle button */}
+                <div className="filter-toggle" style={{ textAlign: 'center', marginTop: '10px' }}>
                   <button 
-                    className="btn" 
-                    onClick={() => {
-                      // Pass the current search type to the property list page
-                      const listPagePath = searchType === 'for-rent' ? 
-                        '/property-list?for=rent' : 
-                        '/property-list?for=sale';
-                      navigate(listPagePath);
-                    }}
+                    onClick={toggleFilters} 
+                    className="btn"
                     style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      backgroundColor: '#a4ff2a',
+                      backgroundColor: showFilters ? '#e8f7c4' : 'rgba(255, 255, 255, 0.8)',
+                      color: '#333',
                       border: 'none',
-                      borderRadius: '8px',
-                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      padding: '5px 15px',
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: '#222',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.07)'
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '8px' }}>
-                      <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/>
-                    </svg>
-                    {searchType === 'for-rent' ? 'More Rental Filters' : 'More Property Filters'}
+                    {showFilters ? 'Hide Filters' : 'Show Filters'}
                   </button>
                 </div>
+
+                {/* Filters section */}
+                {showFilters && (
+                  <div className="filters-container" style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: '10px',
+                    padding: '15px',
+                    marginTop: '10px',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                    gap: '10px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    {/* Price Range Filter */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Price Range</label>
+                      <select 
+                        value={priceRange}
+                        onChange={(e) => setPriceRange(e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd',
+                          backgroundColor: 'white',
+                          fontSize: '13px'
+                        }}
+                      >
+                        {FILTER_OPTIONS.priceRanges.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Regional State Filter */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Regional State</label>
+                      <select 
+                        value={regionalState}
+                        onChange={(e) => setRegionalState(e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd',
+                          backgroundColor: 'white',
+                          fontSize: '13px'
+                        }}
+                      >
+                        {FILTER_OPTIONS.regionalStates.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Property Type Filter */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Property Type</label>
+                      <select 
+                        value={propertyType}
+                        onChange={(e) => setPropertyType(e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd',
+                          backgroundColor: 'white',
+                          fontSize: '13px'
+                        }}
+                      >
+                        {FILTER_OPTIONS.propertyTypes.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Bedrooms Filter */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Bedrooms</label>
+                      <select 
+                        value={bedrooms}
+                        onChange={(e) => setBedrooms(e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd',
+                          backgroundColor: 'white',
+                          fontSize: '13px'
+                        }}
+                      >
+                        {FILTER_OPTIONS.bedBathOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Bathrooms Filter */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Bathrooms</label>
+                      <select 
+                        value={bathrooms}
+                        onChange={(e) => setBathrooms(e.target.value)}
+                        style={{ 
+                          width: '100%',
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          border: '1px solid #ddd',
+                          backgroundColor: 'white',
+                          fontSize: '13px'
+                        }}
+                      >
+                        {FILTER_OPTIONS.bedBathOptions.map(option => (
+                          <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Apply Filters Button */}
+                    <div className="filter-item">
+                      <label style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        marginBottom: '5px', 
+                        color: '#333',
+                        display: 'block'
+                      }}>Apply</label>
+                      <button
+                        onClick={(e) => handleSearch(e)}
+                        className="btn"
+                        style={{
+                          backgroundColor: '#a4ff2a',
+                          color: '#222',
+                          border: 'none',
+                          borderRadius: '8px',
+                          padding: '8px 10px',
+                          fontSize: '13px',
+                          width: '100%',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Apply Filters
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

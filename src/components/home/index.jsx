@@ -40,7 +40,7 @@ const HomePage = () => {
       <BannerSection />
       
       <div style={{ marginTop: '40px', marginBottom: '20px' }}>
-        <PropertyListPage />
+        <PropertyListPage isHomePage={true} />
       </div>
       
       <div style={{ marginTop: '50px', marginBottom: '50px', backgroundColor: 'white', padding: '50px 0' }}>

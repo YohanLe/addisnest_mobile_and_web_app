@@ -25,6 +25,7 @@ export const Agent3 = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228
 // Background images
 export const EthisnestImage = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
 export const EthisnestBg = 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80';
+export const BannerImage = 'https://ssl.cdn-redfin.com/v580.2.0/images/homepage/banners/genHomepageDesktopBanner/HPTO_2120-NW-97th-St-Seattle_PremierHP.jpg';
 
 // Auth images
 export const AuthImage = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
