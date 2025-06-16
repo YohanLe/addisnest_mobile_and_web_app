@@ -9,8 +9,10 @@ const notificationRoutes = require('./notificationRoutes');
 const paymentRoutes = require('./paymentRoutes');
 const connectionTestRoutes = require('./connectionTestRoutes');
 const mediaRoutes = require('./mediaRoutes');
+const agentRoutes = require('./agentRoutes');
 
 module.exports = {
+  agentRoutes,
   userRoutes,
   authRoutes,
   propertyRoutes,

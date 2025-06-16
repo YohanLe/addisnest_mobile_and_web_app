@@ -51,6 +51,52 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  region: {
+    type: String,
+    enum: ['Addis Ababa', 'Adama', 'Bahir Dar', 'Hawassa', 'Dire Dawa', 'Mekelle', 'Gondar', 'Jimma', 'Dessie', 'Other'],
+    default: 'Addis Ababa'
+  },
+  specialties: [{
+    type: String,
+    enum: ['Buying', 'Selling', 'Renting', 'Commercial', 'Residential', 'Farmland', 'New Construction', 'Luxury'],
+    default: ['Selling']
+  }],
+  languagesSpoken: [{
+    type: String,
+    enum: ['Amharic', 'Afaan Oromo', 'English', 'Tigrinya', 'Somali', 'Other'],
+    default: ['Amharic']
+  }],
+  ratings: [{
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      required: true
+    },
+    review: String,
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  licenseVerified: {
+    type: Boolean,
+    default: false
+  },
+  licenseNumber: String,
+  licenseDocument: String,
   address: {
     street: String,
     city: String,

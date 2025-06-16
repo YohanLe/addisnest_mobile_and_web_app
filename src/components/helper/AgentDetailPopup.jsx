@@ -1,121 +1,214 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { SvgCloseIcon, SvgLocationIcon, SvgPhoneIcon } from "../assets/svg-files/SvgFiles";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { FaPhone, FaEnvelope, FaComments, FaTimes, FaCheck, FaStar, FaCalendarAlt } from 'react-icons/fa';
 
-const AgentDetailPopup = ({ handlePopup, ItemData }) => {
-  if (!ItemData) {
-    return null;
-  }
+const AgentDetailPopup = ({ onClose }) => {
+  // In a real application, we would fetch this from Redux
+  // For now, we'll just use a placeholder
+  const agent = useSelector(state => state.Agents?.selectedAgent) || {
+    id: 1,
+    name: 'Samuel Tesfaye',
+    profilePicture: '',
+    region: 'Addis Ababa',
+    rating: 4.8,
+    experience: 5,
+    phone: '+251 91 234 5678',
+    specialties: ['Buying', 'Selling', 'Luxury'],
+    languages: ['Amharic', 'English'],
+    bio: 'Experienced real estate agent specialized in luxury properties in Addis Ababa. Dedicated to helping clients find their dream homes.',
+    email: 'samuel.tesfaye@example.com',
+    isVerified: true,
+    licenseNumber: 'ET-RE-12345',
+    currentListings: 12,
+    transactionsClosed: 45,
+    reviews: [
+      {
+        id: 1,
+        rating: 5,
+        text: 'Samuel helped us find our dream home in a very competitive market. His knowledge of Addis Ababa neighborhoods was invaluable.'
+      },
+      {
+        id: 2,
+        rating: 4,
+        text: 'Great communication throughout the buying process. Would recommend for anyone looking for properties in the city center.'
+      }
+    ]
+  };
+
+  // Render stars for ratings
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating - fullStars >= 0.5;
+    
+    for (let i = 1; i <= 5; i++) {
+      if (i <= fullStars) {
+        stars.push(<FaStar key={i} className="star filled" />);
+      } else if (i === fullStars + 1 && hasHalfStar) {
+        stars.push(<FaStar key={i} className="star half-filled" />);
+      } else {
+        stars.push(<FaStar key={i} className="star" />);
+      }
+    }
+    
+    return stars;
+  };
+
+  const handleCall = () => {
+    window.location.href = `tel:${agent.phone}`;
+  };
+
+  const handleEmail = () => {
+    window.location.href = `mailto:${agent.email}`;
+  };
+
+  const handleChat = () => {
+    // In a real app, this would open a chat interface or redirect to one
+    alert('Chat functionality would be implemented here');
+  };
+
+  const handleSchedule = () => {
+    // In a real app, this would open a scheduling interface
+    alert('Scheduling functionality would be implemented here');
+  };
 
   return (
     <div className="agent-detail-popup-main">
+      <div className="agent-detail-backdrop" onClick={onClose}></div>
       <div className="agent-detail-popup">
         <div className="agent-detail-popup-inner">
-          <button
-            onClick={() => handlePopup()}
-            type="button"
-            className="close-button"
-          >
-            <SvgCloseIcon />
+          <button className="close-button" onClick={onClose}>
+            <FaTimes />
           </button>
 
-          <div className="agent-details-content">
-            <div className="agent-details-top">
-              <div className="agent-profile-img">
-                <span
-                  style={{
-                    backgroundImage: ItemData?.profile_img
-                      ? `url(${ItemData.profile_img})`
-                      : "none",
-                  }}
-                ></span>
-              </div>
-
-              <div className="agent-profile-info">
-                <h3>{ItemData?.name || "Agent Name"}</h3>
-                <p>
-                  <span>
-                    <SvgPhoneIcon />
-                  </span>
-                  {ItemData?.phone || "Phone not available"}
-                </p>
-                <p>
-                  <span>
-                    <SvgLocationIcon />
-                  </span>
-                  {ItemData?.address || "Address not available"}
-                </p>
-                <div className="agent-rating">
-                  <span>
-                    <svg
-                      width="16"
-                      height="14"
-                      viewBox="0 0 16 14"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M7.99994 11.5996L11.4583 13.6913C12.0916 14.0746 12.8666 13.508 12.6999 12.7913L11.7833 8.85797L14.8416 6.20798C15.3999 5.72464 15.0999 4.80798 14.3666 4.74964L10.3416 4.40798L8.76661 0.691309C8.48327 0.0163086 7.51661 0.0163086 7.23327 0.691309L5.65827 4.39964L1.63327 4.74131C0.899939 4.79964 0.599938 5.71631 1.15827 6.19964L4.21661 8.84964L3.29994 12.783C3.13327 13.4996 3.90827 14.0663 4.5416 13.683L7.99994 11.5996Z"
-                        fill="#FFCC00"
-                      />
-                    </svg>
-                  </span>
-                  {ItemData?.average_rating || "0.0"}
+          {/* Agent Profile Top Section */}
+          <div className="agent-details-top">
+            <div className="agent-profile-img">
+              <span style={{backgroundImage: agent.profilePicture ? `url(${agent.profilePicture})` : 'none'}}></span>
+              {agent.isVerified && (
+                <div className="verified-badge-profile" title="Verified Agent">
+                  <FaCheck />
                 </div>
+              )}
+            </div>
+
+            <div className="agent-profile-info">
+              <h3>{agent.name}</h3>
+              <div className="agent-region">{agent.region}</div>
+              <p>
+                <FaPhone /> {agent.phone}
+              </p>
+              <p>
+                <FaEnvelope /> {agent.email}
+              </p>
+              <div className="agent-rating">
+                {renderStars(agent.rating)}
+                <span>({agent.rating})</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Agent Stats */}
+          <div className="agent-details-info">
+            <div className="agent-info-row">
+              <div className="agent-info-item">
+                <h5>Experience</h5>
+                <p>{agent.experience} years</p>
+              </div>
+              <div className="agent-info-item">
+                <h5>Current Listings</h5>
+                <p>{agent.currentListings}</p>
+              </div>
+              <div className="agent-info-item">
+                <h5>Transactions Closed</h5>
+                <p>{agent.transactionsClosed}</p>
               </div>
             </div>
 
-            <div className="agent-details-info">
-              <div className="agent-info-row">
-                <div className="agent-info-item">
-                  <h5>Experience</h5>
-                  <p>{ItemData?.experience || "0"} years</p>
+            {/* Verification Info */}
+            {agent.isVerified && (
+              <div className="agent-verification-info">
+                <div className="verification-badge">
+                  <FaCheck />
+                  <span>Verified Agent</span>
                 </div>
-                <div className="agent-info-item">
-                  <h5>Deals Completed</h5>
-                  <p>{ItemData?.deals || "0"}</p>
-                </div>
-                <div className="agent-info-item">
-                  <h5>Languages</h5>
-                  <p>{ItemData?.languages || "English"}</p>
-                </div>
+                <p className="license-number">License No: {agent.licenseNumber}</p>
               </div>
+            )}
 
-              <div className="agent-bio-section">
-                <h4>About Me</h4>
-                <p>
-                  {ItemData?.bio || 
-                    "No biography available for this agent. Please contact them directly for more information."}
-                </p>
-              </div>
+            {/* Agent Bio */}
+            <div className="agent-bio-section">
+              <h4>About {agent.name}</h4>
+              <p>{agent.bio}</p>
+            </div>
 
-              <div className="agent-specializations">
-                <h4>Specializations</h4>
-                <div className="specialization-tags">
-                  {ItemData?.specializations ? 
-                    ItemData.specializations.map((spec, index) => (
-                      <span key={index} className="specialization-tag">
-                        {spec}
-                      </span>
-                    )) : 
-                    <span className="specialization-tag">General Real Estate</span>
-                  }
+            {/* Agent Specializations */}
+            <div className="agent-specializations">
+              <h4>Specialties</h4>
+              <div className="specialization-tags">
+                {agent.specialties.map((specialty, index) => (
+                  <span key={index} className="specialization-tag">{specialty}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Languages */}
+            <div className="agent-specializations">
+              <h4>Languages</h4>
+              <div className="specialization-tags">
+                {agent.languages.map((language, index) => (
+                  <span key={index} className="specialization-tag">{language}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Reviews */}
+            {agent.reviews && agent.reviews.length > 0 && (
+              <div className="agent-reviews-section">
+                <h4>Client Reviews</h4>
+                <div className="agent-reviews">
+                  {agent.reviews.map(review => (
+                    <div key={review.id} className="review-item">
+                      <div className="review-rating">
+                        {renderStars(review.rating)}
+                      </div>
+                      <p className="review-text">{review.text}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div className="agent-contact-actions">
-                <Link to={`/chat?agent=${ItemData?.id || ''}`} className="btn btn-primary">
-                  Message Agent
-                </Link>
-                <a href={`tel:${ItemData?.phone || ''}`} className="btn btn-outline-primary">
-                  Call Agent
-                </a>
-              </div>
+            {/* Contact Actions */}
+            <div className="agent-contact-actions">
+              <button 
+                onClick={handleCall}
+                style={{ backgroundColor: '#4a6cf7', color: 'white' }}
+              >
+                <FaPhone /> Call
+              </button>
+              <button 
+                onClick={handleEmail}
+                style={{ backgroundColor: '#28a745', color: 'white' }}
+              >
+                <FaEnvelope /> Email
+              </button>
+              <button 
+                onClick={handleChat}
+                style={{ backgroundColor: '#fd7e14', color: 'white' }}
+              >
+                <FaComments /> Chat
+              </button>
+              <button 
+                onClick={handleSchedule}
+                style={{ backgroundColor: '#17a2b8', color: 'white' }}
+              >
+                <FaCalendarAlt /> Schedule Meeting
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div className="agent-detail-backdrop" onClick={() => handlePopup()}></div>
     </div>
   );
 };
