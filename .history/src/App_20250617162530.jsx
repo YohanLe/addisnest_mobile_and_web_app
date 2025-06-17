@@ -18,7 +18,6 @@ import {
   MortgageCalculatorDemo
 } from './RoutesMain.jsx';
 import PropertyDetailMain from './components/property-detail';
-import { SimpleMortgageCalculator } from './components/mortgage-calculator';
 import TestPropertyDetail from './components/property-detail/TestPropertyDetail';
 import ChoosePromotion from './components/payment-method/choose-propmo/sub-component/ChoosePropmotionFixed';
 import PaymentMethod from './components/payment-method/payment-process/sub-component/PaymentMethod';
@@ -164,7 +163,7 @@ const App = () => {
           <Route path="/debug/property/:id" element={<PropertyDetailDebug />} />
           <Route path="/test-property-detail" element={<TestPropertyDetail />} />
           <Route path="/find-agent/*" element={<FindAgentPage />} />
-          <Route path="/mortgage-calculator" element={<SimpleMortgageCalculator currency="$" />} />
+          <Route path="/mortgage-calculator" element={<MortgageCalculatorDemo />} />
         </Routes>
       </main>
       <Footer />
