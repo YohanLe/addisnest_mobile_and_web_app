@@ -193,13 +193,13 @@ class UserController extends BaseController {
     // Find the user
     const user = await User.findOne({ email });
     if (!user) {
-      return this.sendError(res, new ErrorResponse('Invalid credentials', 401));
+      return this.sendError(res, new ErrorResponse('Email not registered. Please check your email or sign up.', 401));
     }
 
     // Check password
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
-      return this.sendError(res, new ErrorResponse('Invalid credentials', 401));
+      return this.sendError(res, new ErrorResponse('The password you entered is incorrect. Please try again.', 401));
     }
 
     // Generate token

@@ -13,8 +13,7 @@ const routes = require('./routes');
 
 // Load env vars
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-// Force using local MongoDB connection
-process.env.MONGO_URI = 'mongodb://localhost:27017/addisnest';
+// MongoDB connection string comes from .env file
 console.log('Environment:', process.env.NODE_ENV);
 console.log('MongoDB URI:', process.env.MONGO_URI);
 console.log('Port:', process.env.PORT);

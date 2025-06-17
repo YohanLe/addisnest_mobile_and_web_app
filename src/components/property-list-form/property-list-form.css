@@ -50,7 +50,7 @@
 
 /* Form Steps */
 .form-step-section {
-  padding: 30px;
+  padding: 15px;
   border-bottom: 1px solid #eee;
   transition: all 0.3s ease;
   position: relative;
@@ -87,7 +87,7 @@
 .step-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .step-indicator {
@@ -98,13 +98,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   color: white;
   border-radius: 50%;
   font-weight: 600;
-  font-size: 18px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Different colors for each step number */
@@ -133,11 +133,11 @@
 }
 
 .step-header h4 {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   margin: 0;
   position: relative;
-  padding-bottom: 5px;
+  padding-bottom: 3px;
 }
 
 /* Different colors for each step header */
@@ -172,7 +172,7 @@
 }
 
 .step-content {
-  padding-left: 50px;
+  padding-left: 35px;
 }
 
 /* Collapsible Sections */
@@ -218,13 +218,19 @@
 
 .offering-card {
   flex: 1;
-  padding: 15px; /* Reduced from 25px */
-  border-radius: 8px; /* Reduced from 10px */
-  border: 1px solid #e0e0e0; /* Reduced from 2px */
+  padding: 5px 10px; /* Reduced vertical padding */
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+  min-height: 33px; /* Reduced by 40% from 55px */
+  display: flex;
+  flex-direction: row; /* Changed to row layout for better space usage */
+  justify-content: center;
+  align-items: center; /* Center items horizontally */
+  overflow: visible; /* Prevent content from being cut off */
 }
 
 .offering-card:hover {
@@ -320,17 +326,21 @@
 }
 
 .card-icon {
-  margin-bottom: 15px;
+  margin-bottom: 0; /* Removed bottom margin for row layout */
+  margin-right: 3px; /* Added right margin instead */
+  display: inline-flex; /* Make it inline with text */
 }
 
 .icon-circle {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 40px; /* Reduced from 60px */
-  height: 40px; /* Reduced from 60px */
+  width: 22px; /* Further reduced size */
+  height: 22px; /* Further reduced size */
   border-radius: 50%;
-  font-size: 18px; /* Reduced from 28px */
+  font-size: 12px; /* Smaller font size for icon */
+  margin: 0 5px 0 0; /* Added right margin, removed bottom margin */
+  vertical-align: middle; /* Align with text */
 }
 
 .icon-circle.green {
@@ -346,16 +356,15 @@
 }
 
 .offering-card h5 {
-  font-size: 16px; /* Reduced from 18px */
+  font-size: 12px; /* Further reduced */
   font-weight: 600;
-  margin: 6px 0; /* Reduced from 10px */
+  margin: 0; /* Removed vertical margins */
   color: #2c3e50;
+  display: inline; /* Display inline with icon */
 }
 
 .offering-card p {
-  font-size: 12px; /* Reduced from 14px */
-  color: #666;
-  margin: 0;
+  display: none; /* Hide descriptive text to save space */
 }
 
 /* Form Inputs */
@@ -394,7 +403,7 @@
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   position: relative;
 }
 
@@ -429,10 +438,10 @@
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 12px 15px;
+  padding: 8px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
   background-color: #f9fafc;
 }
@@ -890,6 +899,7 @@
 }
 
 /* Responsive Design */
+/* Added new media query for medium-sized screens */
 @media (max-width: 992px) {
   .form-col-33 {
     flex: 0 0 50%;
@@ -899,11 +909,57 @@
   .image-upload-slot {
     flex: 0 0 calc(50% - 10px);
   }
+  
+  /* Added styles for offering cards at this breakpoint */
+  .offering-options {
+    gap: 5px; /* Reduced gap between cards */
+  }
+  
+  .offering-card {
+    padding: 8px; /* Slightly reduced padding */
+  }
+  
+  .icon-circle {
+    width: 36px; /* Slightly smaller icon circle */
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  .offering-card h5 {
+    font-size: 14px; /* Slightly smaller font */
+    margin: 2px 0;
+  }
+  
+  .offering-card p {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 768px) {
   .offering-options {
     flex-direction: column;
+    gap: 15px; /* Increased gap for better separation in column layout */
+    max-width: 350px; /* Reduced max-width since cards are stacked */
+  }
+  
+  .offering-card {
+    min-height: 95px; /* Slightly reduced height on mobile */
+    padding: 12px; /* Increased padding for better touch targets */
+  }
+  
+  .icon-circle {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 6px; /* Better spacing between icon and text */
+  }
+  
+  .offering-card h5 {
+    font-size: 16px; /* Slightly larger font for better readability */
+    margin: 4px 0;
+  }
+  
+  .offering-card p {
+    font-size: 13px; /* Increased from 12px for better readability */
   }
   
   .form-step-section {
@@ -945,19 +1001,27 @@
 
 @media (max-width: 480px) {
   .property-heading-form h3 {
-    font-size: 24px;
+    font-size: 22px;
   }
   
-  .step-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .offering-options {
+    max-width: 280px; /* Further reduced max-width for extra small screens */
   }
   
-  .step-indicator {
-    margin-bottom: 10px;
+  .offering-card {
+    min-height: 105px; /* Slightly taller for better content spacing */
+    padding: 15px 10px; /* More vertical padding, slightly less horizontal */
   }
   
-  .step-content {
-    padding-left: 0;
+  .icon-circle {
+    width: 40px; /* Slightly larger icons for better visibility on small screens */
+    height: 40px;
+    font-size: 20px;
+    margin-bottom: 8px; /* More space below icon */
+  }
+  
+  .offering-card h5 {
+    font-size: 16px; /* Maintain good readability */
+    margin: 5px 0;
   }
 }

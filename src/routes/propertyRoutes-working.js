@@ -21,3 +21,4 @@ router.delete('/:id', authorize('agent','customer','admin'), propertyController.
 router.put('/:id/photos', authorize('agent','customer','admin'), propertyController.uploadPropertyPhotos);
 
 module.exports = router;
+ 

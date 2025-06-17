@@ -13,6 +13,7 @@ const SigninPage = () => {
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const [Loading, setLoading] = useState(false);
     const [error, setError] = useState({ isValid: false });
+    const [loginError, setLoginError] = useState("");
     const togglePasswordVisibility = () => {
         setPasswordVisible(!isPasswordVisible);
     };
@@ -31,6 +32,9 @@ const SigninPage = () => {
         setInps((prevInputs) => ({ ...prevInputs, [event.target.name]: event.target.value }));
     };
     const Loginfun = async () => {
+        // Clear any previous login errors
+        setLoginError("");
+        
         const errorMessage = validateLogin(inps);
         if (errorMessage.isValid == false) {
             setError(errorMessage);
@@ -77,43 +81,43 @@ const SigninPage = () => {
 
                 setLoading(false);
                 
-                const { response } = error;
-                let errorMessage = 'Login failed. Please try again.';
-                
-                if (response) {
-                    // Server responded with error
-                    const { status, data } = response;
+                // Display user-friendly error messages for different error scenarios
+                if (error.response) {
+                    const { status, data } = error.response;
                     
                     if (status === 401) {
-                        errorMessage = 'Invalid email or password. Please check your credentials.';
-                    } else if (status === 403) {
-                        errorMessage = 'Access denied. Please contact administrator.';
+                        if (data?.message?.toLowerCase().includes('password')) {
+                            setLoginError('Incorrect password. Please try again.');
+                        } else if (data?.message?.toLowerCase().includes('not found') || 
+                                  data?.message?.toLowerCase().includes('not registered') ||
+                                  data?.message?.toLowerCase().includes('email')) {
+                            setLoginError('This email is not registered. Please check your email or sign up.');
+                        } else {
+                            setLoginError('Invalid email or password. Please check your credentials.');
+                        }
                     } else if (status === 404) {
-                        errorMessage = 'Login service not found. Please contact support.';
+                        setLoginError('Account not found. Please check your email or create a new account.');
+                    } else if (status === 403) {
+                        setLoginError('Your account is locked. Please contact support for assistance.');
                     } else if (status === 429) {
-                        errorMessage = 'Too many login attempts. Please try again later.';
+                        setLoginError('Too many login attempts. Please try again later.');
                     } else if (status >= 500) {
-                        errorMessage = 'Server error. Please try again in a few moments.';
+                        setLoginError('Server error. Please try again in a few moments.');
                     } else {
-                        errorMessage = data?.message || `Server error (${status}). Please try again.`;
+                        setLoginError(data?.message || `Server error (${status}). Please try again.`);
                     }
                 } else if (error?.code === 'NETWORK_ERROR' || error?.message === 'Network Error') {
-                    errorMessage = 'Network connection failed. Please check your internet connection and try again.';
+                    setLoginError('Network connection failed. Please check your internet connection and try again.');
                 } else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
-                    errorMessage = 'Connection timed out. Please check your internet connection and try again.';
+                    setLoginError('Connection timed out. Please check your internet connection and try again.');
                 } else if (error?.name === 'TypeError' && error?.message?.includes('fetch')) {
-                    errorMessage = 'Unable to connect to server. Please check if the server is running and try again.';
+                    setLoginError('Unable to connect to server. Please check if the server is running and try again.');
                 } else if (!navigator.onLine) {
-                    errorMessage = 'You appear to be offline. Please check your internet connection.';
+                    setLoginError('You appear to be offline. Please check your internet connection.');
                 } else {
                     // Generic error handling
-                    errorMessage = error?.message || 'Network error. Please check your connection and try again.';
+                    setLoginError(error?.message || 'Network error. Please check your connection and try again.');
                 }
-                
-                toast.error(errorMessage, {
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                });
             }
         }
     };
@@ -193,6 +197,24 @@ const SigninPage = () => {
                                             <div className="frgot-btn">
                                                 <Link to="/forgot-password">Forgot Password?</Link>
                                             </div>
+                                            {loginError && (
+                                                <div className="login-error-message" style={{
+                                                    padding: '10px 15px',
+                                                    marginBottom: '15px',
+                                                    marginTop: '15px',
+                                                    background: '#ffebee',
+                                                    border: '1px solid #ffcdd2',
+                                                    borderRadius: '4px',
+                                                    color: '#d32f2f',
+                                                    fontSize: '0.9rem',
+                                                    textAlign: 'center'
+                                                }}>
+                                                    <p style={{ margin: '0' }}>
+                                                        <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '5px' }}></i>
+                                                        {loginError}
+                                                    </p>
+                                                </div>
+                                            )}
                                             <div className="auth-btn">
                                                 <button onClick={Loginfun} className="btn btn-primary">
                                                     {Loading ? "Processing..." : "Login"}

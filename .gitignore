@@ -56,3 +56,6 @@ uploads/*
 # Debug files
 debug.log
 debug.html
+
+# Local Netlify folder
+.netlify

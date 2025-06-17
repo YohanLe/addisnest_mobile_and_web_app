@@ -15,7 +15,8 @@ const LoginPopup = ({ handlePopup, redirectAfterLogin }) => {
     const [isPasswordVisible, setPasswordVisible] = useState(false);
     const [activeTab, setActiveTab] = useState("customer");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState({ isValid: false });
+const [error, setError] = useState({ isValid: false });
+const [loginError, setLoginError] = useState("");
     const [showOtpPopup, setShowOtpPopup] = useState(false);
     const [showEmailVerificationPopup, setShowEmailVerificationPopup] = useState(false);
     const [showCustomerRegisterPopup, setShowCustomerRegisterPopup] = useState(false);
@@ -62,6 +63,9 @@ const LoginPopup = ({ handlePopup, redirectAfterLogin }) => {
     };
     
     const Loginfun = async () => {
+        // Clear any previous login errors
+        setLoginError("");
+        
         const errorMessage = validateLogin(inps);
         if (errorMessage.isValid == false) {
             setError(errorMessage);
@@ -105,14 +109,47 @@ const LoginPopup = ({ handlePopup, redirectAfterLogin }) => {
                 setLoading(false);
                 
                 if (!error.response) {
-                    toast.error('Network connection failed. Please check your internet connection.');
+                    setLoginError('Network connection failed. Please check your internet connection.');
                     return;
                 }
                 
-                if (error.response && error.response.data && error.response.data.message) {
-                    toast.error(error.response.data.message);
+                // Display user-friendly error messages for different error scenarios
+                if (error.response) {
+                    const { status, data } = error.response;
+                    
+                    // Check message content first regardless of status code
+                    if (data?.message) {
+                        if (data.message.toLowerCase().includes('password')) {
+                            setLoginError('The password you entered is incorrect. Please try again.');
+                        } else if (data.message.toLowerCase().includes('not found') || 
+                                  data.message.toLowerCase().includes('not registered') ||
+                                  data.message.toLowerCase().includes('email')) {
+                            setLoginError('This email is not registered. Please check your email or sign up.');
+                        } else if (status === 404) {
+                            setLoginError('Account not found. Please check your email or create a new account.');
+                        } else if (status === 403) {
+                            setLoginError('Your account is locked. Please contact support for assistance.');
+                        } else if (status >= 500) {
+                            setLoginError('We\'re having a temporary issue with our system. Please try again in a moment or contact support if the problem persists.');
+                        } else {
+                            setLoginError('Unable to sign in. Please check your credentials and try again.');
+                        }
+                    } else {
+                        // Fallback for cases where no message is provided
+                        if (status === 401) {
+                            setLoginError('Invalid email or password. Please check your credentials and try again.');
+                        } else if (status === 404) {
+                            setLoginError('Account not found. Please check your email or create a new account.');
+                        } else if (status === 403) {
+                            setLoginError('Your account is locked. Please contact support for assistance.');
+                        } else if (status >= 500) {
+                            setLoginError('We\'re having a temporary issue with our system. Please try again in a moment or contact support if the problem persists.');
+                        } else {
+                            setLoginError('Login failed. Please try again.');
+                        }
+                    }
                 } else {
-                    toast.error('Login failed. Please check your credentials and try again.');
+                    setLoginError('An error occurred during login. Please try again.');
                 }
             } finally {
                 setLoading(false);
@@ -313,10 +350,30 @@ const LoginPopup = ({ handlePopup, redirectAfterLogin }) => {
                                         }}>
                                             Forgot Password?
                                         </Link>
-                                    </div>
-                                    <div className="auth-btn" style={{
-                                        marginBottom: '20px'
-                                    }}>
+                                            </div>
+                                            {loginError && (
+                                                <div className="login-error-message" style={{
+                                                    padding: '10px 15px',
+                                                    marginBottom: '15px',
+                                                    background: '#ffebee',
+                                                    border: '1px solid #ffcdd2',
+                                                    borderRadius: '4px',
+                                                    color: '#d32f2f',
+                                                    fontSize: '0.9rem',
+                                                    textAlign: 'center'
+                                                }}>
+                                                    <p style={{ margin: '0' }}>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '5px', verticalAlign: 'middle' }}>
+                                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                                            <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                                                        </svg>
+                                                        {loginError}
+                                                    </p>
+                                                </div>
+                                            )}
+                                            <div className="auth-btn" style={{
+                                                marginBottom: '20px'
+                                            }}>
                                         <button 
                                             onClick={Loginfun} 
                                             className="btn btn-primary"

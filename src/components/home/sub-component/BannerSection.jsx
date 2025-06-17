@@ -140,14 +140,6 @@ const BannerSection = () => {
                         Sell
                       </button>
                     </li>
-                    <li className="nav-item">
-                      <button
-                        className={`nav-link ${searchType === 'mortgage' ? 'active' : ''}`}
-                        onClick={() => setSearchType('mortgage')}
-                      >
-                        Mortgage
-                      </button>
-                    </li>
 
                   </ul>
                 </div>

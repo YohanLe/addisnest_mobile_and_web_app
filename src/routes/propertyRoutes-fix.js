@@ -22,4 +22,9 @@ router.put('/:id', propertyControllerNestedFix.updateProperty);
 router.delete('/:id', propertyController.deleteProperty);
 router.put('/:id/photos', propertyController.uploadPropertyPhotos);
 
+// Special MongoDB routes for property with ID 684a51f37cb3172bbb3c73a3
+router.post('/mongo-update/:id', propertyControllerNestedFix.updateMongoProperty);
+router.put('/mongo-id/:id', propertyControllerNestedFix.updateMongoProperty);
+router.patch('/mongo-id/:id', propertyControllerNestedFix.updateMongoProperty);
+
 module.exports = router;
