@@ -1,0 +1,272 @@
+/* Nearby Properties Slider Styles */
+.property-slider {
+  margin-bottom: 40px;
+}
+
+.property-slider-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.property-slider-header h4 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.property-slider-header p {
+  color: #666;
+  font-size: 15px;
+}
+
+.all-view a {
+  color: #4CAF50;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+
+.all-view a:hover {
+  text-decoration: underline;
+}
+
+.property-list {
+  position: relative;
+}
+
+.property-list ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.property-list li {
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.property-list li:hover {
+  transform: translateY(-5px);
+}
+
+.property-card {
+  cursor: pointer;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  height: 100%;
+}
+
+.property-img {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.property-img span {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(76, 175, 80, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.property-img p {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+
+.property-img p em {
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.property-detail {
+  padding: 15px;
+}
+
+.property-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.property-title h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.property-share-icon {
+  display: flex;
+  gap: 8px;
+}
+
+.property-share-icon span {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+}
+
+.property-share-icon span:hover {
+  background-color: #e0e0e0;
+}
+
+.property-area {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: #555;
+  font-size: 14px;
+}
+
+.property-area span {
+  display: flex;
+  align-items: center;
+}
+
+.property-area span em {
+  width: 4px;
+  height: 4px;
+  background-color: #666;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.property-location {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.property-location svg {
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+.property-slider-aroow {
+  display: flex;
+  position: absolute;
+  top: -60px;
+  right: 80px;
+  gap: 10px;
+}
+
+.property-slider-aroow span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.property-slider-aroow span:hover {
+  background-color: #e0e0e0;
+}
+
+.no-properties-message {
+  grid-column: 1 / span 3;
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.no-properties-message p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.view-all-link {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.view-all-link:hover {
+  background-color: #43A047;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 992px) {
+  .property-list ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .no-properties-message {
+    grid-column: 1 / span 2;
+  }
+}
+
+@media (max-width: 576px) {
+  .property-list ul {
+    grid-template-columns: 1fr;
+  }
+  
+  .no-properties-message {
+    grid-column: 1;
+  }
+  
+  .property-slider-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .all-view {
+    margin-top: 10px;
+  }
+  
+  .property-slider-aroow {
+    top: -40px;
+    right: 0;
+  }
+}
