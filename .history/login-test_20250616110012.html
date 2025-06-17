@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Error Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #a4ff2a;
+            border: none;
+            color: #333;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #98f01c;
+        }
+        .error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .success {
+            color: #2e7d32;
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login Error Message Test</h1>
+    <p>This page tests the user-friendly error messages for login failures.</p>
+
+    <div class="container">
+        <h2>Test 1: Unregistered Email</h2>
+        <div class="error" id="error1"></div>
+        <div class="success" id="success1"></div>
+        <form id="form1">
+            <label for="email1">Email:</label>
+            <input type="email" id="email1" value="nonexistent@example.com" required>
+            
+            <label for="password1">Password:</label>
+            <input type="password" id="password1" value="anypassword123" required>
+            
+            <button type="submit">Test Unregistered Email</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Test 2: Wrong Password</h2>
+        <div class="error" id="error2"></div>
+        <div class="success" id="success2"></div>
+        <form id="form2">
+            <label for="email2">Email:</label>
+            <input type="email" id="email2" value="test@example.com" required>
+            
+            <label for="password2">Password:</label>
+            <input type="password" id="password2" value="wrongpassword123" required>
+            
+            <button type="submit">Test Wrong Password</button>
+        </form>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:7001/api';
+
+        document.getElementById('form1').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email1').value;
+            const password = document.getElementById('password1').value;
+            await testLogin(email, password, 'error1', 'success1', 'Email not registered');
+        });
+
+        document.getElementById('form2').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email2').value;
+            const password = document.getElementById('password2').value;
+            await testLogin(email, password, 'error2', 'success2', 'Incorrect password');
+        });
+
+        async function testLogin(email, password, errorId, successId, expectedError) {
+            const errorElement = document.getElementById(errorId);
+            const successElement = document.getElementById(successId);
+            
+            // Reset messages
+            errorElement.style.display = 'none';
+            successElement.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successElement.textContent = 'Login successful (unexpected)';
+                    successElement.style.display = 'block';
+                } else {
+                    const errorMessage = data.message || 'Unknown error';
+                    errorElement.textContent = `Error: ${errorMessage}`;
+                    errorElement.style.display = 'block';
+                    
+                    if (errorMessage.includes(expectedError)) {
+                        errorElement.innerHTML = `✅ Test passed: "${errorMessage}"`;
+                    } else {
+                        errorElement.innerHTML = `❌ Test failed: Expected "${expectedError}" but got "${errorMessage}"`;
+                    }
+                }
+            } catch (error) {
+                errorElement.textContent = `Network error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
