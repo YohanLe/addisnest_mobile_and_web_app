@@ -1,8 +1,7 @@
 [build]
-command = "npm install && vite build"
-
-[[plugins]]
-  package = "@netlify/plugin-functions-install-core"
+  command = "npm install && vite build"
+  publish = "dist"
+  functions = "netlify/functions" # Add this if you're using Netlify Functions
 
 [dev]
   command = "npm run dev"
@@ -15,5 +14,4 @@ command = "npm install && vite build"
   status = 200
 
 [[plugins]]
-package = "@netlify/plugin-functions-install-core"
-
+  package = "@netlify/plugin-functions-install-core"
