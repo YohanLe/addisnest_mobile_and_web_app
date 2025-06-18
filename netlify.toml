@@ -1,7 +1,5 @@
 [build]
-  publish = "dist"
-  command = "NODE_ENV=production npm run build && cd functions && npm install"
-  functions = "functions"
+command = "npm install && vite build"
 
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
@@ -15,3 +13,7 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[plugins]]
+package = "@netlify/plugin-functions-install-core"
+
