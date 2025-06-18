@@ -33,6 +33,7 @@ The missing dependencies were:
   "version": "1.0.0",
   "description": "Netlify functions for Addisnest",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "serverless-http": "^3.2.0",
@@ -44,13 +45,21 @@ The missing dependencies were:
 }
 ```
 
-3. Updated the netlify.toml build command to install the function dependencies during build:
+3. Updated the netlify.toml build command to install function dependencies during build and properly set NODE_ENV:
 ```
 [build]
   publish = "dist"
-  command = "npm run build && cd functions && npm install"
+  command = "NODE_ENV=production npm run build && cd functions && npm install"
   functions = "functions"
 ```
+
+4. Added the Netlify Functions Install Core plugin to ensure dependencies are properly installed:
+```
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+```
+
+5. Removed NODE_ENV from .env.production file to avoid conflicts with Vite build configuration
 
 ## Deployment Instructions
 1. Run the provided `deploy-netlify-with-fixes.bat` script which will:

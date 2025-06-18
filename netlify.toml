@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm run build && cd functions && npm install"
+  command = "NODE_ENV=production npm run build && cd functions && npm install"
   functions = "functions"
 
 [[plugins]]
