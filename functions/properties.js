@@ -10,8 +10,44 @@ dotenv.config();
 // Create Express app
 const app = express();
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with specific configuration
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow any subdomain of netlify.app
+    if (origin.endsWith('netlify.app') || origin.includes('--addisnesttest.netlify.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow localhost for development
+    if (origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
+      return callback(null, true);
+    }
+    
+    // Add your production domain here if needed
+    if (origin === 'https://addisnesttest.netlify.app') {
+      return callback(null, true);
+    }
+    
+    callback(null, true); // Temporarily allow all origins while debugging
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Set additional CORS headers for all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
 
 // Body parser
 app.use(express.json());
