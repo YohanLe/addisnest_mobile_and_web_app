@@ -1,7 +1,7 @@
 [build]
   command = "npm install && vite build"
   publish = "dist"
-  functions = "netlify/functions" # Add this if you're using Netlify Functions
+  functions = "functions" # Updated to match your actual functions directory
 
 [dev]
   command = "npm run dev"

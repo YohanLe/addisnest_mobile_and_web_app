@@ -1,1 +1,8 @@
+# Redirect the getListings endpoint to the proper Netlify function
+/.netlify/functions/getListings /.netlify/functions/getListings 200
+
+# Handle API routes
+/.netlify/functions/api/* /.netlify/functions/api/:splat 200
+
+# Fallback for all other routes to the frontend app
 /* /index.html 200
