@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
-import Api from '../../../../Apis/Api';p
+import Api from '../../../../Apis/Api';
 import { GetPropertyList } from '../../../../Redux-store/Slices/PropertyListSlice';
 import { formatPropertyForSubmission, validatePropertyData } from '../../../../fix-property-submission';
 import '../../choose-propmo/choose-promotion.css';
