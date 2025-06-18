@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../Apis/Api';
+import propertyApi from '../../utils/netlifyApiHandler';
 
 // Async thunk for fetching home page data (all properties)
 export const GetHomeData = createAsyncThunk(
@@ -10,16 +11,19 @@ export const GetHomeData = createAsyncThunk(
       
       // Enhanced logging for debugging
       console.log('Fetching all properties for home page, not filtering by featured status');
-      console.log('API Request URL:', `/properties?for=${type}&page=${page}&limit=${limit}`);
       
-      // Make the API request - using 'for' parameter to match backend controller
-      const response = await api.getPublic(`properties?for=${type}&page=${page}&limit=${limit}`);
+      // Make the API request using the dedicated properties handler
+      const response = await propertyApi.getProperties({
+        for: type,
+        page,
+        limit
+      });
       
       // Log the response
-      console.log('API Response for properties:', response.data);
+      console.log('API Response for properties:', response);
       
       // Return the data
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error fetching properties:', error);
       return rejectWithValue(error.response?.data || 'Failed to fetch home data');
@@ -46,8 +50,10 @@ export const GetAllPropertyListings = createAsyncThunk(
         offeringType = 'For Sale',
       } = params;
 
-      // Build the query string
-      const queryParams = new URLSearchParams({
+      // Use the properties handler instead of direct API call
+      console.log(`Fetching properties with query params for ${type}`);
+      
+      const response = await propertyApi.getProperties({
         for: type,
         page,
         limit,
@@ -60,11 +66,9 @@ export const GetAllPropertyListings = createAsyncThunk(
         sortBy,
         offeringType,
       });
-
-      console.log(`Fetching properties with query: ${queryParams.toString()}`);
-      const response = await api.getPublic(`properties?${queryParams.toString()}`);
-      console.log('Properties response:', response.data);
-      return response.data;
+      
+      console.log('Properties response:', response);
+      return response;
     } catch (error) {
       console.error('Error fetching property listings:', error);
       return rejectWithValue(error.response?.data || 'Failed to fetch property listings');

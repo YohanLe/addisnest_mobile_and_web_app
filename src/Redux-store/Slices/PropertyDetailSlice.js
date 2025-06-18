@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import Api from '../../Apis/Api';
+import propertyApi from '../../utils/netlifyApiHandler';
 import { transformApiDataToPropertyDetail } from '../../utils/propertyTransformers';
 
 // Async thunk for fetching property details
@@ -22,7 +23,7 @@ export const getPropertyDetails = createAsyncThunk(
       
       console.log('Fetching property with ID:', propertyId);
       
-      const response = await Api.getPublic(`properties/${propertyId}`);
+      const response = await propertyApi.getPropertyById(propertyId);
         
       // Validate response
       if (!response || !response.data) {
@@ -95,9 +96,10 @@ export const getSimilarProperties = createAsyncThunk(
         queryParams.append('for', property_for || propertyFor || offeringType);
       }
       
-      console.log('Fetching similar properties with query:', queryParams.toString());
+      console.log('Fetching similar properties with query parameters');
       
-      const response = await Api.getPublic(`properties?${queryParams.toString()}`);
+      const queryObj = Object.fromEntries(queryParams.entries());
+      const response = await propertyApi.getProperties(queryObj);
       
       if (!response || !response.data) {
         console.log('API returned no data for similar properties');
