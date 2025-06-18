@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Netlify functions for Addisnest",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
     "serverless-http": "^3.2.0",

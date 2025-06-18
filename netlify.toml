@@ -3,6 +3,9 @@
   command = "npm run build && cd functions && npm install"
   functions = "functions"
 
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
 [dev]
   command = "npm run dev"
   port = 5173
