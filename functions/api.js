@@ -14,35 +14,27 @@ dotenv.config();
 // Create Express app
 const app = express();
 
-// Enable CORS with specific configuration
+// Enable CORS
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl requests)
     if (!origin) return callback(null, true);
-    
-    // Allow any subdomain of netlify.app
     if (origin.endsWith('netlify.app') || origin.includes('--addisnesttest.netlify.app')) {
       return callback(null, true);
     }
-    
-    // Allow localhost for development
     if (origin.match(/^https?:\/\/localhost(:\d+)?$/)) {
       return callback(null, true);
     }
-    
-    // Add your production domain here if needed
     if (origin === 'https://addisnesttest.netlify.app') {
       return callback(null, true);
     }
-    
-    callback(null, true); // Temporarily allow all origins while debugging
+    callback(null, true); // Temporary allow-all during debugging
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Set additional CORS headers for all responses
+// CORS headers for all responses
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -53,28 +45,19 @@ app.use((req, res, next) => {
   next();
 });
 
-// Body parser
 app.use(express.json());
 
-// Database connection - with error handling
+// Database connection
 const connectDB = async () => {
   try {
-    // Get MongoDB URI from environment variable
     const mongoUri = process.env.MONGO_URI;
-    
-    // Check if the MongoDB URI has a database name
     const hasDBName = mongoUri.split('/').length > 3;
-    
-    // Add database name if missing
     const connectionString = hasDBName ? mongoUri : `${mongoUri}/addisnest`;
-    
     console.log('Connecting to MongoDB with URI:', connectionString.replace(/:[^\/]+@/, ':****@'));
-    
     const conn = await mongoose.connect(connectionString, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     return conn;
   } catch (error) {
@@ -83,18 +66,18 @@ const connectDB = async () => {
   }
 };
 
-// Set up routes
-app.use('/api/agents', routes.agentRoutes);
-app.use('/api/users', routes.userRoutes);
-app.use('/api/auth', routes.authRoutes);
-app.use('/api/properties', routes.propertyRoutes);
-app.use('/api/property-submit', routes.propertySubmitRoute);
-app.use('/api/conversations', routes.conversationRoutes);
-app.use('/api/messages', routes.messageRoutes);
-app.use('/api/notifications', routes.notificationRoutes);
-app.use('/api/payments', routes.paymentRoutes);
-app.use('/api/connectiontests', routes.connectionTestRoutes);
-app.use('/api/media', routes.mediaRoutes);
+// ✅ CHANGED: Removed '/api' prefix
+app.use('/agents', routes.agentRoutes);
+app.use('/users', routes.userRoutes);
+app.use('/auth', routes.authRoutes);
+app.use('/properties', routes.propertyRoutes);
+app.use('/property-submit', routes.propertySubmitRoute);
+app.use('/conversations', routes.conversationRoutes);
+app.use('/messages', routes.messageRoutes);
+app.use('/notifications', routes.notificationRoutes);
+app.use('/payments', routes.paymentRoutes);
+app.use('/connectiontests', routes.connectionTestRoutes);
+app.use('/media', routes.mediaRoutes);
 
 // Base route
 app.get('/', (req, res) => {
@@ -104,11 +87,9 @@ app.get('/', (req, res) => {
   });
 });
 
-// Enhanced error handling middleware
+// Error middleware
 app.use((err, req, res, next) => {
   console.error('API Error:', err);
-  
-  // Format validation errors from Mongoose
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map(val => val.message);
     return res.status(400).json({
@@ -117,8 +98,6 @@ app.use((err, req, res, next) => {
       details: err.errors
     });
   }
-  
-  // Handle duplicate key errors
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue)[0];
     return res.status(400).json({
@@ -127,27 +106,18 @@ app.use((err, req, res, next) => {
       field
     });
   }
-  
-  // Return appropriate error response
   res.status(err.statusCode || 500).json({
     success: false,
     error: err.message || 'Server Error'
   });
 });
 
-// Create serverless handler
 const handler = serverless(app);
 
-// Wrap the handler to ensure MongoDB is connected
 exports.handler = async (event, context) => {
-  // Make sure MongoDB is connected before handling the request
   context.callbackWaitsForEmptyEventLoop = false;
-  
-  // Connect to database if not already connected
   if (mongoose.connection.readyState !== 1) {
     await connectDB();
   }
-  
-  // Handle the request
   return handler(event, context);
 };

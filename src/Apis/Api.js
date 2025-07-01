@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken } from '../utils/tokenHandler';
+import propertyApi from '../utils/netlifyApiHandler';
 
 // Function to add an access token to the headers
 export const addAccessToken = (token) => {
@@ -147,6 +148,18 @@ api.getWithAuth = async (endpoint) => {
 // Add methods for authenticated API operations
 api.postWithtoken = async (endpoint, data) => {
   try {
+    // Special handling for properties endpoint
+    if (endpoint === 'properties') {
+      console.log('Using propertyApi.postProperty for properties endpoint');
+      try {
+        return await propertyApi.postProperty(data);
+      } catch (propertyError) {
+        console.error('Error in postWithtoken for properties:', propertyError);
+        throw propertyError;
+      }
+    }
+    
+    // Regular handling for other endpoints
     const token = getToken();
     
     const response = await axios.post(`${API_BASE_URL}/${endpoint}`, data, {

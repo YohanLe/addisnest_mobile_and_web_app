@@ -52,6 +52,14 @@ app.use((req, res, next) => {
 // Body parser
 app.use(express.json());
 
+// Import the Property model
+let Property;
+try {
+  Property = require('../src/models/Property');
+} catch (err) {
+  console.error('Error importing Property model:', err);
+}
+
 // Database connection
 const connectDB = async () => {
   try {
@@ -79,13 +87,55 @@ const connectDB = async () => {
   }
 };
 
-// Import the Property model
-let Property;
-try {
-  Property = require('../src/models/Property');
-} catch (err) {
-  console.error('Error importing Property model:', err);
-}
+// POST endpoint for creating or updating properties
+app.post('/', async (req, res) => {
+  try {
+    console.log('POST request to /properties received');
+    console.log('Request body:', JSON.stringify(req.body));
+    
+    // Check if property has an ID (update case)
+    if (req.body._id) {
+      console.log(`Attempting to update property with ID: ${req.body._id}`);
+      
+      const updatedProperty = await Property.findByIdAndUpdate(
+        req.body._id,
+        req.body,
+        { new: true, runValidators: true }
+      );
+      
+      if (!updatedProperty) {
+        console.log('Property not found for update');
+        return res.status(404).json({
+          success: false,
+          error: 'Property not found'
+        });
+      }
+      
+      console.log('Property successfully updated');
+      return res.status(200).json({
+        success: true,
+        data: updatedProperty
+      });
+    }
+    
+    // Create new property
+    console.log('Creating new property');
+    const property = await Property.create(req.body);
+    
+    console.log('Property successfully created with ID:', property._id);
+    return res.status(201).json({
+      success: true,
+      data: property
+    });
+    
+  } catch (error) {
+    console.error('Error in POST /properties:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 
 // GET endpoint for properties
 app.get('/', async (req, res) => {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getToken } from './tokenHandler';
 
 // Determine the environment
 const isNetlify = import.meta.env.VITE_API_BASE_URL && 
@@ -8,6 +9,12 @@ const isNetlify = import.meta.env.VITE_API_BASE_URL &&
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:7000/api';
 // For Netlify, we'll use the simplified paths that will be redirected via _redirects
 const NETLIFY_BASE_URL = isNetlify ? import.meta.env.VITE_API_BASE_URL.replace('/.netlify/functions/api', '') : '';
+
+// Debug logs for API configuration
+console.log('API Configuration:');
+console.log('isNetlify:', isNetlify);
+console.log('API_BASE_URL:', API_BASE_URL);
+console.log('NETLIFY_BASE_URL:', NETLIFY_BASE_URL);
 
 // Function to determine the correct API endpoint for different resource types
 const getEndpointUrl = (resourceType, endpoint) => {
@@ -84,7 +91,41 @@ export const getPropertyById = async (id) => {
   }
 };
 
+// Helper function for creating or updating properties
+export const postProperty = async (propertyData) => {
+  try {
+    let url;
+    const token = getToken(); // Get auth token
+
+    // Use the appropriate URL based on environment
+    if (isNetlify) {
+      url = `${NETLIFY_BASE_URL}/properties`;
+      console.log('Using Netlify properties endpoint:', url);
+    } else {
+      url = `${API_BASE_URL}/properties`;
+      console.log('Using local properties endpoint:', url);
+    }
+    
+    console.log('Posting property data to:', url);
+    console.log('Property data:', JSON.stringify(propertyData));
+    
+    const response = await axios.post(url, propertyData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // Add Authorization header
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error posting property data:', error);
+    console.error('Error details:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
 export default {
   getProperties,
-  getPropertyById
+  getPropertyById,
+  postProperty
 };
