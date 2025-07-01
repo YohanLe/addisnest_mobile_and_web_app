@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import {
     SvgMake1Icon as SvgAccountIcon,
     SvgLogOutIcon,
@@ -21,15 +21,36 @@ import ContactUs from "./account-tab/ContactUs";
 import AgentInfo from "./account-tab/AgentInfo";
 import LogOutPopup from "../../../helper/LogOutPopup";
 import "./account-management.css";
+import "./mobile-account-management.css";
 
 const AccountMain = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [testModeEnabled, setTestModeEnabled] = useState(false);
+    const [testModeCollapsed, setTestModeCollapsed] = useState(true);
+    const [chartCollapsed, setChartCollapsed] = useState(false);
+    
     // Sample agent info - in a real app, this would come from authentication context or API
     const agentInfo = {
         name: "agent",
         email: "agent121@gmail.com"
+    };
+    
+    // Toggle sidebar for mobile
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+    
+    // Toggle test mode
+    const toggleTestMode = () => {
+        setTestModeEnabled(!testModeEnabled);
+    };
+    
+    // Toggle test mode widget collapse
+    const toggleTestModeWidget = () => {
+        setTestModeCollapsed(!testModeCollapsed);
     };
 
     useEffect(() => {
@@ -98,13 +119,38 @@ const AccountMain = () => {
     return (
         <>
             <section className="account-management">
+                {/* Mobile Header */}
+                <div className="mobile-account-header">
+                    <button className="hamburger-menu" onClick={toggleSidebar}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 12H21" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 6H21" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 18H21" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+                    <h1 className="mobile-header-title">Account Management</h1>
+                    <div className="user-icon">
+                        {agentInfo.name.charAt(0).toUpperCase()}
+                    </div>
+                </div>
+                
+                {/* Sidebar Overlay */}
+                <div 
+                    className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`} 
+                    onClick={toggleSidebar}
+                ></div>
+                
                 {/* Sidebar */}
-                <div className="account-sidebar">
+                <div className={`account-sidebar ${sidebarOpen ? 'open' : ''}`}>
+                    <button className="sidebar-close" onClick={toggleSidebar}>×</button>
                     <h3 className="sidebar-title">Account management</h3>
                     <div className="account-list">
                         <ul>
                             {tabs.map((tab, index) => (
-                                <li key={index} onClick={() => setActiveTab(index)}>
+                                <li key={index} onClick={() => {
+                                    setActiveTab(index);
+                                    setSidebarOpen(false);
+                                }}>
                                     <div
                                         className={`account-tab-title ${index == activeTab ? "active" : ""}`}
                                         data-tab={
@@ -146,11 +192,86 @@ const AccountMain = () => {
                 
                 {/* Content Area */}
                 <div className="account-content">
+                    {activeTab === 0 && (
+                        <>
+                            {/* Property Stats Cards */}
+                            <div className="property-stats-cards">
+                                <div className="property-stat-card">
+                                    <h3 className="stat-card-title">Impressions</h3>
+                                    <p className="stat-card-value">2</p>
+                                    <p className="stat-card-change">+100% from last week</p>
+                                </div>
+                                <div className="property-stat-card">
+                                    <h3 className="stat-card-title">Click Rate</h3>
+                                    <p className="stat-card-value">100%</p>
+                                    <p className="stat-card-change">+50% from last week</p>
+                                </div>
+                                <div className="property-stat-card">
+                                    <h3 className="stat-card-title">Listings</h3>
+                                    <p className="stat-card-value">3</p>
+                                    <p className="stat-card-change">+1 new this month</p>
+                                </div>
+                            </div>
+                            
+                            {/* Add New Property Button */}
+                            <Link to="/property-list-form" className="add-property-button">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 4V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M4 10H16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                                Add New Property
+                            </Link>
+                            
+                            {/* Collapsible Chart Section */}
+                            <div className="collapsible-section">
+                                <div 
+                                    className="collapsible-header" 
+                                    onClick={() => setChartCollapsed(!chartCollapsed)}
+                                >
+                                    <h3 className="collapsible-title">Performance Graph</h3>
+                                    <div className={`collapsible-icon ${chartCollapsed ? '' : 'open'}`}>
+                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 7.5L10 12.5L15 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div className={`collapsible-content ${chartCollapsed ? '' : 'open'}`}>
+                                    <div className="collapsible-body">
+                                        <div className="placeholder-chart">
+                                            Property Impression Graph
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    
                     <div className="account-tab-detail">
                         <div className="account-tab-list">
                             {tabs[activeTab].content}
                         </div>
                     </div>
+                </div>
+                
+                {/* Test Mode Widget */}
+                <div 
+                    className={`test-mode-widget ${testModeCollapsed ? 'collapsed' : ''}`}
+                    onClick={testModeCollapsed ? toggleTestModeWidget : null}
+                >
+                    <div className="test-mode-icon">🧪</div>
+                    {!testModeCollapsed && (
+                        <>
+                            <span className="test-mode-label">Test Mode</span>
+                            <label className="test-mode-toggle">
+                                <input 
+                                    type="checkbox" 
+                                    checked={testModeEnabled}
+                                    onChange={toggleTestMode}
+                                />
+                                <span className="toggle-slider"></span>
+                            </label>
+                        </>
+                    )}
                 </div>
             </section>
             {showLogOutPopup && <LogOutPopup handlePopup={handleLogOutPopupToggle} />}

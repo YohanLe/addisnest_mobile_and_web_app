@@ -8,6 +8,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 // ValidatePropertyForm is not exported from Validation.js
 import Api from "../../../Apis/Api";
 import "../property-list-form.css";
+import "../mobile-property-list-form.css"; // Import mobile-specific styles
 import "../../../components/property-form-styles.css";
 
 const PropertyTypeList = [
@@ -109,7 +110,8 @@ const PropertyListForm = () => {
     // Default to "For Sale" when coming from Sell button in header
     const [activeTab, setActiveTab] = useState("For Sale");
     const [images, setImages] = useState([]);
-    const [slots, setSlots] = useState(7); // Increased to 7 slots initially (1 main + 6 regular)
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
+    const [slots, setSlots] = useState(isMobile ? 3 : 4); // 3 slots for mobile (1 main + 2 regular), 4 for desktop
     const [Loading, setLoading] = useState(false);
     const [uploadingStates, setUploadingStates] = useState({});
     const [error, setError] = useState({ isValid: false });
@@ -153,6 +155,25 @@ const PropertyListForm = () => {
             window.removeEventListener('offline', updateNetworkStatus);
         };
     }, []);
+    
+    // Mobile detection for responsive UI adjustments
+    useEffect(() => {
+        const handleResize = () => {
+            const mobile = window.innerWidth <= 767;
+            setIsMobile(mobile);
+            
+            // Update slots count when switching between mobile and desktop
+            // Only reduce slots if we're switching to mobile and have more than 3 slots
+            if (mobile && slots > 3) {
+                setSlots(3); // 1 main + 2 additional for mobile
+            } else if (!mobile && slots < 4) {
+                setSlots(4); // 1 main + 3 additional for desktop
+            }
+        };
+        
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, [slots]);
 
     useEffect(() => {
         if (networkStatus === 'offline') {
@@ -685,16 +706,29 @@ const PropertyListForm = () => {
                                 </div>
                                 <div className="form-col-33">
                                     <div className={`form-group required ${validationErrors.total_price ? 'has-error' : ''}`}>
-                                        <label>{activeTab === "For Rent" ? "Monthly Rent * /month" : "Sale Price *"}</label>
-                                        <div className="price-input">
-                                            <input
-                                                type="text"
-                                                inputMode="numeric"
-                                                placeholder="0"
-                                                name="total_price"
-                                                onChange={onInpChanged}
-                                                value={inps?.total_price}
-                                            />
+                                        <label>{activeTab === "For Rent" ? "Monthly Rent (ETB/month) *" : "Sale Price (ETB) *"}</label>
+                                        <div className="price-input" style={{ position: 'relative' }}>
+                                                <input
+                                                    type="text"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    placeholder="0"
+                                                    name="total_price"
+                                                    onChange={(e) => {
+                                                        // Only allow numeric values
+                                                        const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                                                        // Create a synthetic event with the cleaned value
+                                                        const syntheticEvent = {
+                                                            target: {
+                                                                name: e.target.name,
+                                                                value: numericValue
+                                                            }
+                                                        };
+                                                        onInpChanged(syntheticEvent);
+                                                    }}
+                                                    value={inps?.total_price}
+                                                    style={{ paddingLeft: '10px' }}
+                                                />
                                         </div>
                                         {validationErrors.total_price && (
                                             <span className="error-msg">
@@ -883,7 +917,7 @@ const PropertyListForm = () => {
                         </div>
                         
                         <div className="step-content">
-                            <div style={{ 
+                            <div className="upload-tips-box" style={{ 
                                 padding: '12px', 
                                 backgroundColor: '#f1f9f1', 
                                 border: '1px solid #28a745', 

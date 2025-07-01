@@ -43,10 +43,48 @@ const Dashboard = () => {
 
   const currentMetric = getCurrentMetric();
 
+  const [chartCollapsed, setChartCollapsed] = useState(false);
+  
   return (
     <div className="dashboard-container">
-      {/* Property Management Quick Links */}
-      <div className="quick-links-section">
+      {/* Summary Cards for Mobile */}
+      <div className="mobile-summary-cards">
+        <div className="summary-card">
+          <div className="summary-icon">📊</div>
+          <div className="summary-content">
+            <h4>Impressions</h4>
+            <div className="summary-value">
+              <span className="number">{mockMetrics.impressions.count}</span>
+              <span className="percentage success">{mockMetrics.impressions.percentage}%</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="summary-card">
+          <div className="summary-icon">👁️</div>
+          <div className="summary-content">
+            <h4>Visitors</h4>
+            <div className="summary-value">
+              <span className="number">{mockMetrics.visitors.count}</span>
+              <span className="percentage success">{mockMetrics.visitors.percentage}%</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="summary-card">
+          <div className="summary-icon">📱</div>
+          <div className="summary-content">
+            <h4>Phone Views</h4>
+            <div className="summary-value">
+              <span className="number">{mockMetrics.phoneViews.count}</span>
+              <span className="percentage success">{mockMetrics.phoneViews.percentage}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Property Management Quick Links - Desktop Only */}
+      <div className="quick-links-section desktop-only">
         <h3>Property Management</h3>
         <div className="quick-links-container">
           <Link to="/property-list-form" className="quick-link-card">
@@ -59,73 +97,70 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="dashboard-header">
-        <h2>Performance Metrics</h2>
-        <div className="date-filter">
-          <div className="select-date-range">
-            <span><i className="bi bi-calendar"></i> Select date range</span>
-            <span className="close-btn">×</span>
-          </div>
-          <div className="all-btn">All</div>
-        </div>
-      </div>
-
-      <div className="metrics-section">
-        <div className="metric-item">
-          <h3>{activeTab}</h3>
-          <div className="metric-value">
-            <span className="number">{currentMetric.count}</span>
-            <span className="percentage success">{currentMetric.percentage}%</span>
+      {/* Collapsible Performance Metrics Section - Desktop Only */}
+      <div className="collapsible-section desktop-only">
+        <div 
+          className="collapsible-header" 
+          onClick={() => setChartCollapsed(!chartCollapsed)}
+        >
+          <h3 className="collapsible-title">Performance Metrics</h3>
+          <div className={`collapsible-icon ${chartCollapsed ? '' : 'open'}`}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 7.5L10 12.5L15 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
         </div>
-      </div>
-
-      <div className="metrics-tabs">
-        <div 
-          className={`tab ${activeTab === 'Impression' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Impression')}
-        >
-          Impression
-        </div>
-        <div 
-          className={`tab ${activeTab === 'Visitors' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Visitors')}
-        >
-          Visitors
-        </div>
-        <div 
-          className={`tab ${activeTab === 'Phone View' ? 'active' : ''}`}
-          onClick={() => setActiveTab('Phone View')}
-        >
-          Phone View
-        </div>
-      </div>
-
-      <div className="metrics-chart">
-        <h3>{activeTab} Metrics</h3>
-        <div className="chart-container">
-          <div className="chart">
-            <div className="chart-bars">
-              {months.map((month, index) => (
-                <div key={month} className="chart-bar-container">
-                  <div 
-                    className="chart-bar" 
-                    style={{ 
-                      height: values[index] > 0 ? `${(values[index] / maxValue) * 200}px` : '1px',
-                      backgroundColor: activeTab === 'Impression' ? '#8fe2e9' : 
-                                       activeTab === 'Visitors' ? '#9ed582' : '#f8c07f'
-                    }}
-                  ></div>
-                  <div className="chart-label">{month}</div>
-                </div>
-              ))}
+        <div className={`collapsible-content ${chartCollapsed ? '' : 'open'}`}>
+          <div className="collapsible-body">
+            <div className="metrics-tabs">
+              <div 
+                className={`tab ${activeTab === 'Impression' ? 'active' : ''}`}
+                onClick={() => setActiveTab('Impression')}
+              >
+                Impression
+              </div>
+              <div 
+                className={`tab ${activeTab === 'Visitors' ? 'active' : ''}`}
+                onClick={() => setActiveTab('Visitors')}
+              >
+                Visitors
+              </div>
+              <div 
+                className={`tab ${activeTab === 'Phone View' ? 'active' : ''}`}
+                onClick={() => setActiveTab('Phone View')}
+              >
+                Phone View
+              </div>
             </div>
-            <div className="chart-y-axis">
-              {[0, maxValue/2, maxValue].map((value, index) => (
-                <div key={index} className="y-axis-label">
-                  {value.toFixed(1)}
+
+            <div className="metrics-chart">
+              <h3>{activeTab} Metrics</h3>
+              <div className="chart-container">
+                <div className="chart">
+                  <div className="chart-bars">
+                    {months.map((month, index) => (
+                      <div key={month} className="chart-bar-container">
+                        <div 
+                          className="chart-bar" 
+                          style={{ 
+                            height: values[index] > 0 ? `${(values[index] / maxValue) * 200}px` : '1px',
+                            backgroundColor: activeTab === 'Impression' ? '#8fe2e9' : 
+                                           activeTab === 'Visitors' ? '#9ed582' : '#f8c07f'
+                          }}
+                        ></div>
+                        <div className="chart-label">{month}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="chart-y-axis">
+                    {[0, maxValue/2, maxValue].map((value, index) => (
+                      <div key={index} className="y-axis-label">
+                        {value.toFixed(1)}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
@@ -199,7 +234,7 @@ const Dashboard = () => {
 
       <style jsx="true">{`
         .quick-links-section {
-          margin-bottom: 30px;
+          margin-bottom: 20px;
           background: white;
           border-radius: 10px;
           padding: 20px;
@@ -264,7 +299,77 @@ const Dashboard = () => {
           color: #64748b;
         }
         
+        /* Mobile Summary Cards */
+        .mobile-summary-cards {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        
+        .summary-card {
+          display: flex;
+          align-items: center;
+          background: white;
+          border-radius: 10px;
+          padding: 15px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .summary-icon {
+          font-size: 24px;
+          margin-right: 15px;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(74, 108, 247, 0.1);
+          border-radius: 8px;
+          color: #4a6cf7;
+        }
+        
+        .summary-content {
+          flex: 1;
+        }
+        
+        .summary-content h4 {
+          margin: 0 0 5px 0;
+          font-size: 14px;
+          color: #666;
+        }
+        
+        .summary-value {
+          display: flex;
+          align-items: center;
+        }
+        
+        .summary-value .number {
+          font-size: 20px;
+          font-weight: bold;
+          margin-right: 8px;
+        }
+        
+        .summary-value .percentage {
+          font-size: 12px;
+          padding: 2px 6px;
+          border-radius: 20px;
+        }
+        
+        .desktop-only {
+          display: block;
+        }
+        
+        @media (min-width: 768px) {
+          .mobile-summary-cards {
+            display: none;
+          }
+        }
+        
         @media (max-width: 768px) {
+          .desktop-only {
+            display: none;
+          }
           .quick-links-container {
             flex-direction: column;
             gap: 10px;
@@ -272,6 +377,31 @@ const Dashboard = () => {
           
           .quick-link-card {
             width: 100%;
+          }
+          
+          .metrics-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+          }
+          
+          .tab {
+            flex: 0 0 auto;
+            padding: 8px 15px;
+            white-space: nowrap;
+          }
+          
+          .chart {
+            height: 200px;
+          }
+          
+          .chart-bar {
+            width: 15px;
+          }
+          
+          .chart-label {
+            font-size: 10px;
           }
         }
       `}</style>

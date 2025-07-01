@@ -6,6 +6,7 @@ import Api from '../../../../Apis/Api';
 import { GetPropertyList } from '../../../../Redux-store/Slices/PropertyListSlice';
 import { formatPropertyForSubmission, validatePropertyData } from '../../../../fix-property-submission';
 import '../../choose-propmo/choose-promotion.css';
+import '../../choose-propmo/mobile-choose-promotion.css';
 
 // Default fallback images that will be used if no images are uploaded
 const DEFAULT_IMAGES = [
@@ -37,55 +38,54 @@ const ChoosePromotion = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [savingProperty, setSavingProperty] = useState(false);
   const [isTestMode, setIsTestMode] = useState(false);
+  const [expandedFeatures, setExpandedFeatures] = useState({
+    vip: false,
+    diamond: false
+  });
 
   // Define promotion plans
   const promotionPlans = {
     basic: {
       name: 'Basic Plan',
       price: 0,
+      icon: '🟩',
       durations: [
         { days: 30, price: 0, label: '30 Days' }
       ],
       features: [
-        'Standard listing visibility',
-        'Basic search placement',
-        'Photo gallery (up to 10 photos)',
-        'Email contact form',
-        'Property details page'
+        'Standard listing',
+        'Photo gallery (10)',
+        'Property page',
+        '30 Days'
       ]
     },
     vip: {
       name: 'VIP Plan',
       price: 500,
+      icon: '🟧',
       durations: [
         { days: 15, price: 500, label: '15 Days' },
         { days: 28, price: 850, label: '28 Days' }
       ],
       features: [
-        'Featured on homepage',
-        'Higher search rankings',
-        'Enhanced photo gallery (up to 20 photos)',
-        'Property video tour',
-        'Priority customer support',
-        'Featured tag on listing'
+        'Homepage feature',
+        'Photo gallery (20)',
+        'Video tour',
+        'Support'
       ]
     },
     diamond: {
       name: 'Diamond Plan',
       price: 1500,
+      icon: '🟪',
       durations: [
         { days: 30, price: 1500, label: '1 Month' },
         { days: 90, price: 3500, label: '3 Month' }
       ],
       features: [
-        'Top search results placement',
-        'Featured on homepage banner',
-        'Social media promotion',
-        'Premium listing badge',
-        'Advanced analytics',
-        'Priority customer support',
-        'Unlimited photos',
-        'Virtual tour integration'
+        'Top result placement',
+        'Banner & social promo',
+        'Unlimited media'
       ]
     }
   };
@@ -156,6 +156,15 @@ const ChoosePromotion = () => {
       position: "top-center",
       hideProgressBar: true
     });
+  };
+  
+  // Toggle feature list expansion for mobile view
+  const toggleFeatureList = (planKey, e) => {
+    e.stopPropagation(); // Prevent plan selection when clicking the toggle
+    setExpandedFeatures(prev => ({
+      ...prev,
+      [planKey]: !prev[planKey]
+    }));
   };
 
   // Enable/disable test mode for development and testing
@@ -495,13 +504,17 @@ const ChoosePromotion = () => {
 
       {/* Promotion Plans */}
       <div className="promotion-plans">
-        {/* Basic Plan */}
+      {/* Basic Plan */}
         <div 
           className={`promotion-plan basic-plan ${selectedPlan === 'basic' ? 'selected' : ''}`}
           onClick={() => handlePlanSelect('basic')}
         >
+          {selectedPlan === 'basic' && (
+            <div className="plan-selected-indicator">✓</div>
+          )}
           <div className="plan-header">
-            <h3 className="plan-name">Basic Plan - Free</h3>
+            <span className="plan-icon">{promotionPlans.basic.icon}</span>
+            <h3 className="plan-name">Basic Plan – Free</h3>
             <p className="plan-price">Free</p>
             <div className="plan-decoration"></div>
           </div>
@@ -509,7 +522,7 @@ const ChoosePromotion = () => {
             <ul className="plan-features">
               {promotionPlans.basic.features.map((feature, index) => (
                 <li key={index}>
-                  <span className="feature-icon">✓</span>
+                  <span className="feature-icon">✔</span>
                   {feature}
                 </li>
               ))}
@@ -532,6 +545,11 @@ const ChoosePromotion = () => {
               ))}
             </div>
           </div>
+          {selectedPlan === 'basic' ? (
+            <div className="selected-status">Selected ✅</div>
+          ) : (
+            <div className="select-plan-button">Select Plan</div>
+          )}
         </div>
 
         {/* VIP Plan */}
@@ -539,24 +557,34 @@ const ChoosePromotion = () => {
           className={`promotion-plan vip-plan ${selectedPlan === 'vip' ? 'selected' : ''}`}
           onClick={() => handlePlanSelect('vip')}
         >
+          {selectedPlan === 'vip' && (
+            <div className="plan-selected-indicator">✓</div>
+          )}
           <div className="popular-tag">POPULAR</div>
           <div className="plan-header">
-            <h3 className="plan-name">VIP Plan</h3>
-            <p className="plan-price">From ETB 500</p>
+            <span className="plan-icon">{promotionPlans.vip.icon}</span>
+            <h3 className="plan-name">VIP Plan – From 500 ETB</h3>
+            <p className="plan-price">Enhanced visibility</p>
             <div className="plan-decoration"></div>
           </div>
           <div className="plan-body">
-            <ul className="plan-features">
+            <ul className={`plan-features ${expandedFeatures.vip ? 'expanded' : ''}`}>
               {promotionPlans.vip.features.map((feature, index) => (
                 <li key={index}>
-                  <span className="feature-icon">✓</span>
+                  <span className="feature-icon">✔</span>
                   {feature}
                 </li>
               ))}
             </ul>
+            <div 
+              className={`feature-toggle ${expandedFeatures.vip ? 'expanded' : ''}`}
+              onClick={(e) => toggleFeatureList('vip', e)}
+            >
+              {expandedFeatures.vip ? 'Show less' : 'Show more'}
+            </div>
           </div>
           <div className="duration-options">
-            <p className="duration-label">Select Days:</p>
+            <p className="duration-label">Duration:</p>
             <div className="duration-buttons">
               {promotionPlans.vip.durations.map((duration, index) => (
                 <div
@@ -568,12 +596,15 @@ const ChoosePromotion = () => {
                   }}
                 >
                   {duration.label}
-                  <br />
-                  <small>ETB {duration.price}</small>
                 </div>
               ))}
             </div>
           </div>
+          {selectedPlan === 'vip' ? (
+            <div className="selected-status">Selected ✅</div>
+          ) : (
+            <div className="select-plan-button">Select Plan</div>
+          )}
         </div>
 
         {/* Diamond Plan */}
@@ -581,23 +612,33 @@ const ChoosePromotion = () => {
           className={`promotion-plan diamond-plan ${selectedPlan === 'diamond' ? 'selected' : ''}`}
           onClick={() => handlePlanSelect('diamond')}
         >
+          {selectedPlan === 'diamond' && (
+            <div className="plan-selected-indicator">✓</div>
+          )}
           <div className="plan-header">
-            <h3 className="plan-name">Diamond Plan / Top Spot</h3>
-            <p className="plan-price">From ETB 1,500</p>
+            <span className="plan-icon">{promotionPlans.diamond.icon}</span>
+            <h3 className="plan-name">Diamond – From 1000 ETB</h3>
+            <p className="plan-price">Premium placement</p>
             <div className="plan-decoration"></div>
           </div>
           <div className="plan-body">
-            <ul className="plan-features">
+            <ul className={`plan-features ${expandedFeatures.diamond ? 'expanded' : ''}`}>
               {promotionPlans.diamond.features.map((feature, index) => (
                 <li key={index}>
-                  <span className="feature-icon">✓</span>
+                  <span className="feature-icon">✔</span>
                   {feature}
                 </li>
               ))}
             </ul>
+            <div 
+              className={`feature-toggle ${expandedFeatures.diamond ? 'expanded' : ''}`}
+              onClick={(e) => toggleFeatureList('diamond', e)}
+            >
+              {expandedFeatures.diamond ? 'Show less' : 'Show more'}
+            </div>
           </div>
           <div className="duration-options">
-            <p className="duration-label">Select Days:</p>
+            <p className="duration-label">Duration:</p>
             <div className="duration-buttons">
               {promotionPlans.diamond.durations.map((duration, index) => (
                 <div
@@ -609,12 +650,15 @@ const ChoosePromotion = () => {
                   }}
                 >
                   {duration.label}
-                  <br />
-                  <small>ETB {duration.price}</small>
                 </div>
               ))}
             </div>
           </div>
+          {selectedPlan === 'diamond' ? (
+            <div className="selected-status">Selected ✅</div>
+          ) : (
+            <div className="select-plan-button">Select Plan</div>
+          )}
         </div>
       </div>
 
@@ -735,7 +779,7 @@ const ChoosePromotion = () => {
       </div>
       
       {/* Fix Information Box */}
-      <div style={{
+      <div className="fix-info-box" style={{
         margin: '30px auto 10px',
         padding: '15px',
         backgroundColor: '#e8f5e9',

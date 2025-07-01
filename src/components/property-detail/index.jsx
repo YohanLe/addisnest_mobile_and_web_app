@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropertyDetail from './sub-component/PropertyDetail';
 import { toast } from 'react-toastify';
 import { getPropertyDetails, clearPropertyDetails, getSimilarProperties } from '../../Redux-store/Slices/PropertyDetailSlice';
+import '../../assets/css/mobile-property-detail.css';
+import '../../assets/css/property-detail-colors.css';
 
 const PropertyDetailMain = () => {
   const { id } = useParams();

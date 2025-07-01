@@ -79,6 +79,62 @@ const BannerSection = () => {
         position: 'relative',
       }}
     >
+      <style jsx="true">{`
+        @media screen and (max-width: 767px) {
+          .banner-section {
+            height: 210px !important;
+            padding-top: 15px !important;
+          }
+          .banner-content h1 {
+            font-size: 1.4rem !important;
+            margin-bottom: 0.2rem !important;
+          }
+          .search-tabs-container {
+            max-width: 100% !important;
+            transform: scale(0.85) !important;
+            transform-origin: top left !important;
+            margin-top: -5px !important;
+          }
+          .search-tabs .nav {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+          }
+          .search-tabs .nav-item {
+            flex: 1 !important;
+            display: inline-block !important;
+            margin: 0 2px !important;
+          }
+          .search-tabs .nav-link {
+            padding: 10px 5px !important;
+            font-size: 13px !important;
+            text-align: center !important;
+            font-weight: 600 !important;
+            width: 100% !important;
+            display: block !important;
+          }
+          .search-form {
+            padding: 12px !important;
+          }
+          .search-input {
+            height: 38px !important;
+            font-size: 14px !important;
+            padding: 8px 12px !important;
+          }
+          .search-button {
+            height: 38px !important;
+            padding: 0 15px !important;
+          }
+          .filter-toggle {
+            margin-top: 4px !important;
+          }
+          .filter-toggle button {
+            font-size: 13px !important;
+            padding: 4px 12px !important;
+          }
+        }
+      `}</style>
       <div className="banner-overlay" style={{
         position: 'absolute',
         top: 0,
@@ -92,12 +148,7 @@ const BannerSection = () => {
         <div className="row">
           <div className="col-md-8">
             <div className="banner-content">
-              <h1 style={{
-                fontSize: '3rem',
-                fontWeight: 'bold',
-                textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                marginBottom: '0.5rem'
-              }}>
+              <h1>
                 Find the perfect home<br />for your family
               </h1>
 

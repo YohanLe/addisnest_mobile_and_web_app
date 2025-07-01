@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import LoginPopup from '../../../helper/LoginPopup';
 import CustomerRegisterPopup from '../../../helper/CustomerRegisterPopup';
 import MortgageCalculatorPopup from '../../../components/helper/MortgageCalculatorPopup';
+import MobileBottomNav from '../MobileBottomNav';
 import { isAuthenticated } from '../../../utils/tokenHandler';
 import { useSelector } from 'react-redux';
 import './Header.css';
@@ -15,8 +16,19 @@ const Header = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMortgageCalculator, setShowMortgageCalculator] = useState(false);
   const [buyRentMode, setBuyRentMode] = useState('buy'); // Track the Buy/Rent toggle state
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const navigate = useNavigate();
   const user = useSelector((state) => state.Auth.Details.data);
+  
+  // Add event listener for window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -44,8 +56,9 @@ const Header = () => {
             </Link>
           </div>
 
-          <div className="nav-main">
-            <ul className="navigation">
+          {!isMobile && (
+          <div className="nav-main desktop-only-nav">
+            <ul className="navigation desktop-only-nav">
               <li>
                 <div 
                   className={`${isActive('/property-list')} nav-link buy-rent-toggle`}
@@ -108,11 +121,9 @@ const Header = () => {
               </li>
             </ul>
           </div>
+          )}
 
           <div className="right-section">
-            <div className="eng-button">
-              Eng
-            </div>
             
             {isAuthenticated() ? (
               <div className="user-menu-container">
@@ -120,9 +131,7 @@ const Header = () => {
                   className="user-menu-trigger"
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 >
-                  <div className="logged-in-indicator">
-                    Logged In
-                  </div>
+                  {/* Removed "Logged In" indicator as requested */}
                   <div className="profile-picture-container">
                     {user?.profilePicture ? (
                       <img
@@ -205,6 +214,14 @@ const Header = () => {
         setShowLoginPopup(true);
       }} />}
       {showMortgageCalculator && <MortgageCalculatorPopup handlePopup={() => setShowMortgageCalculator(false)} />}
+      
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav 
+        buyRentMode={buyRentMode} 
+        setBuyRentMode={setBuyRentMode} 
+        setShowLoginPopup={setShowLoginPopup}
+        setShowMortgageCalculator={setShowMortgageCalculator}
+      />
     </header>
   );
 };

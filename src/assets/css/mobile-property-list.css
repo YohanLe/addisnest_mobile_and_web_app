@@ -1,0 +1,84 @@
+/* Mobile property list styles */
+@media screen and (max-width: 767px) {
+  /* Reduce font size for "Properties for Sale" heading */
+  .page-header h1 {
+    font-size: 1.5rem !important;
+    margin-top: 0 !important;
+  }
+  
+  .page-header p {
+    font-size: 0.9rem;
+    margin-bottom: 10px !important;
+  }
+  
+  /* Reduce space between banner and property section */
+  .home-page .property-section {
+    margin-top: 0 !important;
+  }
+  
+  /* Reduce page header margin */
+  .page-header.mb-4 {
+    margin-bottom: 5px !important;
+  }
+  
+  /* Reduce space between property count and property cards */
+  .results-header.mb-4 {
+    margin-bottom: 5px !important;
+  }
+  
+  /* Remove space between property count and property cards */
+  .property-list-page .row {
+    margin-top: 0 !important;
+  }
+  
+  /* Make property cards display horizontally in a scrollable container */
+  .property-list-page .row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide scrollbar for cleaner look */
+  .property-list-page .row::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .property-list-page .row::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+  
+  /* Adjust property card size for horizontal scrolling */
+  .property-list-page .col-lg-4.col-md-6 {
+    flex: 0 0 auto !important;
+    width: 280px !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Make property cards more compact */
+  .property-card {
+    margin-bottom: 10px !important;
+  }
+  
+  .property-card .property-image {
+    height: 160px !important;
+  }
+  
+  .property-card h3 {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Adjust property details text size */
+  .property-card div {
+    font-size: 0.8rem !important;
+  }
+  
+  .property-card p {
+    font-size: 0.8rem !important;
+    margin-bottom: 3px !important;
+  }
+}

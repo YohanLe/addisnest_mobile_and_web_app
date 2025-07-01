@@ -643,137 +643,112 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                         </div>
                     </div>
                     
-                    {/* Safety Tips Box - Right Column */}
-                    <div className="col-md-5" style={{ display: 'flex' }}>
-                        <div className="action-safety-box" style={{
+                    {/* Right Column - Post Ad Button and Safety Tips (visible only on web view) */}
+                    <div className="col-md-5 desktop-only-safety-tips">
+                        {/* Post Ad Like This Button - Web View Only */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <button 
+                                onClick={() => {
+                                    if (!isAuthenticated()) {
+                                        setShowLoginPopup(true);
+                                    } else {
+                                        navigate('/property-list-form');
+                                    }
+                                }}
+                                style={{
+                                    width: '100%',
+                                    backgroundColor: '#4CAF50',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontWeight: '600',
+                                    fontSize: '15px',
+                                    padding: '10px 16px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 2px 6px rgba(76, 175, 80, 0.3)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
+                                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                            >
+                                <span style={{ fontSize: '16px', marginRight: '6px' }}>📝</span> Post Ad Like This
+                            </button>
+                        </div>
+                        <div className="safety-tips-box" style={{
                             padding: '24px',
                             backgroundColor: '#ffffff',
                             borderRadius: '8px',
                             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
                             height: '100%'
                         }}>
-                            {/* Action Buttons */}
-                            <div style={{ marginBottom: '15px', width: '100%' }}>
-                               
-                            </div>
+                            <h3 style={{
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                marginBottom: '15px',
+                                color: '#333'
+                            }}>Safety Tips</h3>
                             
-                            <div style={{ marginBottom: '15px', width: '100%' }}>
-                                <button 
-                                    onClick={() => {
-                                        if (!isAuthenticated()) {
-                                            setShowLoginPopup(true);
-                                        } else {
-                                            navigate('/property-list-form');
-                                        }
-                                    }}
-                                    style={{
-                                        width: '100%',
-                                        backgroundColor: '#4CAF50',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontWeight: '600',
-                                        fontSize: '16px',
-                                        padding: '14px 20px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: '0 4px 10px rgba(76, 175, 80, 0.3)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
-                                >
-                                    <span style={{ fontSize: '18px', marginRight: '8px' }}>📝</span> Post Ad Like This
-                                </button>
-                            </div>
-                            
-                            <div style={{ marginBottom: '15px', width: '100%' }}>
-                                <button 
-                                    style={{
-                                        width: '100%',
-                                        backgroundColor: '#2196F3',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontWeight: '500',
-                                        fontSize: '16px',
-                                        padding: '12px 20px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        boxShadow: '0 4px 10px rgba(33, 150, 243, 0.3)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1E88E5'}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196F3'}
-                                >
-                                    <span style={{ fontSize: '18px', marginRight: '8px' }}>🔒</span> Mark Unavailable
-                                </button>
-                            </div>
-                            
-                            <div style={{ marginBottom: '20px', width: '100%' }}>
-                                <button 
-                                    style={{
-                                        width: '100%',
-                                        backgroundColor: '#6c757d',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '8px',
-                                        fontWeight: '500',
-                                        fontSize: '16px',
-                                        padding: '12px 20px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}
-                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#5a6268'}
-                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#6c757d'}
-                                >
-                                    <span style={{ fontSize: '18px', marginRight: '8px' }}>🚩</span> Report Abuse
-                                </button>
-                            </div>
-                            
-                            {/* Safety Tips */}
-                            <div style={{
-                                marginTop: '20px',
-                                borderTop: '1px solid #eee',
-                                paddingTop: '20px'
+                            <ul style={{
+                                listStyleType: 'disc',
+                                paddingLeft: '20px',
+                                marginBottom: '0'
                             }}>
-                                <h3 style={{
-                                    fontSize: '18px',
-                                    fontWeight: '600',
-                                    marginBottom: '15px',
-                                    color: '#333'
-                                }}>Safety Tips</h3>
-                                
-                                <ul style={{
-                                    listStyleType: 'disc',
-                                    paddingLeft: '20px',
-                                    marginBottom: '0'
-                                }}>
-                                    <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
-                                        It's safer not to pay ahead for inspections
-                                    </li>
-                                    <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
-                                        Ask friends or somebody you trust to accompany you for viewing.
-                                    </li>
-                                    <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
-                                        Look around the apartment to ensure it meets your expectations
-                                    </li>
-                                    <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
-                                        Don't pay before hand if they won't let you move in immediately
-                                    </li>
-                                    <li style={{ marginBottom: '0', fontSize: '14px', color: '#555' }}>
-                                        Verify that the account details belong to the right property owner before initiating payment
-                                    </li>
-                                </ul>
-                            </div>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    It's safer not to pay ahead for inspections
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Ask friends or somebody you trust to accompany you for viewing.
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Look around the apartment to ensure it meets your expectations
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Don't pay before hand if they won't let you move in immediately
+                                </li>
+                                <li style={{ marginBottom: '0', fontSize: '14px', color: '#555' }}>
+                                    Verify that the account details belong to the right property owner before initiating payment
+                                </li>
+                            </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Post Ad Like This button above the three boxes (mobile view only) */}
+            <div className="container mobile-only-post-ad" style={{ marginBottom: '20px' }}>
+                <div className="row">
+                    <div className="col-md-12" style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <button 
+                            onClick={() => {
+                                if (!isAuthenticated()) {
+                                    setShowLoginPopup(true);
+                                } else {
+                                    navigate('/property-list-form');
+                                }
+                            }}
+                            style={{
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontWeight: '600',
+                                fontSize: '15px',
+                                padding: '10px 16px',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                boxShadow: '0 2px 6px rgba(76, 175, 80, 0.3)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}
+                        >
+                            <span style={{ fontSize: '16px', marginRight: '6px' }}>📝</span> Post Ad Like This
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1313,6 +1288,7 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
 
@@ -1365,195 +1341,43 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
             </div>
             */}
             
-            {/* Nearby Properties Section - Enhanced with slider functionality */}
-            <div id="nearby-properties" style={{ marginBottom: '50px', backgroundColor: '#f9f9f9', padding: '40px 0', boxShadow: '0 -1px 5px rgba(0,0,0,0.05), 0 1px 5px rgba(0,0,0,0.05)' }}>
-                <div className="container">
-                    <div className="property-slider">
-                        <div className="property-slider-title">
-                            <div className="property-slider-header">
-                                <h4>Other Nearby Homes to Explore</h4>
-                                <p>Nearby listings with similar features and price range in the area.</p>
-                            </div>
-                            <div className="all-view">
-                                <Link to="/property-list">View all</Link>
-                            </div>
-                        </div>
-                        <div className="property-list">
-                            <div className="property-slider-aroow">
-                                <span>
-                                    <SvgArrowLeftIcon />
-                                </span>
-                                <span>
-                                    <SvgArrowRightIcon />
-                                </span>
-                            </div>
-                            <ul style={{ 
-                                display: 'grid', 
-                                gridTemplateColumns: 'repeat(3, 1fr)',
-                                gap: '20px',
-                                padding: 0,
-                                margin: 0,
-                                listStyle: 'none'
+            {/* Safety Tips Section at the bottom of the page (visible only on mobile) */}
+            <div className="container mobile-only-safety-tips" style={{ marginBottom: '50px' }}>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="safety-tips-box" style={{
+                            padding: '24px',
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+                        }}>
+                            <h3 style={{
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                marginBottom: '15px',
+                                color: '#333'
+                            }}>Safety Tips</h3>
+                            
+                            <ul style={{
+                                listStyleType: 'disc',
+                                paddingLeft: '20px',
+                                marginBottom: '0'
                             }}>
-                                {/* If we have nearby properties, display them */}
-                                {nearbyProperties && nearbyProperties.length > 0 ? (
-                                    nearbyProperties.slice(0, 3).map((item, index) => (
-                                        <li key={index} style={{ 
-                                            width: '100%',
-                                            boxSizing: 'border-box'
-                                        }}>
-                                            <a 
-                                                onClick={() => { 
-                                                    navigate(`/property-detail/${item?._id || item?.id}`);
-                                                    // Use setTimeout to ensure navigation completes before scrolling
-                                                    setTimeout(() => {
-                                                        window.scrollTo(0, 0);
-                                                    }, 100);
-                                                }} 
-                                                className="property-card"
-                                            >
-                                                <div className="card">
-                                                    <div
-                                                        className="property-img"
-                                                        style={{ backgroundImage: `url(${item?.media?.[0]?.filePath || item?.media?.[0] || 'https://via.placeholder.com/800x600?text=No+Image'})` }}
-                                                    >
-                                                        <span>{item.status || 'For Sale'}</span>
-                                                        <p>
-                                                            <em>
-                                                                <SvgClockIcon />
-                                                            </em>
-                                                            {MakeFormat(item?.createdAt)}
-                                                        </p>
-                                                    </div>
-                                                    <div className="property-detail">
-                                                        <div className="property-title">
-                                                            <h3>{new Intl.NumberFormat('en-US').format(item.price || item.total_price || 0)}</h3>
-                                                            <div className="property-share-icon">
-                                                                <span>
-                                                                    <SvgShareIcon />
-                                                                </span>
-                                                                <span>
-                                                                    {item?.is_wishlist === true ? <SvgFavoriteFillIcon /> : <SvgFavoriteIcon />}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        <div className="property-area">
-                                                            <span>{item?.beds || item?.number_of_bedrooms || item?.bedrooms || 0} bed</span>
-                                                            <span>
-                                                                <em></em>
-                                                                {item?.bathroom_information?.length || item?.specifications?.bathrooms || item?.number_of_bathrooms || item?.bathrooms || 0} bath
-                                                            </span>
-                                                            <span>
-                                                                <em></em>
-                                                                {item?.property_size || item?.specifications?.area?.size || item?.size || 0} sq.m
-                                                            </span>
-                                                        </div>
-                                                        <div className="property-location">
-                                                            <SvgLocationIcon />
-                                                            <span>
-                                                                {typeof item?.address === 'object' 
-                                                                    ? `${item.address.street || ''}, ${item.address.city || ''}, ${item.address.state || item.address.country || 'Ethiopia'}` 
-                                                                    : (item?.address || 
-                                                                       item?.location?.address || 
-                                                                       (item?.city ? `${item.city}, ${item.regional_state || 'Ethiopia'}` : 'Address not available'))}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    ))
-                                ) : (
-                                    /* If no properties available, show sample data */
-                                    [...Array(3)].map((_, index) => {
-                                        // Sample property data
-                                        const sampleProperties = [
-                                            {
-                                                id: 'sample1',
-                                                price: 2350000,
-                                                bedrooms: 3,
-                                                bathrooms: 2,
-                                                size: 220,
-                                                address: 'Bole, Addis Ababa, Ethiopia',
-                                                createdAt: new Date('2025-05-15'),
-                                                status: 'For Sale'
-                                            },
-                                            {
-                                                id: 'sample2',
-                                                price: 1890000,
-                                                bedrooms: 2,
-                                                bathrooms: 1,
-                                                size: 180,
-                                                address: 'Kazanchis, Addis Ababa, Ethiopia',
-                                                createdAt: new Date('2025-06-01'),
-                                                status: 'For Sale'
-                                            },
-                                            {
-                                                id: 'sample3',
-                                                price: 3200000,
-                                                bedrooms: 4,
-                                                bathrooms: 3,
-                                                size: 280,
-                                                address: 'CMC, Addis Ababa, Ethiopia',
-                                                createdAt: new Date('2025-05-22'),
-                                                status: 'For Sale'
-                                            }
-                                        ];
-                                        
-                                        const item = sampleProperties[index];
-                                        return (
-                                            <li key={`sample-${index}`} style={{ 
-                                                width: '100%',
-                                                boxSizing: 'border-box'
-                                            }}>
-                                                <a className="property-card">
-                                                    <div className="card">
-                                                        <div
-                                                            className="property-img"
-                                                            style={{ backgroundImage: `url(https://via.placeholder.com/800x600?text=Sample+Property+${index + 1})` }}
-                                                        >
-                                                            <span>{item.status}</span>
-                                                            <p>
-                                                                <em>
-                                                                    <SvgClockIcon />
-                                                                </em>
-                                                                {MakeFormat(item.createdAt)}
-                                                            </p>
-                                                        </div>
-                                                        <div className="property-detail">
-                                                            <div className="property-title">
-                                                                <h3>{new Intl.NumberFormat('en-US').format(item.price)}</h3>
-                                                                <div className="property-share-icon">
-                                                                    <span>
-                                                                        <SvgShareIcon />
-                                                                    </span>
-                                                                    <span>
-                                                                        <SvgFavoriteIcon />
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <div className="property-area">
-                                                                <span>{item.bedrooms} bed</span>
-                                                                <span>
-                                                                    <em></em>
-                                                                    {item.bathrooms} bath
-                                                                </span>
-                                                                <span>
-                                                                    <em></em>
-                                                                    {item.size} sq.m
-                                                                </span>
-                                                            </div>
-                                                            <div className="property-location">
-                                                                <SvgLocationIcon />
-                                                                <span>{item.address}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        );
-                                    })
-                                )}
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    It's safer not to pay ahead for inspections
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Ask friends or somebody you trust to accompany you for viewing.
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Look around the apartment to ensure it meets your expectations
+                                </li>
+                                <li style={{ marginBottom: '10px', fontSize: '14px', color: '#555' }}>
+                                    Don't pay before hand if they won't let you move in immediately
+                                </li>
+                                <li style={{ marginBottom: '0', fontSize: '14px', color: '#555' }}>
+                                    Verify that the account details belong to the right property owner before initiating payment
+                                </li>
                             </ul>
                         </div>
                     </div>

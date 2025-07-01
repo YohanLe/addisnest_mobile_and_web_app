@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const PropertyAlert = () => {
@@ -406,15 +406,16 @@ const PropertyAlert = () => {
           ))}
         </div>
         
-        <button 
+        <Link 
+          to="/property-list-form"
           className="list-property-btn"
-          onClick={() => navigate('/property-list-form')}
         >
           List Property +
-        </button>
+        </Link>
       </div>
       
-      <div className="listings-table" style={{ maxHeight: 700, overflowY: 'auto' }}>
+      {/* Desktop Table View */}
+      <div className="listings-table desktop-view" style={{ maxHeight: 700, overflowY: 'auto' }}>
         <div className="table-header">
           <div className="header-cell serial-number">S.no</div>
           <div className="header-cell picture">Picture</div>
@@ -547,6 +548,116 @@ const PropertyAlert = () => {
         </div>
       </div>
       
+      {/* Mobile Card View */}
+      <div className="mobile-listings-view">
+        {filteredListings.length === 0 ? (
+          <div className="no-listings">
+            <div className="no-listings-icon">🏠</div>
+            <p>No properties found</p>
+            <Link to="/property-list-form" className="add-property-link">
+              Add Your First Property
+            </Link>
+          </div>
+        ) : (
+          filteredListings.map((listing, index) => (
+            <div 
+              className={`property-card ${listing.isNew ? 'new-listing' : ''}`} 
+              key={listing.id}
+            >
+              <div className="property-card-header">
+                <div className="property-image">
+                  {listing.image ? (
+                    <img 
+                      src={listing.image} 
+                      alt={`Property at ${listing.address}`}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className="property-image-placeholder">
+                      <div className="property-image-emoji">🏠</div>
+                    </div>
+                  )}
+                </div>
+                <div className="property-info">
+                  <div className="property-type">
+                    {listing.type ? 
+                      (typeof listing.type === 'string' ? 
+                        listing.type.charAt(0).toUpperCase() + listing.type.slice(1) : 
+                        'Property') : 
+                      'Property'}
+                  </div>
+                  <div className="property-price">
+                    {Number(listing.price).toLocaleString()} ETB
+                  </div>
+                  <div className="property-badges">
+                    <span className={`offering-badge ${listing.offering?.toLowerCase().includes('sale') ? "sale" : "rent"}`}>
+                      {listing.offering || (listing.propertyFor === 'sale' ? 'For Sale' : 'For Rent')}
+                    </span>
+                    <span className={`status-badge ${listing.status.toLowerCase()}`}>
+                      {listing.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="property-card-body">
+                <div className="property-address">
+                  <div className="address-icon">📍</div>
+                  <div className="address-text">{listing.address}</div>
+                </div>
+              </div>
+              <div className="property-card-footer">
+                <button 
+                  className="card-action-btn edit"
+                  onClick={() => {
+                    console.log(`Editing property with ID: ${listing.id}`);
+                    
+                    // Save the full property data to localStorage before navigating
+                    try {
+                      localStorage.setItem('property_edit_data', JSON.stringify({
+                        id: listing.id,
+                        property_type: listing.type,
+                        property_for: listing.offering,
+                        total_price: listing.price,
+                        property_address: listing.address,
+                        number_of_bedrooms: listing.bedrooms || "3",
+                        number_of_bathrooms: listing.bathrooms || "2",
+                        property_size: listing.area || "200",
+                        status: listing.status,
+                        regional_state: listing.regional_state || "Addis Ababa City Administration",
+                        city: listing.city || "Addis Ababa",
+                        description: listing.description || "Property description not available",
+                        media: listing.image ? [listing.image] : [],
+                        amenities: listing.amenities || ["parking_space", "internet_wifi", "water_supply", "electricity"]
+                      }));
+                      console.log('Property data saved to localStorage for editing');
+                    } catch (error) {
+                      console.error('Error saving property data to localStorage:', error);
+                    }
+                    
+                    // Navigate to the edit form with the property ID
+                    navigate(`/property-edit/${listing.id}`);
+                  }}
+                >
+                  Edit
+                </button>
+                <button 
+                  className="card-action-btn view"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  View Details
+                </button>
+                <button 
+                  className="card-action-btn delete"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      
       <style jsx>{`
         .my-listings-container {
           padding: 20px;
@@ -607,6 +718,10 @@ const PropertyAlert = () => {
           padding: 10px 20px;
           font-weight: bold;
           cursor: pointer;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
         }
         
         .listings-table {
@@ -803,6 +918,207 @@ const PropertyAlert = () => {
         
         .action-dropdown:hover .action-dropdown-content {
           display: block;
+        }
+        
+        /* Mobile Card View */
+        .mobile-listings-view {
+          display: none;
+        }
+        
+        /* No listings state */
+        .no-listings {
+          text-align: center;
+          padding: 40px 20px;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          margin-top: 20px;
+        }
+        
+        .no-listings-icon {
+          font-size: 48px;
+          margin-bottom: 15px;
+          color: #ccc;
+        }
+        
+        .no-listings p {
+          font-size: 16px;
+          color: #666;
+          margin-bottom: 20px;
+        }
+        
+        .add-property-link {
+          display: inline-block;
+          background-color: #8cc63f;
+          color: white;
+          padding: 10px 20px;
+          border-radius: 4px;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+          .listings-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+          }
+          
+          .filter-tabs {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+          }
+          
+          .list-property-btn {
+            width: 100%;
+          }
+          
+          .desktop-view {
+            display: none;
+          }
+          
+          .mobile-listings-view {
+            display: block;
+          }
+          
+          .property-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+          }
+          
+          .property-card.new-listing {
+            border-left: 4px solid #8cc63f;
+            position: relative;
+          }
+          
+          .property-card.new-listing::after {
+            content: "NEW";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #8cc63f;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 10px;
+            z-index: 1;
+          }
+          
+          .property-card-header {
+            display: flex;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          
+          .property-image {
+            width: 100px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-right: 15px;
+            flex-shrink: 0;
+          }
+          
+          .property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .property-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e8f4f8;
+          }
+          
+          .property-image-emoji {
+            font-size: 32px;
+            color: #4a6cf7;
+          }
+          
+          .property-info {
+            flex: 1;
+          }
+          
+          .property-type {
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+          
+          .property-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+          }
+          
+          .property-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+          }
+          
+          .property-card-body {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          
+          .property-address {
+            display: flex;
+            align-items: flex-start;
+          }
+          
+          .address-icon {
+            margin-right: 8px;
+            flex-shrink: 0;
+          }
+          
+          .address-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+          }
+          
+          .property-card-footer {
+            display: flex;
+            padding: 10px;
+            gap: 8px;
+          }
+          
+          .card-action-btn {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+          }
+          
+          .card-action-btn.edit {
+            background-color: #e3f2fd;
+            color: #2196f3;
+          }
+          
+          .card-action-btn.view {
+            background-color: #f5f5f5;
+            color: #555;
+          }
+          
+          .card-action-btn.delete {
+            background-color: #ffebee;
+            color: #f44336;
+          }
         }
       `}</style>
     </div>

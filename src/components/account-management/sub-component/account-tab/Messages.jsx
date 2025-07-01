@@ -1,15 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import "./mobile-messages.css";
+import "./web-messages.css";
+import MobileChatInterface from "./MobileChatInterface";
 
 const Messages = () => {
-  // Sample conversations data
+  // State for mobile view
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
+  const [showChatView, setShowChatView] = useState(false);
+  const [testModeExpanded, setTestModeExpanded] = useState(false);
+  
+  // Check for mobile view on resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  // Sample conversations data with timestamps for relative time display
   const conversations = [
     {
       id: 1,
       type: "AGENT",
       name: "agent",
-      lastMessage: "New Property Visit Request Received",
+      lastMessage: "New visit request",
       online: true,
-      unread: 1
+      unread: 1,
+      timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
+      messageIcon: "📩"
     },
     {
       id: 2,
@@ -18,6 +37,8 @@ const Messages = () => {
       lastMessage: "heloo",
       online: true,
       unread: 0,
+      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+      messageIcon: "💬",
       messages: [
         {
           text: "heloo",
@@ -32,15 +53,19 @@ const Messages = () => {
       name: "im a user",
       lastMessage: "hy",
       online: true,
-      unread: 0
+      unread: 0,
+      timestamp: new Date(), // Today
+      messageIcon: "💬"
     },
     {
       id: 4,
       type: "ADMIN",
-      name: "ADMI",
+      name: "Admin",
       lastMessage: "how are you",
       online: true,
-      unread: 0
+      unread: 0,
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
+      messageIcon: "💬"
     }
   ];
 
@@ -74,66 +99,148 @@ const Messages = () => {
       // You would also update the conversation with the new message
     }
   };
+  
+  // Format timestamp for mobile view
+  const formatTimestamp = (timestamp) => {
+    const now = new Date();
+    const diffMs = now - timestamp;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMins < 60) {
+      return `${diffMins}m ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return timestamp.toLocaleDateString();
+    }
+  };
+  
+  // Get role badge based on type
+  const getRoleBadge = (type) => {
+    switch(type) {
+      case "AGENT":
+        return <span className="role-badge agent">Agent</span>;
+      case "CUSTOMER":
+        return <span className="role-badge customer">Customer</span>;
+      case "ADMIN":
+        return <span className="role-badge admin">Admin</span>;
+      default:
+        return null;
+    }
+  };
+  
+  // Toggle chat view for mobile
+  const toggleChatView = (convId) => {
+    if (isMobile) {
+      setSelectedConversation(convId);
+      setShowChatView(true);
+    }
+  };
+  
+  // Go back to conversation list on mobile
+  const goBackToList = () => {
+    setShowChatView(false);
+  };
+  
+  // Toggle test mode container expansion
+  const toggleTestMode = () => {
+    setTestModeExpanded(!testModeExpanded);
+  };
 
+  // Render the new MobileChatInterface component for mobile views
+  if (isMobile) {
+    return <MobileChatInterface />;
+  }
+  
+  // Render the original desktop chat interface for non-mobile views
   return (
     <div className="chat-container">
       <div className="chat-panel">
         {/* Left panel - Conversations list */}
-        <div className="conversations-panel">
-          <div className="conversations-header">
-            <h3>Active Conversations <span className="conversation-count">4</span></h3>
-          </div>
+        <div className={`conversations-panel ${isMobile && showChatView ? 'hidden' : ''}`}>
+          {!isMobile && (
+            <div className="conversations-header">
+              <h3>Active Conversations <span className="conversation-count">4</span></h3>
+            </div>
+          )}
           
           <div className="conversations-search">
-            <input type="text" placeholder="Search.." />
+            <input type="text" placeholder="Search conversations..." />
             <button className="search-btn">
               <i className="search-icon">🔍</i>
             </button>
           </div>
           
           <div className="conversations-list">
-            {conversations.map(conv => (
-              <div 
-                key={conv.id} 
-                className={`conversation-item ${selectedConversation === conv.id ? 'active' : ''}`}
-                onClick={() => setSelectedConversation(conv.id)}
-              >
-                <div className="avatar">
-                  {conv.name.charAt(0).toUpperCase()}
-                  {conv.online && <span className="online-indicator"></span>}
-                </div>
-                <div className="conversation-info">
-                  <div className="conversation-header">
-                    <span className="conversation-type">{conv.type}</span>
-                    <span className="conversation-name">{conv.name}</span>
+            {conversations.map((conv, index) => (
+              <React.Fragment key={conv.id}>
+                <div 
+                  className={`conversation-item ${selectedConversation === conv.id ? 'active' : ''}`}
+                  onClick={() => toggleChatView(conv.id)}
+                >
+                  <div className={`avatar ${conv.type.toLowerCase()}`}>
+                    {conv.name.charAt(0).toUpperCase()}
+                    {conv.online && <span className="online-indicator"></span>}
                   </div>
-                  <div className="conversation-message">{conv.lastMessage}</div>
+                  <div className="conversation-info">
+                    <div className="conversation-header">
+                      <span className="conversation-name">{conv.name}</span>
+                      {getRoleBadge(conv.type)}
+                    </div>
+                    <div className="conversation-message">
+                      <span className="message-icon">{conv.messageIcon}</span>
+                      {conv.lastMessage}
+                      {isMobile && (
+                        <span className="message-time">{formatTimestamp(conv.timestamp)}</span>
+                      )}
+                    </div>
+                  </div>
+                  {conv.unread > 0 && (
+                    <div className="unread-count">{conv.unread}</div>
+                  )}
                 </div>
-                {conv.unread > 0 && (
-                  <div className="unread-count">{conv.unread}</div>
+                {index < conversations.length - 1 && isMobile && (
+                  <div className="conversation-divider"></div>
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
         
         {/* Right panel - Chat view */}
-        <div className="chat-view">
+        <div className={`chat-view ${isMobile && showChatView ? 'active' : ''}`}>
           {selectedConvData ? (
             <div className="chat-messages">
-              {/* Header with user info */}
-              <div className="chat-header">
-                <div className="user-profile">
-                  <img src="https://via.placeholder.com/50" alt="Profile" className="user-avatar" />
-                  <div className="user-info">
-                    <h3>{selectedConvData.name}</h3>
-                    <p>{selectedConvData.type === "CUSTOMER" ? 
-                      `${selectedConvData.messages?.[0]?.date || "5/23/2025"}, ${selectedConvData.messages?.[0]?.time || "1:09:52 AM"}` : 
-                      "Online"}
-                    </p>
+              {/* Header with user info - only shown on desktop or when mobile chat is active */}
+              {(!isMobile || (isMobile && showChatView)) && (
+                <div className="chat-header">
+                  {isMobile && (
+                    <button className="back-button" onClick={goBackToList}>←</button>
+                  )}
+                  <div className="user-profile">
+                    <div className={`avatar user-avatar ${selectedConvData.type.toLowerCase()}`}>
+                      {selectedConvData.name.charAt(0).toUpperCase()}
+                      {selectedConvData.online && <span className="online-indicator"></span>}
+                    </div>
+                    <div className="user-info">
+                      <h3>{selectedConvData.name}</h3>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {getRoleBadge(selectedConvData.type)}
+                        <p>{selectedConvData.type === "CUSTOMER" ? 
+                          `${selectedConvData.messages?.[0]?.date || "5/23/2025"}, ${selectedConvData.messages?.[0]?.time || "1:09:52 AM"}` : 
+                          "Online"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               
               {/* Message history */}
               <div className="message-history">
@@ -195,6 +302,35 @@ const Messages = () => {
           )}
         </div>
       </div>
+      
+      {/* Mobile footer menu */}
+      {isMobile && (
+        <>
+          <div className={`test-mode-container ${testModeExpanded ? 'expanded' : ''}`} onClick={toggleTestMode}>
+            <span className="test-mode-icon">⚙️</span>
+            <span className="test-mode-label">Test Mode</span>
+          </div>
+          
+          <div className="mobile-footer-menu">
+            <button className="footer-menu-button">
+              <span className="footer-menu-icon">🏠</span>
+              <span>Home</span>
+            </button>
+            <button className="footer-menu-button">
+              <span className="footer-menu-icon">🔍</span>
+              <span>Search</span>
+            </button>
+            <button className="footer-menu-button">
+              <span className="footer-menu-icon">💬</span>
+              <span>Messages</span>
+            </button>
+            <button className="footer-menu-button">
+              <span className="footer-menu-icon">👤</span>
+              <span>Account</span>
+            </button>
+          </div>
+        </>
+      )}
       
       <style>{`
         .chat-container {

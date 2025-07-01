@@ -6,8 +6,9 @@ import { GetUserPayments } from '../../Redux-store/Slices/PaymentSlice';
 import { isAuthenticated } from '../../utils/tokenHandler';
 import { Property1, Property2, Property3 } from '../../assets/images';
 import { applyFilters, parseQueryParams, createFilterParams, FILTER_OPTIONS } from '../../utils/propertyFilters';
+import '../../assets/css/mobile-property-list.css';
 
-const PropertyListPage = ({ isHomePage = false }) => {
+const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
   const dispatch = useDispatch();
   const { data, pending } = useSelector((state) => state.Home?.HomeData || { data: null, pending: false });
   const userPayments = useSelector((state) => state.Payments?.userPayments || { data: null, pending: false });
@@ -618,7 +619,7 @@ const PropertyListPage = ({ isHomePage = false }) => {
         
         {/* Property results count */}
         <div className="results-header mb-4">
-          <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#333' }}>
+          <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#333', marginBottom: '10px' }}>
             <span style={{ color: '#0066cc' }}>{properties.length}</span> Properties Found
           </h3>
         </div>
@@ -633,7 +634,8 @@ const PropertyListPage = ({ isHomePage = false }) => {
           </div>
         ) : (
           <div className="row" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-            {properties.map((property) => (
+            {/* If on home page and propertyCount is provided, limit the number of properties shown */}
+            {(isHomePage && propertyCount ? properties.slice(0, propertyCount) : properties).map((property) => (
               <div key={property._id} className="col-lg-4 col-md-6" style={{ flex: '0 0 calc(33.333% - 20px)' }}>
                 <div 
                   className="property-card"
