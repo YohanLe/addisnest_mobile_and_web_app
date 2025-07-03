@@ -781,47 +781,12 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                     color: '#555'
                                 }}>Have questions about this property?</p>
                                 
-                                {/* Name input */}
-                                <div style={{ marginBottom: '10px' }}>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Your name"
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 12px',
-                                            borderRadius: '8px',
-                                            border: '1px solid #e0e0e0',
-                                            fontSize: '15px',
-                                            outline: 'none',
-                                            transition: 'border-color 0.3s ease',
-                                            boxSizing: 'border-box'
-                                        }}
-                                    />
-                                </div>
-                                
-                                {/* Email input */}
-                                <div style={{ marginBottom: '10px' }}>
-                                    <input 
-                                        type="email" 
-                                        placeholder="Your email"
-                                        style={{
-                                            width: '100%',
-                                            padding: '8px 12px',
-                                            borderRadius: '8px',
-                                            border: '1px solid #e0e0e0',
-                                            fontSize: '15px',
-                                            outline: 'none',
-                                            transition: 'border-color 0.3s ease',
-                                            boxSizing: 'border-box'
-                                        }}
-                                    />
-                                </div>
-                                
                                 {/* Message textarea */}
                                 <div style={{ marginBottom: '10px' }}>
                                     <textarea 
                                         placeholder="I'm interested in this property and would like to know more about..."
                                         rows="3"
+                                        id="property-message-content"
                                         style={{
                                             width: '100%',
                                             padding: '8px 12px',
@@ -870,8 +835,84 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                     if (!isAuthenticated()) {
                                         setShowLoginPopup(true);
                                     } else {
-                                        // Handle sending message for authenticated users
-                                        console.log("Send message functionality for logged in users");
+                                        // Get message content
+                                        const messageContent = document.getElementById('property-message-content').value;
+                                        if (!messageContent.trim()) {
+                                            alert('Please enter a message');
+                                            return;
+                                        }
+                                        
+                                        // Check if terms are accepted
+                                        const termsAccepted = document.getElementById('terms-consent').checked;
+                                        if (!termsAccepted) {
+                                            alert('Please accept the terms to continue');
+                                            return;
+                                        }
+                                        
+                                        // Send message to property owner/agent
+                                        const sendPropertyMessage = async () => {
+                                            try {
+                                                // Get the property owner/agent ID
+                                                const recipientId = PropertyDetails.owner || PropertyDetails.agent || PropertyDetails.createdBy;
+                                                
+                                                if (!recipientId) {
+                                                    alert('Could not identify the property owner or agent');
+                                                    return;
+                                                }
+                                                
+                                                // Create or get conversation
+                                                const response = await fetch('/api/conversations', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                                    },
+                                                    body: JSON.stringify({
+                                                        participantId: recipientId,
+                                                        propertyId: PropertyDetails._id
+                                                    })
+                                                });
+                                                
+                                                const conversationData = await response.json();
+                                                
+                                                if (!response.ok) {
+                                                    throw new Error(conversationData.message || 'Failed to create conversation');
+                                                }
+                                                
+                                                // Send message
+                                                const messageResponse = await fetch('/api/messages', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json',
+                                                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                                    },
+                                                    body: JSON.stringify({
+                                                        conversationId: conversationData._id,
+                                                        recipientId: recipientId,
+                                                        content: messageContent,
+                                                        propertyId: PropertyDetails._id
+                                                    })
+                                                });
+                                                
+                                                const messageData = await messageResponse.json();
+                                                
+                                                if (!messageResponse.ok) {
+                                                    throw new Error(messageData.message || 'Failed to send message');
+                                                }
+                                                
+                                                // Clear the message input
+                                                document.getElementById('property-message-content').value = '';
+                                                
+                                                // Show success message
+                                                alert('Message sent successfully! Check your messages in Account Management.');
+                                                
+                                            } catch (error) {
+                                                console.error('Error sending message:', error);
+                                                alert('Failed to send message. Please try again later.');
+                                            }
+                                        };
+                                        
+                                        sendPropertyMessage();
                                     }
                                 }}
                                 style={{

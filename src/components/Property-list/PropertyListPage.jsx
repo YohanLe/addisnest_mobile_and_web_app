@@ -206,12 +206,12 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                   <div 
                     className="property-card"
                     style={{
-                      background: 'white',
+                      background: '#000',
                       borderRadius: '12px',
                       overflow: 'hidden',
                       boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
                       height: '100%',
-                      border: '1px solid #f0f0f0',
+                      border: '1px solid #222',
                       position: 'relative',
                       transition: 'all 0.3s ease',
                       marginBottom: '20px'
@@ -258,7 +258,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                     </div>
 
                   <div style={{ padding: '20px 20px 10px 20px' }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px', color: '#fff' }}>
                       {formatPrice(property)}
                     </h3>
                     
@@ -266,7 +266,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                       display: 'flex', 
                       gap: '15px',
                       fontSize: '0.9rem',
-                      color: '#666',
+                      color: '#e0e0e0',
                       marginBottom: '10px'
                     }}>
                       <span>{getBeds(property)} beds</span>
@@ -279,13 +279,13 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                     <p style={{ 
                       fontSize: '0.95rem',
                       fontWeight: '500',
-                      color: '#333',
+                      color: '#fff',
                       marginBottom: '5px'
                     }}>
                       {getAddress(property)}
                     </p>
                     
-                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#e0e0e0', marginBottom: '0' }}>
                       {property.title}
                     </p>
                   </div>
@@ -659,12 +659,12 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                 <div 
                   className="property-card"
                   style={{
-                    background: 'white',
+                    background: '#000',
                     borderRadius: '12px',
                     overflow: 'hidden',
                     boxShadow: '0 6px 16px rgba(0, 0, 0, 0.08)',
                     height: '100%',
-                    border: '1px solid #f0f0f0',
+                    border: '1px solid #222',
                     position: 'relative',
                     transition: 'all 0.3s ease',
                     marginBottom: '20px'
@@ -725,7 +725,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                   </div>
 
                   <div style={{ padding: '20px 20px 10px 20px' }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px' }}>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '8px', color: '#fff' }}>
                       {formatPrice(property)}
                     </h3>
                     
@@ -733,7 +733,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                       display: 'flex', 
                       gap: '15px',
                       fontSize: '0.9rem',
-                      color: '#666',
+                      color: '#e0e0e0',
                       marginBottom: '10px'
                     }}>
                       <span>{getBeds(property)} beds</span>
@@ -746,13 +746,13 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                     <p style={{ 
                       fontSize: '0.95rem',
                       fontWeight: '500',
-                      color: '#333',
+                      color: '#fff',
                       marginBottom: '5px'
                     }}>
                       {getAddress(property)}
                     </p>
                     
-                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#e0e0e0', marginBottom: '0' }}>
                       {property.title}
                     </p>
                   </div>

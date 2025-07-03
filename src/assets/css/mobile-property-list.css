@@ -141,6 +141,7 @@
     overflow: hidden !important;
     width: 100vw !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    background-color: #000 !important;
   }
   
   /* Property Image Section */
@@ -163,15 +164,35 @@
   
   .property-card h3 {
     font-size: 1.2rem !important;
+    color: #fff !important;
   }
   
   /* Adjust property details text size */
   .property-card div {
     font-size: 0.8rem !important;
+    color: #e0e0e0 !important;
   }
   
   .property-card p {
     font-size: 0.8rem !important;
     margin-bottom: 3px !important;
+    color: #e0e0e0 !important;
+  }
+  
+  /* Ensure property details have good contrast */
+  .property-card div span {
+    color: #e0e0e0 !important;
+  }
+  
+  /* Adjust "For Sale" tag for better contrast on black */
+  .property-card .property-tag {
+    background: #a4ff2a !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+  }
+  
+  /* Ensure property card content has proper padding */
+  .property-card > div:not(.property-image) {
+    padding: 15px !important;
   }
 }

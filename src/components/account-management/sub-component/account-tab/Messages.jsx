@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react";
 import "./mobile-messages.css";
 import "./web-messages.css";
 import MobileChatInterface from "./MobileChatInterface";
+import { format } from 'date-fns';
 
 const Messages = () => {
   // State for mobile view
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
   const [showChatView, setShowChatView] = useState(false);
   const [testModeExpanded, setTestModeExpanded] = useState(false);
+  
+  // State for conversations and messages
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   // Check for mobile view on resize
   useEffect(() => {
@@ -18,65 +24,69 @@ const Messages = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  // Sample conversations data with timestamps for relative time display
-  const conversations = [
-    {
-      id: 1,
-      type: "AGENT",
-      name: "agent",
-      lastMessage: "New visit request",
-      online: true,
-      unread: 1,
-      timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
-      messageIcon: "📩"
-    },
-    {
-      id: 2,
-      type: "CUSTOMER",
-      name: "Abhilesh",
-      lastMessage: "heloo",
-      online: true,
-      unread: 0,
-      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-      messageIcon: "💬",
-      messages: [
-        {
-          text: "heloo",
-          time: "1:09:52 AM",
-          date: "5/23/2025"
+  
+  // Fetch conversations from the API
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/conversations', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
         }
-      ]
-    },
-    {
-      id: 3,
-      type: "CUSTOMER",
-      name: "im a user",
-      lastMessage: "hy",
-      online: true,
-      unread: 0,
-      timestamp: new Date(), // Today
-      messageIcon: "💬"
-    },
-    {
-      id: 4,
-      type: "ADMIN",
-      name: "Admin",
-      lastMessage: "how are you",
-      online: true,
-      unread: 0,
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
-      messageIcon: "💬"
-    }
-  ];
+        
+        const data = await response.json();
+        
+        // Transform the data to match our component's expected format
+        const formattedConversations = data.map(conv => {
+          // Get the other participant (not the current user)
+          const otherParticipant = conv.participants[0] || {};
+          
+          return {
+            id: conv._id,
+            type: otherParticipant.role ? otherParticipant.role.toUpperCase() : "USER",
+            name: otherParticipant.firstName ? 
+              `${otherParticipant.firstName} ${otherParticipant.lastName || ''}` : 
+              "Unknown User",
+            lastMessage: conv.lastMessage?.content || "No messages yet",
+            online: true, // We could implement real online status later
+            unread: conv.unreadCount || 0,
+            timestamp: conv.updatedAt ? new Date(conv.updatedAt) : new Date(),
+            messageIcon: conv.property ? "🏠" : "💬",
+            property: conv.property,
+            messages: [] // Will be loaded when conversation is selected
+          };
+        });
+        
+        setConversations(formattedConversations);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        setError('Failed to load conversations. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchConversations();
+  }, []);
 
   // State for selected conversation
-  const [selectedConversation, setSelectedConversation] = useState(2);  // Default to Abhilesh conversation
+  const [selectedConversation, setSelectedConversation] = useState(null);
   
   // State to track if the conversation has been accepted
-  const [conversationAccepted, setConversationAccepted] = useState(false);
+  const [conversationAccepted, setConversationAccepted] = useState(true);
   
   // State for the new message being composed
   const [newMessage, setNewMessage] = useState("");
+  
+  // State for conversation messages
+  const [conversationMessages, setConversationMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   // Get the selected conversation object
   const getSelectedConversationData = () => {
@@ -85,18 +95,125 @@ const Messages = () => {
 
   const selectedConvData = getSelectedConversationData();
   
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      const fetchMessages = async () => {
+        try {
+          setLoadingMessages(true);
+          const response = await fetch(`/api/messages/conversation/${selectedConversation}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch messages');
+          }
+          
+          const data = await response.json();
+          
+          // Format messages for display
+          const formattedMessages = data.data.map(msg => {
+            const messageDate = new Date(msg.createdAt);
+            return {
+              id: msg._id,
+              text: msg.content,
+              time: format(messageDate, 'h:mm a'),
+              date: format(messageDate, 'M/d/yyyy'),
+              sender: msg.sender._id === localStorage.getItem('userId') ? 'me' : 'them',
+              senderName: `${msg.sender.firstName} ${msg.sender.lastName || ''}`,
+              isRead: msg.isRead
+            };
+          });
+          
+          setConversationMessages(formattedMessages);
+          setLoadingMessages(false);
+          
+          // Mark conversation as accepted since we're loading messages
+          setConversationAccepted(true);
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+          setLoadingMessages(false);
+        }
+      };
+      
+      fetchMessages();
+    }
+  }, [selectedConversation]);
+  
   // Handle accepting the conversation
   const handleAccept = () => {
     setConversationAccepted(true);
   };
   
   // Handle sending a new message
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // In a real app, this would send the message to an API
-      // For now, we'll just clear the input
-      setNewMessage("");
-      // You would also update the conversation with the new message
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && selectedConversation) {
+      try {
+        // Get recipient ID from the conversation
+        const conversation = getSelectedConversationData();
+        if (!conversation) return;
+        
+        // Find the recipient ID (the other participant)
+        const recipientId = conversation.participants?.[0]?._id;
+        if (!recipientId) {
+          console.error('Could not determine recipient ID');
+          return;
+        }
+        
+        // Send the message
+        const response = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            conversationId: selectedConversation,
+            recipientId: recipientId,
+            content: newMessage,
+            propertyId: conversation.property?._id || null
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to send message');
+        }
+        
+        // Add the new message to the conversation
+        const messageData = await response.json();
+        
+        // Format the new message
+        const now = new Date();
+        const newMessageObj = {
+          id: messageData._id,
+          text: newMessage,
+          time: format(now, 'h:mm a'),
+          date: format(now, 'M/d/yyyy'),
+          sender: 'me',
+          senderName: 'You',
+          isRead: false
+        };
+        
+        // Add to conversation messages
+        setConversationMessages(prev => [...prev, newMessageObj]);
+        
+        // Update the conversation list with the new message
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === selectedConversation 
+              ? { ...conv, lastMessage: newMessage, timestamp: now } 
+              : conv
+          )
+        );
+        
+        // Clear the input
+        setNewMessage("");
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      }
     }
   };
   

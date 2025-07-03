@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
 import "./mobile-chat-interface.css";
+import { format } from 'date-fns';
 
 const MobileChatInterface = () => {
   // State for tracking window width
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
+  // State for conversations and messages
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // State for selected conversation
   const [selectedConversation, setSelectedConversation] = useState(null);
   
   // State to track if the conversation has been accepted
-  const [conversationAccepted, setConversationAccepted] = useState(false);
+  const [conversationAccepted, setConversationAccepted] = useState(true);
   
   // State for the new message being composed
   const [newMessage, setNewMessage] = useState("");
+  
+  // State for conversation messages
+  const [conversationMessages, setConversationMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   // Update window width on resize
   useEffect(() => {
@@ -24,100 +34,103 @@ const MobileChatInterface = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Sample conversations data - using the same data structure as Messages component
-  const conversations = [
-    {
-      id: 1,
-      type: "AGENT",
-      name: "agent",
-      lastMessage: "New visit request",
-      online: true,
-      unread: 1,
-      timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
-      messageIcon: "📅",
-      messages: [
-        {
-          id: 1,
-          text: "New visit request",
-          time: "1:09 AM",
-          date: "5/23/2025",
-          sender: "them",
-          actionable: true
+  // Fetch conversations from the API
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/conversations', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
         }
-      ]
-    },
-    {
-      id: 2,
-      type: "CUSTOMER",
-      name: "Abhilesh",
-      lastMessage: "heloo",
-      online: true,
-      unread: 0,
-      timestamp: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
-      messageIcon: "💬",
-      messages: [
-        {
-          id: 1,
-          text: "heloo",
-          time: "1:09 AM",
-          date: "5/23/2025",
-          sender: "them"
+        
+        const data = await response.json();
+        
+        // Transform the data to match our component's expected format
+        const formattedConversations = data.map(conv => {
+          // Get the other participant (not the current user)
+          const otherParticipant = conv.participants[0] || {};
+          
+          return {
+            id: conv._id,
+            type: otherParticipant.role ? otherParticipant.role.toUpperCase() : "USER",
+            name: otherParticipant.firstName ? 
+              `${otherParticipant.firstName} ${otherParticipant.lastName || ''}` : 
+              "Unknown User",
+            lastMessage: conv.lastMessage?.content || "No messages yet",
+            online: true, // We could implement real online status later
+            unread: conv.unreadCount || 0,
+            timestamp: conv.updatedAt ? new Date(conv.updatedAt) : new Date(),
+            messageIcon: conv.property ? "🏠" : "💬",
+            property: conv.property,
+            participants: conv.participants,
+            messages: [] // Will be loaded when conversation is selected
+          };
+        });
+        
+        setConversations(formattedConversations);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        setError('Failed to load conversations. Please try again later.');
+        setLoading(false);
+      }
+    };
+    
+    fetchConversations();
+  }, []);
+  
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      const fetchMessages = async () => {
+        try {
+          setLoadingMessages(true);
+          const response = await fetch(`/api/messages/conversation/${selectedConversation}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch messages');
+          }
+          
+          const data = await response.json();
+          
+          // Format messages for display
+          const formattedMessages = data.data.map(msg => {
+            const messageDate = new Date(msg.createdAt);
+            return {
+              id: msg._id,
+              text: msg.content,
+              time: format(messageDate, 'h:mm a'),
+              date: format(messageDate, 'M/d/yyyy'),
+              sender: msg.sender._id === localStorage.getItem('userId') ? 'me' : 'them',
+              senderName: `${msg.sender.firstName} ${msg.sender.lastName || ''}`,
+              isRead: msg.isRead
+            };
+          });
+          
+          setConversationMessages(formattedMessages);
+          setLoadingMessages(false);
+          
+          // Mark conversation as accepted since we're loading messages
+          setConversationAccepted(true);
+        } catch (error) {
+          console.error('Error fetching messages:', error);
+          setLoadingMessages(false);
         }
-      ]
-    },
-    {
-      id: 3,
-      type: "CUSTOMER",
-      name: "im a user",
-      lastMessage: "hy",
-      online: true,
-      unread: 0,
-      timestamp: new Date(), // Today
-      messageIcon: "💬",
-      messages: [
-        {
-          id: 1,
-          text: "hy",
-          time: "12:30 PM",
-          date: "5/23/2025",
-          sender: "them"
-        },
-        {
-          id: 2,
-          text: "How can I help you today?",
-          time: "12:35 PM",
-          date: "5/23/2025",
-          sender: "me"
-        }
-      ]
-    },
-    {
-      id: 4,
-      type: "ADMIN",
-      name: "Admin",
-      lastMessage: "how are you",
-      online: true,
-      unread: 0,
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
-      messageIcon: "💬",
-      messages: [
-        {
-          id: 1,
-          text: "how are you",
-          time: "3:45 PM",
-          date: "5/22/2025",
-          sender: "them"
-        },
-        {
-          id: 2,
-          text: "I'm doing well, thank you for asking!",
-          time: "3:50 PM",
-          date: "5/22/2025",
-          sender: "me"
-        }
-      ]
+      };
+      
+      fetchMessages();
     }
-  ];
+  }, [selectedConversation]);
 
   // Get the selected conversation object
   const getSelectedConversationData = () => {
@@ -177,21 +190,121 @@ const MobileChatInterface = () => {
   };
   
   // Handle sending a new message
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // In a real app, this would send the message to an API
-      // For now, we'll just clear the input
-      setNewMessage("");
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && selectedConversation) {
+      try {
+        // Get recipient ID from the conversation
+        const conversation = getSelectedConversationData();
+        if (!conversation) return;
+        
+        // Find the recipient ID (the other participant)
+        const recipientId = conversation.participants?.[0]?._id;
+        if (!recipientId) {
+          console.error('Could not determine recipient ID');
+          return;
+        }
+        
+        // Send the message
+        const response = await fetch('/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({
+            conversationId: selectedConversation,
+            recipientId: recipientId,
+            content: newMessage,
+            propertyId: conversation.property?._id || null
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to send message');
+        }
+        
+        // Add the new message to the conversation
+        const messageData = await response.json();
+        
+        // Format the new message
+        const now = new Date();
+        const newMessageObj = {
+          id: messageData._id,
+          text: newMessage,
+          time: format(now, 'h:mm a'),
+          date: format(now, 'M/d/yyyy'),
+          sender: 'me',
+          senderName: 'You',
+          isRead: false
+        };
+        
+        // Add to conversation messages
+        setConversationMessages(prev => [...prev, newMessageObj]);
+        
+        // Update the conversation list with the new message
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === selectedConversation 
+              ? { ...conv, lastMessage: newMessage, timestamp: now } 
+              : conv
+          )
+        );
+        
+        // Clear the input
+        setNewMessage("");
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Failed to send message. Please try again.');
+      }
     }
   };
   
+  // Get the selected conversation data
+  const selectedConvData = getSelectedConversationData();
+
   // Handle going back to the conversation list
   const handleBack = () => {
     setSelectedConversation(null);
   };
 
-  // Get the selected conversation data
-  const selectedConvData = getSelectedConversationData();
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="mobile-chat-interface">
+        <div className="chat-header">
+          <div className="menu-icon">☰</div>
+          <div className="header-title">Messages</div>
+          <div className="user-avatar">U</div>
+        </div>
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="mobile-chat-interface">
+        <div className="chat-header">
+          <div className="menu-icon">☰</div>
+          <div className="header-title">Messages</div>
+          <div className="user-avatar">U</div>
+        </div>
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button 
+            className="retry-button"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile-chat-interface">
@@ -201,17 +314,19 @@ const MobileChatInterface = () => {
           <>
             <button className="back-button" onClick={handleBack}>←</button>
             <div className="header-info">
-              <div className="header-name">{selectedConvData.name}</div>
-              <div className="header-role">{getRoleBadge(selectedConvData.type)}</div>
+              <div className="header-name">{selectedConvData?.name || 'Chat'}</div>
+              <div className="header-role">{selectedConvData && getRoleBadge(selectedConvData.type)}</div>
             </div>
-            <div className="header-time">
-              🕒 {selectedConvData.messages[0].date} {selectedConvData.messages[0].time}
-            </div>
+            {conversationMessages.length > 0 && (
+              <div className="header-time">
+                🕒 {conversationMessages[0].date}
+              </div>
+            )}
           </>
         ) : (
           <>
             <div className="menu-icon">☰</div>
-            <div className="header-title">Account Management</div>
+            <div className="header-title">Messages</div>
             <div className="user-avatar">U</div>
           </>
         )}
@@ -228,87 +343,182 @@ const MobileChatInterface = () => {
           
           {/* Conversations */}
           <div className="conversations">
-            {conversations.map(conv => (
-              <div 
-                key={conv.id} 
-                className={`conversation-item ${selectedConversation === conv.id ? 'active' : ''}`}
-                onClick={() => handleSelectConversation(conv.id)}
-              >
-                <div className="conversation-avatar">
-                  {conv.online && <div className="online-indicator"></div>}
-                  {conv.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="conversation-details">
-                  <div className="conversation-header">
-                    <span className="conversation-name">{conv.name}</span>
-                    {getRoleBadge(conv.type)}
-                    <span className="conversation-time">🕒 {formatTimestamp(conv.timestamp)}</span>
-                  </div>
-                  <div className="conversation-preview">
-                    <span className="preview-icon">{conv.messageIcon}</span>
-                    <span className="preview-text">{conv.lastMessage}</span>
-                    {conv.unread > 0 && (
-                      <span className="unread-badge">{conv.unread}</span>
-                    )}
-                  </div>
-                </div>
+            {conversations.length === 0 ? (
+              <div className="no-conversations">
+                <p>No conversations yet</p>
+                <p>Messages from property inquiries will appear here</p>
               </div>
-            ))}
+            ) : (
+              conversations.map(conv => (
+                <div 
+                  key={conv.id} 
+                  className={`conversation-item ${selectedConversation === conv.id ? 'active' : ''}`}
+                  onClick={() => handleSelectConversation(conv.id)}
+                >
+                  <div className="conversation-avatar">
+                    {conv.online && <div className="online-indicator"></div>}
+                    {conv.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="conversation-details">
+                    <div className="conversation-header">
+                      <span className="conversation-name">{conv.name}</span>
+                      {getRoleBadge(conv.type)}
+                      <span className="conversation-time">🕒 {formatTimestamp(conv.timestamp)}</span>
+                    </div>
+                    <div className="conversation-preview">
+                      <span className="preview-icon">{conv.messageIcon}</span>
+                      <span className="preview-text">{conv.lastMessage}</span>
+                      {conv.unread > 0 && (
+                        <span className="unread-badge">{conv.unread}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         
         {/* Message view (visible when a conversation is selected) */}
         {selectedConversation && (
           <div className="message-view">
-            {/* Messages */}
-            <div className="messages">
-              {/* Date divider */}
-              <div className="date-divider">
-                <span>{selectedConvData.messages[0].date}</span>
+            {loadingMessages ? (
+              <div className="loading-messages">
+                <div className="loading-spinner"></div>
+                <p>Loading messages...</p>
               </div>
-              
-              {/* Message bubbles */}
-              {selectedConvData.messages.map(message => (
-                <div 
-                  key={message.id} 
-                  className={`message-bubble ${message.sender === 'me' ? 'sent' : 'received'}`}
-                >
-                  <div className="message-text">{message.text}</div>
-                  <div className="message-time">{message.time}</div>
+            ) : (
+              <>
+                {/* Messages */}
+                <div className="messages">
+                  {conversationMessages.length === 0 ? (
+                    <div className="no-messages">
+                      <p>No messages yet</p>
+                      <p>Start the conversation by sending a message</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Group messages by date */}
+                      {(() => {
+                        const messagesByDate = {};
+                        conversationMessages.forEach(message => {
+                          if (!messagesByDate[message.date]) {
+                            messagesByDate[message.date] = [];
+                          }
+                          messagesByDate[message.date].push(message);
+                        });
+                        
+                        return Object.entries(messagesByDate).map(([date, messages]) => (
+                          <React.Fragment key={date}>
+                            {/* Date divider */}
+                            <div className="date-divider">
+                              <span>{date}</span>
+                            </div>
+                            
+                            {/* Message bubbles for this date */}
+                            {messages.map(message => (
+                              <div 
+                                key={message.id} 
+                                className={`message-bubble ${message.sender === 'me' ? 'sent' : 'received'}`}
+                              >
+                                <div className="message-text">{message.text}</div>
+                                <div className="message-time">{message.time}</div>
+                              </div>
+                            ))}
+                          </React.Fragment>
+                        ));
+                      })()}
+                      
+                      {/* Action buttons for actionable messages */}
+                      {conversationMessages.some(m => m.actionable) && !conversationAccepted && (
+                        <div className="action-buttons">
+                          <button className="decline-button" onClick={handleDecline}>Decline</button>
+                          <button className="accept-button" onClick={handleAccept}>Accept</button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-              ))}
-              
-              {/* Action buttons for actionable messages */}
-              {selectedConvData.messages.some(m => m.actionable) && !conversationAccepted && (
-                <div className="action-buttons">
-                  <button className="decline-button" onClick={handleDecline}>Decline</button>
-                  <button className="accept-button" onClick={handleAccept}>Accept</button>
-                </div>
-              )}
-            </div>
-            
-            {/* Message input (only shown if conversation is accepted) */}
-            {conversationAccepted && (
-              <div className="message-input-container">
-                <input 
-                  type="text" 
-                  placeholder="Type a message..." 
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  className="message-input"
-                />
-                <button 
-                  className="send-button"
-                  onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
-                >
-                  Send
-                </button>
-              </div>
+                
+                {/* Message input (only shown if conversation is accepted) */}
+                {conversationAccepted && (
+                  <div className="message-input-container">
+                    <input 
+                      type="text" 
+                      placeholder="Type a message..." 
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      className="message-input"
+                    />
+                    <button 
+                      className="send-button"
+                      onClick={handleSendMessage}
+                      disabled={!newMessage.trim()}
+                    >
+                      Send
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
       </div>
+      
+      {/* Add some additional styles for loading and error states */}
+      <style>{`
+        .loading-container, .error-container, .loading-messages, .no-conversations, .no-messages {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: calc(100% - 60px);
+          padding: 20px;
+          text-align: center;
+          color: #666;
+        }
+        
+        .loading-spinner {
+          border: 4px solid rgba(0, 0, 0, 0.1);
+          border-radius: 50%;
+          border-top: 4px solid #8cc63f;
+          width: 40px;
+          height: 40px;
+          animation: spin 1s linear infinite;
+          margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+          color: #e74c3c;
+          margin-bottom: 15px;
+        }
+        
+        .retry-button {
+          background-color: #8cc63f;
+          color: white;
+          border: none;
+          border-radius: 20px;
+          padding: 8px 20px;
+          font-weight: 500;
+          cursor: pointer;
+        }
+        
+        .no-conversations p, .no-messages p {
+          margin: 5px 0;
+          font-size: 14px;
+        }
+        
+        .no-conversations p:first-child, .no-messages p:first-child {
+          font-weight: 600;
+          font-size: 16px;
+          margin-bottom: 10px;
+        }
+      `}</style>
     </div>
   );
 };
