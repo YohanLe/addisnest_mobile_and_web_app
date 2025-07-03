@@ -119,8 +119,8 @@ const AccountMain = () => {
     return (
         <>
             <section className="account-management">
-                {/* Mobile Header */}
-                <div className="mobile-account-header">
+                {/* Mobile Header - Hidden on desktop */}
+                <div className="mobile-account-header desktop-hidden">
                     <button className="hamburger-menu" onClick={toggleSidebar}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 12H21" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -143,7 +143,6 @@ const AccountMain = () => {
                 {/* Sidebar */}
                 <div className={`account-sidebar ${sidebarOpen ? 'open' : ''}`}>
                     <button className="sidebar-close" onClick={toggleSidebar}>×</button>
-                    <h3 className="sidebar-title">Account management</h3>
                     <div className="account-list">
                         <ul>
                             {tabs.map((tab, index) => (
@@ -192,59 +191,6 @@ const AccountMain = () => {
                 
                 {/* Content Area */}
                 <div className="account-content">
-                    {activeTab === 0 && (
-                        <>
-                            {/* Property Stats Cards */}
-                            <div className="property-stats-cards">
-                                <div className="property-stat-card">
-                                    <h3 className="stat-card-title">Impressions</h3>
-                                    <p className="stat-card-value">2</p>
-                                    <p className="stat-card-change">+100% from last week</p>
-                                </div>
-                                <div className="property-stat-card">
-                                    <h3 className="stat-card-title">Click Rate</h3>
-                                    <p className="stat-card-value">100%</p>
-                                    <p className="stat-card-change">+50% from last week</p>
-                                </div>
-                                <div className="property-stat-card">
-                                    <h3 className="stat-card-title">Listings</h3>
-                                    <p className="stat-card-value">3</p>
-                                    <p className="stat-card-change">+1 new this month</p>
-                                </div>
-                            </div>
-                            
-                            {/* Add New Property Button */}
-                            <Link to="/property-list-form" className="add-property-button">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M10 4V16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    <path d="M4 10H16" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Add New Property
-                            </Link>
-                            
-                            {/* Collapsible Chart Section */}
-                            <div className="collapsible-section">
-                                <div 
-                                    className="collapsible-header" 
-                                    onClick={() => setChartCollapsed(!chartCollapsed)}
-                                >
-                                    <h3 className="collapsible-title">Performance Graph</h3>
-                                    <div className={`collapsible-icon ${chartCollapsed ? '' : 'open'}`}>
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M5 7.5L10 12.5L15 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div className={`collapsible-content ${chartCollapsed ? '' : 'open'}`}>
-                                    <div className="collapsible-body">
-                                        <div className="placeholder-chart">
-                                            Property Impression Graph
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </>
-                    )}
                     
                     <div className="account-tab-detail">
                         <div className="account-tab-list">

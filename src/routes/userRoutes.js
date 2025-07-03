@@ -17,7 +17,8 @@ router.put('/profile', userController.updateProfile);
 // Admin only routes
 router.use(authorize('admin'));
 router.route('/')
-  .get(userController.getAllUsers);
+  .get(userController.getAllUsers)
+  .post(userController.register); // Admin can create users
 
 router.route('/:id')
   .get(userController.getUserById)

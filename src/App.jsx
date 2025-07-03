@@ -15,8 +15,14 @@ import {
   TestOtpFlow,
   AccountManagementPage,
   FindAgentPage,
-  MortgageCalculatorDemo
+  MortgageCalculatorDemo,
+  MyProfilePage
 } from './RoutesMain.jsx';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './components/admin/AdminDashboard';
+import ManageListings from './components/admin/ManageListings';
+import ManageUsers from './components/admin/ManageUsers';
+import AdminLoginPage from './components/admin/AdminLoginPage';
 import PropertyDetailMain from './components/property-detail';
 import { SimpleMortgageCalculator } from './components/mortgage-calculator';
 import TestPropertyDetail from './components/property-detail/TestPropertyDetail';
@@ -74,6 +80,7 @@ const App = () => {
           {/* Redirect property listings routes to account management */}
           <Route path="/my-properties" element={<AccountManagementPage />} />
           <Route path="/my-property-listings" element={<AccountManagementPage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/login" element={<SigninPage />} />
           <Route path="/sign-up" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -165,6 +172,15 @@ const App = () => {
           <Route path="/test-property-detail" element={<TestPropertyDetail />} />
           <Route path="/find-agent/*" element={<FindAgentPage />} />
           <Route path="/mortgage-calculator" element={<SimpleMortgageCalculator currency="$" />} />
+          
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/*" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="listings" element={<ManageListings />} />
+            <Route path="users" element={<ManageUsers />} />
+            <Route path="" element={<AdminDashboard />} />
+          </Route>
         </Routes>
       </main>
       <Footer />

@@ -71,6 +71,7 @@ app.use('/agents', routes.agentRoutes);
 app.use('/users', routes.userRoutes);
 app.use('/auth', routes.authRoutes);
 app.use('/properties', routes.propertyRoutes);
+app.use('/properties/count', routes.propertyCountRoutes);
 app.use('/property-submit', routes.propertySubmitRoute);
 app.use('/conversations', routes.conversationRoutes);
 app.use('/messages', routes.messageRoutes);

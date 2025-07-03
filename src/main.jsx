@@ -12,6 +12,8 @@ import './assets/css/mortgage-calculator.css';
 import './assets/css/favorite.css';
 import './assets/css/chat.css';
 import './assets/css/notification.css';
+import './assets/css/mobile-property-cards.css';
+import './components/admin/admin.css';
 import { store as Store, persistedStore } from './Redux-store/Store';
 
 // Create root element for React to render into

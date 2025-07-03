@@ -160,12 +160,6 @@ const Header = () => {
                     >
                       Account Management
                     </Link>
-                    <Link
-                      to="/my-profile"
-                      className="user-menu-link"
-                    >
-                      My Profile
-                    </Link>
                     <div
                       className="logout-button"
                       onClick={() => {

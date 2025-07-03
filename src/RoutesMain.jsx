@@ -15,6 +15,7 @@ import ContactusPage from './components/contact-us/ContactusPage';
 import ChatPage from './components/chat/index';
 import FavoritePage from './components/favorite/index';
 import AccountManagementPage from './components/account-management/index';
+import MyProfilePage from './components/account-management/MyProfilePage';
 import { UploaderDemo } from './components/image-uploder';
 import { LocationPopupDemo } from './components/location-popup';
 import { MortgageCalculatorDemo } from './components/mortgage-calculator';
@@ -40,5 +41,6 @@ export {
   AccountManagementPage,
   UploaderDemo,
   LocationPopupDemo,
-  MortgageCalculatorDemo
+  MortgageCalculatorDemo,
+  MyProfilePage
 };

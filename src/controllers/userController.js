@@ -216,6 +216,72 @@ class UserController extends BaseController {
       token
     });
   });
+  
+  // @desc    Admin Login
+  // @route   POST /api/auth/admin-login
+  // @access  Public
+  adminLogin = this.asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    console.log('Admin login attempt for email:', email);
+
+    // Hardcoded admin check for development/testing
+    // This allows login with the documented credentials even if the database seed hasn't run
+    if (email === 'admin@addisnest.com' && password === 'Admin@123') {
+      console.log('Using hardcoded admin credentials for development');
+      
+      // Create a temporary admin user object
+      const adminUser = {
+        _id: 'admin-user-id',
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@addisnest.com',
+        role: 'admin'
+      };
+      
+      // Generate token with extended expiry for admin (30 days)
+      const token = this.generateToken(adminUser._id, '30d');
+      
+      console.log(`Successful admin login for: ${email} (hardcoded)`);
+      
+      return this.sendResponse(res, {
+        ...adminUser,
+        token
+      });
+    }
+
+    // Regular database check for admin users
+    // Find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return this.sendError(res, new ErrorResponse('Email not registered. Please check your email.', 401));
+    }
+
+    // Check password
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return this.sendError(res, new ErrorResponse('The password you entered is incorrect. Please try again.', 401));
+    }
+
+    // Check if user is an admin
+    if (user.role !== 'admin') {
+      return this.sendError(res, new ErrorResponse('Access denied. This account does not have administrator privileges.', 403));
+    }
+
+    // Generate token with extended expiry for admin (30 days)
+    const token = this.generateToken(user._id, '30d');
+
+    console.log(`Successful admin login for: ${email}`);
+
+    this.sendResponse(res, {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+      token
+    });
+  });
 
   // @desc    Get user profile
   // @route   GET /api/users/profile
@@ -506,9 +572,9 @@ class UserController extends BaseController {
   });
 
   // Generate JWT
-  generateToken(userId) {
+  generateToken(userId, expiresIn = '30d') {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-      expiresIn: '30d'
+      expiresIn: expiresIn
     });
   }
 }

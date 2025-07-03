@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import "./dashboard.css";
 
 // Mock data for the chart
 const mockMonthlyData = {
@@ -23,11 +24,42 @@ const mockMetrics = {
   phoneViews: { count: 3, percentage: 25 }
 };
 
+// Recent activity mock data
+const recentActivities = [
+  { 
+    type: 'property_view', 
+    message: 'Your property "Modern Apartment in Bole" was viewed 3 times', 
+    time: '2 hours ago',
+    icon: '👁️'
+  },
+  { 
+    type: 'inquiry', 
+    message: 'New inquiry received for "Villa with Garden"', 
+    time: '1 day ago',
+    icon: '✉️'
+  },
+  { 
+    type: 'alert', 
+    message: 'Price change alert for similar property in your area', 
+    time: '3 days ago',
+    icon: '🔔'
+  }
+];
+
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('Impression');
+  const [chartData, setChartData] = useState([]);
   const months = Object.keys(mockMonthlyData);
   const values = Object.values(mockMonthlyData);
-  const maxValue = Math.max(...values);
+  const maxValue = Math.max(...values, 1); // Ensure we have a non-zero max value
+
+  // Animation effect for chart
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setChartData(values);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Get the current metric data based on active tab
   const getCurrentMetric = () => {
@@ -44,9 +76,29 @@ const Dashboard = () => {
   const currentMetric = getCurrentMetric();
 
   const [chartCollapsed, setChartCollapsed] = useState(false);
+  const [activityCollapsed, setActivityCollapsed] = useState(false);
   
   return (
     <div className="dashboard-container">
+      {/* Welcome Section - Desktop Only */}
+      <div className="welcome-section desktop-only">
+        <div className="welcome-content">
+          <h2>Welcome back, Agent!</h2>
+          <p>Here's an overview of your property performance and recent activities.</p>
+        </div>
+        <div className="date-display">
+          <div className="date-icon">📅</div>
+          <div className="date-text">
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
+        </div>
+      </div>
+      
       {/* Summary Cards for Mobile */}
       <div className="mobile-summary-cards">
         <div className="summary-card">
@@ -94,317 +146,60 @@ const Dashboard = () => {
               <p>List a new property for sale or rent</p>
             </div>
           </Link>
+          
+          <Link to="/my-property-listings" className="quick-link-card">
+            <div className="quick-link-icon">🏠</div>
+            <div className="quick-link-content">
+              <h4>My Listings</h4>
+              <p>Manage your current property listings</p>
+            </div>
+          </Link>
+          
+          <Link to="#" className="quick-link-card">
+            <div className="quick-link-icon">📊</div>
+            <div className="quick-link-content">
+              <h4>Analytics</h4>
+              <p>View detailed performance metrics</p>
+            </div>
+          </Link>
         </div>
       </div>
 
-      {/* Collapsible Performance Metrics Section - Desktop Only */}
-      <div className="collapsible-section desktop-only">
-        <div 
-          className="collapsible-header" 
-          onClick={() => setChartCollapsed(!chartCollapsed)}
-        >
-          <h3 className="collapsible-title">Performance Metrics</h3>
-          <div className={`collapsible-icon ${chartCollapsed ? '' : 'open'}`}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 7.5L10 12.5L15 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        <div className={`collapsible-content ${chartCollapsed ? '' : 'open'}`}>
-          <div className="collapsible-body">
-            <div className="metrics-tabs">
-              <div 
-                className={`tab ${activeTab === 'Impression' ? 'active' : ''}`}
-                onClick={() => setActiveTab('Impression')}
-              >
-                Impression
-              </div>
-              <div 
-                className={`tab ${activeTab === 'Visitors' ? 'active' : ''}`}
-                onClick={() => setActiveTab('Visitors')}
-              >
-                Visitors
-              </div>
-              <div 
-                className={`tab ${activeTab === 'Phone View' ? 'active' : ''}`}
-                onClick={() => setActiveTab('Phone View')}
-              >
-                Phone View
-              </div>
+      {/* Dashboard Grid Layout for Desktop */}
+      <div className="dashboard-grid desktop-only">
+        {/* Recent Activity Section */}
+        <div className="collapsible-section grid-item activity-section">
+          <div 
+            className="collapsible-header" 
+            onClick={() => setActivityCollapsed(!activityCollapsed)}
+          >
+            <h3 className="collapsible-title">Recent Activity</h3>
+            <div className={`collapsible-icon ${activityCollapsed ? '' : 'open'}`}>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 7.5L10 12.5L15 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-
-            <div className="metrics-chart">
-              <h3>{activeTab} Metrics</h3>
-              <div className="chart-container">
-                <div className="chart">
-                  <div className="chart-bars">
-                    {months.map((month, index) => (
-                      <div key={month} className="chart-bar-container">
-                        <div 
-                          className="chart-bar" 
-                          style={{ 
-                            height: values[index] > 0 ? `${(values[index] / maxValue) * 200}px` : '1px',
-                            backgroundColor: activeTab === 'Impression' ? '#8fe2e9' : 
-                                           activeTab === 'Visitors' ? '#9ed582' : '#f8c07f'
-                          }}
-                        ></div>
-                        <div className="chart-label">{month}</div>
-                      </div>
-                    ))}
+          </div>
+          <div className={`collapsible-content ${activityCollapsed ? '' : 'open'}`}>
+            <div className="collapsible-body">
+              <div className="activity-list">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className={`activity-item ${activity.type}`}>
+                    <div className="activity-icon">{activity.icon}</div>
+                    <div className="activity-content">
+                      <p className="activity-message">{activity.message}</p>
+                      <span className="activity-time">{activity.time}</span>
+                    </div>
                   </div>
-                  <div className="chart-y-axis">
-                    {[0, maxValue/2, maxValue].map((value, index) => (
-                      <div key={index} className="y-axis-label">
-                        {value.toFixed(1)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
+              </div>
+              <div className="view-all-link">
+                <Link to="#">View all activity</Link>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <style>
-        {`
-          .chart-container {
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 20px;
-          }
-          
-          .chart {
-            display: flex;
-            position: relative;
-            height: 250px;
-            padding-bottom: 30px;
-            padding-left: 30px;
-          }
-          
-          .chart-y-axis {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 30px;
-            width: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-          }
-          
-          .y-axis-label {
-            font-size: 12px;
-            color: #888;
-            text-align: right;
-            padding-right: 5px;
-          }
-          
-          .chart-bars {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            width: 100%;
-            height: 200px;
-          }
-          
-          .chart-bar-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-          }
-          
-          .chart-bar {
-            width: 20px;
-            background-color: #8fe2e9;
-            border-radius: 4px 4px 0 0;
-            transition: height 0.3s ease;
-          }
-          
-          .chart-label {
-            font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-          }
-        `}
-      </style>
-
-      <style jsx="true">{`
-        .quick-links-section {
-          margin-bottom: 20px;
-          background: white;
-          border-radius: 10px;
-          padding: 20px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-        
-        .quick-links-section h3 {
-          margin-top: 0;
-          margin-bottom: 15px;
-          font-size: 18px;
-          color: #333;
-        }
-        
-        .quick-links-container {
-          display: flex;
-          gap: 15px;
-          overflow-x: auto;
-          padding-bottom: 5px;
-        }
-        
-        .quick-link-card {
-          display: flex;
-          align-items: center;
-          min-width: 250px;
-          background: linear-gradient(to right, #fafcff, #f5f8ff);
-          border: 1px solid #e6efff;
-          border-radius: 8px;
-          padding: 15px;
-          transition: all 0.3s ease;
-          text-decoration: none;
-          color: inherit;
-        }
-        
-        .quick-link-card:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 5px 15px rgba(74, 108, 247, 0.1);
-          border-color: #4a6cf7;
-        }
-        
-        .quick-link-icon {
-          font-size: 24px;
-          margin-right: 15px;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(74, 108, 247, 0.1);
-          border-radius: 8px;
-          color: #4a6cf7;
-        }
-        
-        .quick-link-content h4 {
-          margin: 0 0 5px 0;
-          font-size: 16px;
-          color: #1e293b;
-        }
-        
-        .quick-link-content p {
-          margin: 0;
-          font-size: 13px;
-          color: #64748b;
-        }
-        
-        /* Mobile Summary Cards */
-        .mobile-summary-cards {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-bottom: 20px;
-        }
-        
-        .summary-card {
-          display: flex;
-          align-items: center;
-          background: white;
-          border-radius: 10px;
-          padding: 15px;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-        
-        .summary-icon {
-          font-size: 24px;
-          margin-right: 15px;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: rgba(74, 108, 247, 0.1);
-          border-radius: 8px;
-          color: #4a6cf7;
-        }
-        
-        .summary-content {
-          flex: 1;
-        }
-        
-        .summary-content h4 {
-          margin: 0 0 5px 0;
-          font-size: 14px;
-          color: #666;
-        }
-        
-        .summary-value {
-          display: flex;
-          align-items: center;
-        }
-        
-        .summary-value .number {
-          font-size: 20px;
-          font-weight: bold;
-          margin-right: 8px;
-        }
-        
-        .summary-value .percentage {
-          font-size: 12px;
-          padding: 2px 6px;
-          border-radius: 20px;
-        }
-        
-        .desktop-only {
-          display: block;
-        }
-        
-        @media (min-width: 768px) {
-          .mobile-summary-cards {
-            display: none;
-          }
-        }
-        
-        @media (max-width: 768px) {
-          .desktop-only {
-            display: none;
-          }
-          .quick-links-container {
-            flex-direction: column;
-            gap: 10px;
-          }
-          
-          .quick-link-card {
-            width: 100%;
-          }
-          
-          .metrics-tabs {
-            display: flex;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
-          }
-          
-          .tab {
-            flex: 0 0 auto;
-            padding: 8px 15px;
-            white-space: nowrap;
-          }
-          
-          .chart {
-            height: 200px;
-          }
-          
-          .chart-bar {
-            width: 15px;
-          }
-          
-          .chart-label {
-            font-size: 10px;
-          }
-        }
-      `}</style>
     </div>
   );
 };
