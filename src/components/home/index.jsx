@@ -13,7 +13,7 @@ const HomePage = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   // Determine property count based on screen width
-  const propertyCount = windowWidth <= 767 ? 5 : 3;
+  const propertyCount = windowWidth <= 767 ? 5 : 12;
 
   // Add event listener to track window resize
   useEffect(() => {
@@ -64,7 +64,104 @@ const HomePage = () => {
         @media screen and (max-width: 767px) {
           .property-section {
             margin-top: 0 !important;
+            margin-left: -50vw !important;
+            margin-right: -50vw !important;
+            margin-bottom: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
             background-color: #f9f9f9;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            position: relative !important;
+            left: 50% !important;
+            right: 50% !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+          }
+          
+          .property-section .container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+          
+          .property-section .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+          }
+          
+          .home-page {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            box-sizing: border-box !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          
+          /* Ensure property images are edge-to-edge */
+          .property-card .property-image {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            position: relative !important;
+            overflow: hidden !important;
+            left: 0 !important;
+            right: 0 !important;
+            margin: 0 auto !important;
+          }
+          
+          .property-card .property-image img {
+            width: 100vw !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+            border-radius: 0 !important;
+            margin: 0 auto !important;
+            left: 0 !important;
+            right: 0 !important;
+          }
+          
+          /* Fix for property card container */
+          .property-card {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            margin: 0 auto !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+          }
+          
+          /* Fix for row and column containers */
+          .property-list-page .row,
+          .home-page .row {
+            width: 100vw !important;
+            max-width: 100vw !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          
+          .property-list-page .col,
+          .property-list-page [class*="col-"],
+          .home-page .col,
+          .home-page [class*="col-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
           }
         }
       `}</style>

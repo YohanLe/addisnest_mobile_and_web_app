@@ -7,6 +7,7 @@ import { isAuthenticated } from '../../utils/tokenHandler';
 import { Property1, Property2, Property3 } from '../../assets/images';
 import { applyFilters, parseQueryParams, createFilterParams, FILTER_OPTIONS } from '../../utils/propertyFilters';
 import '../../assets/css/mobile-property-list.css';
+import axios from 'axios';
 
 const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
   const [sortBy, setSortBy] = useState(queryParams.get('sortBy') || 'newest');
   const [offeringType, setOfferingType] = useState(location.search.includes('rent') ? 'For Rent' : 'For Sale');
   const [filtersVisible, setFiltersVisible] = useState(!isHomePage);
+  const [totalPropertyCount, setTotalPropertyCount] = useState(0);
   const navigate = useNavigate();
 
   // Use the filter utility to apply filters
@@ -70,7 +72,23 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
     if (isLoggedIn) {
       dispatch(GetUserPayments());
     }
+    
+    // Fetch total property count
+    fetchTotalPropertyCount();
   }, [dispatch, location.search, isLoggedIn, offeringType]);
+  
+  // Function to fetch the total property count from the API
+  const fetchTotalPropertyCount = async () => {
+    try {
+      const response = await axios.get('/api/properties/count');
+      if (response.data && response.data.total) {
+        setTotalPropertyCount(response.data.total);
+      }
+    } catch (error) {
+      console.error('Error fetching property count:', error);
+      // If the API call fails, fall back to using the properties.length
+    }
+  };
 
   // Process user payments to identify purchased properties
   useEffect(() => {
@@ -207,16 +225,17 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                         overflow: 'hidden'
                       }}
                     >
-                      <img 
-                        src={property.images?.[0]?.url || property.imageUrl || Property1} 
-                        alt={property.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          transition: 'transform 0.3s ease'
-                        }}
-                      />
+                    <img 
+                      src={property.images?.[0]?.url || property.imageUrl || Property1} 
+                      alt={property.title}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transition: 'transform 0.3s ease',
+                        display: 'block'
+                      }}
+                    />
                       
                       {/* Purchased tag */}
                       <div 
@@ -620,7 +639,7 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
         {/* Property results count */}
         <div className="results-header mb-4">
           <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: '#333', marginBottom: '10px' }}>
-            <span style={{ color: '#0066cc' }}>{properties.length}</span> Properties Found
+            <span style={{ color: '#0066cc' }}>{totalPropertyCount > 0 ? totalPropertyCount : properties.length}</span> Properties Found
           </h3>
         </div>
         
@@ -666,7 +685,8 @@ const PropertyListPage = ({ isHomePage = false, propertyCount }) => {
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.3s ease'
+                        transition: 'transform 0.3s ease',
+                        display: 'block'
                       }}
                     />
                     
