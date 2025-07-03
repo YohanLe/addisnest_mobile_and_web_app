@@ -15,8 +15,13 @@ import {
   TestOtpFlow,
   AccountManagementPage,
   FindAgentPage,
+  ContactusPage,
   MortgageCalculatorDemo,
-  MyProfilePage
+  MyProfilePage,
+  AboutUsPage,
+  PrivacyPolicyPage,
+  TermsOfServicePage,
+  PartnerWithUsPage
 } from './RoutesMain.jsx';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -24,7 +29,7 @@ import ManageListings from './components/admin/ManageListings';
 import ManageUsers from './components/admin/ManageUsers';
 import AdminLoginPage from './components/admin/AdminLoginPage';
 import PropertyDetailMain from './components/property-detail';
-import { SimpleMortgageCalculator } from './components/mortgage-calculator';
+import { MortgageCalculatorModern, SimpleMortgageCalculator } from './components/mortgage-calculator';
 import TestPropertyDetail from './components/property-detail/TestPropertyDetail';
 import ChoosePromotion from './components/payment-method/choose-propmo/sub-component/ChoosePropmotionFixed';
 import PaymentMethod from './components/payment-method/payment-process/sub-component/PaymentMethod';
@@ -172,6 +177,13 @@ const App = () => {
           <Route path="/test-property-detail" element={<TestPropertyDetail />} />
           <Route path="/find-agent/*" element={<FindAgentPage />} />
           <Route path="/mortgage-calculator" element={<SimpleMortgageCalculator currency="$" />} />
+          
+          {/* Static Pages */}
+          <Route path="/about-us" element={<AboutUsPage />} />
+          <Route path="/contact-us" element={<ContactusPage />} />
+          <Route path="/partner-with-us" element={<PartnerWithUsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLoginPage />} />

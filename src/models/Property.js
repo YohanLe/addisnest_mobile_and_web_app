@@ -6,6 +6,11 @@ const PropertySchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  ownerName: {
+    type: String,
+    required: false,
+    trim: true
+  },
   title: {
     type: String,
     required: [true, 'Please add a title'],

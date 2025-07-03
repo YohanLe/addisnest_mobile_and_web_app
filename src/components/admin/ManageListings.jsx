@@ -80,6 +80,7 @@ const ManageListings = () => {
           (property.title && property.title.toLowerCase().includes(searchLower)) ||
           (property.address?.city && property.address.city.toLowerCase().includes(searchLower)) ||
           (property.address?.state && property.address.state.toLowerCase().includes(searchLower)) ||
+          (property.ownerName && property.ownerName.toLowerCase().includes(searchLower)) ||
           (property.owner?.firstName && property.owner.firstName.toLowerCase().includes(searchLower)) ||
           (property.owner?.lastName && property.owner.lastName.toLowerCase().includes(searchLower))
         );
@@ -268,7 +269,7 @@ const ManageListings = () => {
                     <div className="cell property">{listing.title || "Test Property"}</div>
                     <div className="cell location">{listing.address?.city}, {listing.address?.state}</div>
                     <div className="cell price">{formatPrice(listing.price)}</div>
-                    <div className="cell owner">{listing.owner?.firstName} {listing.owner?.lastName}</div>
+                    <div className="cell owner">{listing.ownerName || `${listing.owner?.firstName || ''} ${listing.owner?.lastName || ''}`}</div>
                     <div className="cell status">
                       <span className={`status-badge ${getStatusClass(listing.status)}`}>
                         {getStatusLabel(listing.status)}

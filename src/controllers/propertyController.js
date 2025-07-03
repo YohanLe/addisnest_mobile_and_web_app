@@ -13,6 +13,8 @@ class PropertyController extends BaseController {
     try {
       // Add user to req.body
       req.body.owner = req.user.id;
+      // Add owner name to req.body
+      req.body.ownerName = `${req.user.firstName} ${req.user.lastName}`;
       console.log('User role:', req.user.role);
       
       // Check promotionType for logic
@@ -336,6 +338,8 @@ class PropertyController extends BaseController {
     try {
       // Add user to req.body
       req.body.owner = req.user.id;
+      // Add owner name to req.body
+      req.body.ownerName = `${req.user.firstName} ${req.user.lastName}`;
       
       // Check promotionType for logic
       const promotionType = req.body.promotionType || 'Basic';

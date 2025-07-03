@@ -95,42 +95,24 @@ const Footer = () => {
                       </Link>
                     </li>
                     <li style={{ marginBottom: '8px' }}>
-                      <Link to="/sell" style={{ 
-                        color: '#e0e0e0', 
-                        textDecoration: 'none', 
-                        transition: 'all 0.3s ease',
-                        fontSize: '11px'
-                      }}
-                      onMouseOver={(e) => e.target.style.color = '#b9f73e'}
-                      onMouseOut={(e) => e.target.style.color = '#e0e0e0'}
+                      <Link 
+                        to="/sell" 
+                        style={{ 
+                          color: '#e0e0e0', 
+                          textDecoration: 'none', 
+                          transition: 'all 0.3s ease',
+                          fontSize: '11px'
+                        }}
+                        onClick={() => {
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          if (window.location.pathname === '/sell') {
+                            window.location.reload();
+                          }
+                        }}
+                        onMouseOver={(e) => e.target.style.color = '#b9f73e'}
+                        onMouseOut={(e) => e.target.style.color = '#e0e0e0'}
                       >
                         Sell a house
-                      </Link>
-                    </li>
-                    <li style={{ marginBottom: '8px' }}>
-                      <Link to="/rent" style={{ 
-                        color: '#e0e0e0', 
-                        textDecoration: 'none', 
-                        transition: 'all 0.3s ease',
-                        fontSize: '11px'
-                      }}
-                      onMouseOver={(e) => e.target.style.color = '#b9f73e'}
-                      onMouseOut={(e) => e.target.style.color = '#e0e0e0'}
-                      >
-                        Rent a house
-                      </Link>
-                    </li>
-                    <li style={{ marginBottom: '8px' }}>
-                      <Link to="/mortgage-calculator" style={{ 
-                        color: '#e0e0e0', 
-                        textDecoration: 'none', 
-                        transition: 'all 0.3s ease',
-                        fontSize: '11px'
-                      }}
-                      onMouseOver={(e) => e.target.style.color = '#b9f73e'}
-                      onMouseOut={(e) => e.target.style.color = '#e0e0e0'}
-                      >
-                        Mortgage
                       </Link>
                     </li>
                   </ul>
@@ -214,7 +196,7 @@ const Footer = () => {
                   </h5>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     <li style={{ marginBottom: '8px' }}>
-                      <Link to="/find-agent" style={{ 
+                      <Link to="/partner-with-us" style={{ 
                         color: '#e0e0e0', 
                         textDecoration: 'none', 
                         transition: 'all 0.3s ease',

@@ -429,6 +429,60 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                             height: '100%'
                         }}>
                             <div>
+                                {/* Listed by information with profile picture */}
+                                <div style={{ 
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    margin: '0 0 10px 0'
+                                }}>
+                                    {/* Circular profile picture */}
+                                    <div style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '50%',
+                                        backgroundColor: '#e0e0e0',
+                                        marginRight: '10px',
+                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        border: '1px solid #ddd'
+                                    }}>
+                                        {PropertyDetails?.owner?.profilePicture || PropertyDetails?.ownerProfilePic ? (
+                                            <img 
+                                                src={PropertyDetails?.owner?.profilePicture || PropertyDetails?.ownerProfilePic} 
+                                                alt="Owner" 
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover'
+                                                }}
+                                            />
+                                        ) : (
+                                            <span style={{ 
+                                                fontSize: '18px',
+                                                color: '#555'
+                                            }}>
+                                                {(PropertyDetails?.ownerName?.charAt(0) || 
+                                                  (PropertyDetails?.owner?.firstName?.charAt(0)) || 'P').toUpperCase()}
+                                            </span>
+                                        )}
+                                    </div>
+                                    
+                                    {/* Owner name */}
+                                    <p style={{ 
+                                        fontSize: '18px', 
+                                        color: '#333', 
+                                        margin: '0',
+                                        fontWeight: '600'
+                                    }}>
+                                        Listed by {PropertyDetails?.ownerName || 
+                                        (PropertyDetails?.owner && typeof PropertyDetails.owner === 'object' ? 
+                                        `${PropertyDetails.owner.firstName || ''} ${PropertyDetails.owner.lastName || ''}` : 
+                                        'Property Owner')}
+                                    </p>
+                                </div>
+                                
                                 {/* Title inside the box */}
                                 <h2 style={{ 
                                     fontSize: '22px',
@@ -717,6 +771,69 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                 </div>
             </div>
 
+            {/* Owner information for mobile view */}
+            <div className="container mobile-only-owner-info" style={{ marginBottom: '15px' }}>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div style={{ 
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: 'white',
+                            padding: '12px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)'
+                        }}>
+                            {/* Circular profile picture */}
+                            <div style={{
+                                width: '40px',
+                                height: '40px',
+                                borderRadius: '50%',
+                                backgroundColor: '#e0e0e0',
+                                marginRight: '12px',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                border: '1px solid #ddd'
+                            }}>
+                                {PropertyDetails?.owner?.profilePicture || PropertyDetails?.ownerProfilePic ? (
+                                    <img 
+                                        src={PropertyDetails?.owner?.profilePicture || PropertyDetails?.ownerProfilePic} 
+                                        alt="Owner" 
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+                                ) : (
+                                    <span style={{ 
+                                        fontSize: '20px',
+                                        color: '#555'
+                                    }}>
+                                        {(PropertyDetails?.ownerName?.charAt(0) || 
+                                          (PropertyDetails?.owner?.firstName?.charAt(0)) || 'P').toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Owner name */}
+                            <p style={{ 
+                                fontSize: '18px', 
+                                color: '#333', 
+                                margin: '0',
+                                fontWeight: '600'
+                            }}>
+                                Listed by {PropertyDetails?.ownerName || 
+                                (PropertyDetails?.owner && typeof PropertyDetails.owner === 'object' ? 
+                                `${PropertyDetails.owner.firstName || ''} ${PropertyDetails.owner.lastName || ''}` : 
+                                'Property Owner')}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             {/* Post Ad Like This button above the three boxes (mobile view only) */}
             <div className="container mobile-only-post-ad" style={{ marginBottom: '20px' }}>
                 <div className="row">

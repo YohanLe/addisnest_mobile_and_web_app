@@ -548,6 +548,24 @@ const PropertyListForm = () => {
             return;
         }
     
+    // Get current user information from localStorage
+    const token = localStorage.getItem('access_token');
+    const userDataString = localStorage.getItem('user');
+    let userData = null;
+    let ownerName = '';
+    
+    try {
+        if (userDataString) {
+            userData = JSON.parse(userDataString);
+            ownerName = userData.firstName && userData.lastName 
+                ? `${userData.firstName} ${userData.lastName}`
+                : userData.firstName || userData.email || 'Unknown';
+            console.log('Current user data:', userData);
+        }
+    } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+    }
+    
     let data = {
         title: inps?.title || (testMode ? 'Test Property' : ''),
         description: inps?.description || (testMode ? 'This is a test property listing created using test mode.' : ''),
@@ -555,6 +573,9 @@ const PropertyListForm = () => {
         offeringType: activeTab, // "For Sale" or "For Rent"
         propertyType: PropertyType?.value || (testMode ? 'House' : ''),
         furnishingStatus: FurnishingType?.value || (testMode ? 'Furnished' : ''),
+        
+        // Add owner name to property data
+        ownerName: ownerName,
         
         // Use nested address structure with property_address field for street
         address: {

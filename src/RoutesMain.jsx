@@ -19,6 +19,10 @@ import MyProfilePage from './components/account-management/MyProfilePage';
 import { UploaderDemo } from './components/image-uploder';
 import { LocationPopupDemo } from './components/location-popup';
 import { MortgageCalculatorDemo } from './components/mortgage-calculator';
+import AboutUsPage from './components/about-us/index';
+import PrivacyPolicyPage from './components/privacy-policy/index';
+import TermsOfServicePage from './components/terms-of-service/index';
+import PartnerWithUsPage from './components/partner-with-us/index';
 
 // All main routes are now implemented with actual components
 
@@ -42,5 +46,9 @@ export {
   UploaderDemo,
   LocationPopupDemo,
   MortgageCalculatorDemo,
-  MyProfilePage
+  MyProfilePage,
+  AboutUsPage,
+  PrivacyPolicyPage,
+  TermsOfServicePage,
+  PartnerWithUsPage
 };
