@@ -1,55 +1,73 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const MessageSchema = new mongoose.Schema({
+const MessageSchema = new Schema({
+  // Sender information
+  sender: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  senderName: {
+    type: String,
+    required: true
+  },
+  
+  // Recipient information
+  recipient: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  recipientName: {
+    type: String,
+    required: true
+  },
+  
+  // Property information
+  property: {
+    type: Schema.Types.ObjectId,
+    ref: 'Property'
+  },
+  propertyTitle: {
+    type: String
+  },
+  
+  // Message content
+  content: {
+    type: String,
+    required: true
+  },
+  
+  // Conversation reference
   conversation: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Conversation',
     required: true
   },
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  content: {
-    type: String,
-    required: [true, 'Message content is required'],
-    trim: true
-  },
-  property: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Property',
-    default: null
-  },
-  attachments: [
-    {
-      type: String, // URL or path to the attachment
-      default: []
-    }
-  ],
+  
+  // Message status
   isRead: {
     type: Boolean,
     default: false
   },
   readAt: {
-    type: Date,
-    default: null
+    type: Date
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  
+  // Optional attachments
+  attachments: [{
+    type: String
+  }]
 }, {
   timestamps: true
 });
+
+// Add indexes for faster queries
+MessageSchema.index({ sender: 1 });
+MessageSchema.index({ recipient: 1 });
+MessageSchema.index({ conversation: 1 });
+MessageSchema.index({ property: 1 });
+MessageSchema.index({ isRead: 1 });
 
 module.exports = mongoose.model('Message', MessageSchema);

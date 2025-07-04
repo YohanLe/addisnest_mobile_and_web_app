@@ -1,5 +1,6 @@
 import React from "react";
 import PropertySellListPage from "./PropertySellListPage";
+import "./PropertySellListPage.css";
 
 const PropertySellList = () => {
   return (

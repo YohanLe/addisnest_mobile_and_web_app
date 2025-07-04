@@ -8,7 +8,7 @@ import OTPPage from './components/auth/OTPPage';
 import TestOtpFlow from './helper/TestOtpFlow';
 import PropertyListPage from './components/Property-list/PropertyListPage';
 import PropertyRentListPage from './components/property-rent-list/PropertyRentListPage';
-import PropertySellListPage from './components/Property-sell-list/PropertySellListPage';
+import PropertySellListPage from './components/Property-sell-list/index';
 import PropertyDetailMain from './components/property-detail/index';
 import FindAgentPage from './components/find-agent/FindAgentPage';
 import ContactusPage from './components/contact-us/ContactusPage';
@@ -23,6 +23,7 @@ import AboutUsPage from './components/about-us/index';
 import PrivacyPolicyPage from './components/privacy-policy/index';
 import TermsOfServicePage from './components/terms-of-service/index';
 import PartnerWithUsPage from './components/partner-with-us/index';
+import PartnershipRequestsPage from './components/admin/PartnershipRequestsPage';
 
 // All main routes are now implemented with actual components
 
@@ -50,5 +51,6 @@ export {
   AboutUsPage,
   PrivacyPolicyPage,
   TermsOfServicePage,
-  PartnerWithUsPage
+  PartnerWithUsPage,
+  PartnershipRequestsPage
 };

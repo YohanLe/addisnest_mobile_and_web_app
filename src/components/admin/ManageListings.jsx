@@ -37,7 +37,7 @@ const ManageListings = () => {
       setLoading(true);
       
       // Use getWithtoken for authenticated access to get all properties
-      const response = await Api.getWithtoken('properties?limit=1000');
+      const response = await Api.getWithtoken('properties');
       console.log('Properties API Response:', response);
       
       // Handle MongoDB response format

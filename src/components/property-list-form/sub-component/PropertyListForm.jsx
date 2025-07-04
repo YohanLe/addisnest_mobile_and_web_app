@@ -40,7 +40,7 @@ const RegionalStateList = [
     { value: 'South West Ethiopia Peoples\' Region', label: 'South West Ethiopia Peoples\' Region' },
     { value: 'Tigray Region', label: 'Tigray Region' },
     { value: 'Central Ethiopia Region', label: 'Central Ethiopia Region' }
-]
+];
 
 // Property Amenities Data (organized in three categories for 3-column layout)
 // IDs updated to use hyphens to match backend schema enum for features.amenities

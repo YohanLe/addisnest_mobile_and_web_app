@@ -1,54 +1,43 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const ConversationSchema = new mongoose.Schema({
+const ConversationSchema = new Schema({
+  // Participants in the conversation
   participants: [{
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   }],
+  
+  // Related property (if applicable)
   property: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Property',
-    default: null
+    type: Schema.Types.ObjectId,
+    ref: 'Property'
   },
+  
+  // Last message for preview
   lastMessage: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Message'
+    type: String
   },
-  unreadCount: {
-    type: Number,
-    default: 0
+  
+  // Conversation metadata
+  title: {
+    type: String
   },
-  isArchived: {
-    type: Boolean,
-    default: false
-  },
-  status: {
-    type: String,
-    enum: ['active', 'closed', 'archived'],
-    default: 'active'
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  
+  // Unread counts for each participant
+  unreadCounts: {
+    type: Map,
+    of: Number,
+    default: {}
   }
 }, {
   timestamps: true
 });
 
-// Set up an index for faster querying of conversations by participants
+// Add indexes for faster queries
 ConversationSchema.index({ participants: 1 });
-
-// Add a virtual to get all messages for this conversation
-ConversationSchema.virtual('messages', {
-  ref: 'Message',
-  localField: '_id',
-  foreignField: 'conversation',
-  justOne: false
-});
+ConversationSchema.index({ property: 1 });
+ConversationSchema.index({ updatedAt: -1 });
 
 module.exports = mongoose.model('Conversation', ConversationSchema);

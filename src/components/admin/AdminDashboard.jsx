@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Api from '../../Apis/Api';
+import axios from 'axios';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -7,12 +8,15 @@ const AdminDashboard = () => {
     activeListings: 0,
     totalUsers: 0,
     totalAgents: 0,
+    totalPartnershipRequests: 0,
+    pendingPartnershipRequests: 0,
     listingsChange: 0,
     activeListingsChange: 0,
     usersChange: 0,
     agentsChange: 0
   });
   const [recentListings, setRecentListings] = useState([]);
+  const [recentPartnershipRequests, setRecentPartnershipRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -22,6 +26,35 @@ const AdminDashboard = () => {
         setLoading(true);
         setError(null);
         console.log("Fetching dashboard data...");
+        
+        // Fetch partnership requests
+        try {
+          const partnershipResponse = await axios.get('/api/partnership-requests');
+          console.log('Partnership Requests API Response:', partnershipResponse);
+          
+          const partnershipRequests = partnershipResponse.data.data || [];
+          const totalPartnershipRequests = partnershipRequests.length;
+          const pendingPartnershipRequests = partnershipRequests.filter(request => 
+            request.status === 'not revised'
+          ).length;
+          
+          // Get the 5 most recent partnership requests
+          const recentPartnershipRequests = [...partnershipRequests]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5);
+            
+          setRecentPartnershipRequests(recentPartnershipRequests);
+          
+          // Update stats with partnership request data
+          setStats(prevStats => ({
+            ...prevStats,
+            totalPartnershipRequests,
+            pendingPartnershipRequests
+          }));
+        } catch (partnershipError) {
+          console.error('Error fetching partnership requests:', partnershipError);
+          setRecentPartnershipRequests([]);
+        }
         
         // Fetch user stats
         const usersResponse = await Api.getWithtoken('users');
@@ -73,7 +106,8 @@ const AdminDashboard = () => {
             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             .slice(0, 5);
           
-          setStats({
+          setStats(prevStats => ({
+            ...prevStats,
             totalListings,
             activeListings,
             totalUsers,
@@ -82,14 +116,15 @@ const AdminDashboard = () => {
             activeListingsChange,
             usersChange,
             agentsChange
-          });
+          }));
           
           setRecentListings(recentListings);
         } catch (propertiesError) {
           console.error('Error fetching properties:', propertiesError);
           
           // Still set user stats even if properties fail
-          setStats({
+          setStats(prevStats => ({
+            ...prevStats,
             totalListings: 0,
             activeListings: 0,
             totalUsers,
@@ -98,7 +133,7 @@ const AdminDashboard = () => {
             activeListingsChange: 0,
             usersChange,
             agentsChange
-          });
+          }));
           
           setRecentListings([]);
         }
@@ -115,6 +150,8 @@ const AdminDashboard = () => {
           activeListings: 0,
           totalUsers: 0,
           totalAgents: 0,
+          totalPartnershipRequests: 0,
+          pendingPartnershipRequests: 0,
           listingsChange: 0,
           activeListingsChange: 0,
           usersChange: 0,
@@ -193,12 +230,63 @@ const AdminDashboard = () => {
             <i className="fa-solid fa-arrow-up"></i> {stats.agentsChange}% from last month
           </div>
         </div>
+        
+        <div className="admin-stat-card">
+          <h3>Partnership Requests</h3>
+          <div className="stat-value">{stats.totalPartnershipRequests}</div>
+          <div className="stat-info">
+            <span style={{ color: '#f59e0b', fontWeight: '500' }}>{stats.pendingPartnershipRequests}</span> pending
+          </div>
+        </div>
       </div>
+      
+      <div className="admin-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h2>Recent Listings</h2>
+            <button className="admin-btn admin-btn-primary" onClick={() => window.location.href = '/admin/listings'}>
+              View All
+            </button>
+          </div>
+          
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Location</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Date Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentListings.length > 0 ? (
+                recentListings.map(listing => (
+                  <tr key={listing._id}>
+                    <td>{listing.title}</td>
+                    <td>{listing.address?.city}, {listing.address?.state}</td>
+                    <td>{formatPrice(listing.price)}</td>
+                    <td>
+                      <span className={`status ${listing.status === 'active' ? 'published' : 'pending'}`}>
+                        {listing.status === 'active' ? 'Published' : 'Pending'}
+                      </span>
+                    </td>
+                    <td>{formatDate(listing.createdAt)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ textAlign: 'center' }}>No listings found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       
       <div className="admin-card">
         <div className="admin-card-header">
-          <h2>Recent Listings</h2>
-          <button className="admin-btn admin-btn-primary" onClick={() => window.location.href = '/admin/listings'}>
+          <h2>Recent Partnership Requests</h2>
+          <button className="admin-btn admin-btn-primary" onClick={() => window.location.href = '/admin/partnership-requests'}>
             View All
           </button>
         </div>
@@ -206,35 +294,40 @@ const AdminDashboard = () => {
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Property</th>
-              <th>Location</th>
-              <th>Price</th>
+              <th>Company</th>
+              <th>Contact</th>
+              <th>Partnership Type</th>
               <th>Status</th>
-              <th>Date Added</th>
+              <th>Date Submitted</th>
             </tr>
           </thead>
           <tbody>
-            {recentListings.length > 0 ? (
-              recentListings.map(listing => (
-                <tr key={listing._id}>
-                  <td>{listing.title}</td>
-                  <td>{listing.address?.city}, {listing.address?.state}</td>
-                  <td>{formatPrice(listing.price)}</td>
+            {recentPartnershipRequests.length > 0 ? (
+              recentPartnershipRequests.map(request => (
+                <tr key={request._id}>
+                  <td>{request.companyName}</td>
+                  <td>{request.contactName}</td>
+                  <td>{request.partnershipType}</td>
                   <td>
-                    <span className={`status ${listing.status === 'active' ? 'published' : 'pending'}`}>
-                      {listing.status === 'active' ? 'Published' : 'Pending'}
+                    <span className={`status ${
+                      request.status === 'approved' ? 'published' : 
+                      request.status === 'rejected' ? 'rejected' : 
+                      request.status === 'in progress' ? 'in-progress' : 'pending'
+                    }`}>
+                      {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                     </span>
                   </td>
-                  <td>{formatDate(listing.createdAt)}</td>
+                  <td>{formatDate(request.createdAt)}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center' }}>No listings found</td>
+                <td colSpan="5" style={{ textAlign: 'center' }}>No partnership requests found</td>
               </tr>
             )}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );

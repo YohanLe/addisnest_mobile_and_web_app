@@ -1,20 +1,27 @@
 const express = require('express');
-const { conversationController } = require('../controllers');
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
+const {
+  createOrGetConversation,
+  getUserConversations,
+  getConversation,
+  markConversationAsRead,
+  deleteConversation
+} = require('../controllers/conversationController');
 
-// All conversation routes require authentication
-router.use(protect);
+// Create or get a conversation
+router.post('/', protect, createOrGetConversation);
 
-router.route('/')
-  .get(conversationController.getUserConversations)
-  .post(conversationController.createOrGetConversation);
+// Get all conversations for a user
+router.get('/', protect, getUserConversations);
 
-router.route('/:id')
-  .get(conversationController.getConversation)
-  .delete(conversationController.deleteConversation);
+// Get a single conversation by ID
+router.get('/:id', protect, getConversation);
 
-router.put('/:id/archive', conversationController.archiveConversation);
+// Mark all messages in a conversation as read
+router.put('/:id/read', protect, markConversationAsRead);
+
+// Delete a conversation
+router.delete('/:id', protect, deleteConversation);
 
 module.exports = router;

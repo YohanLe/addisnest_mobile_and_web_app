@@ -109,17 +109,13 @@ const OtpPopup = ({ handlePopup, sendData }) => {
                     password: sendData?.password,
                     phone: sendData?.phone,
                     role: sendData?.role,
-                    regionalState: sendData?.regionalState
-                };
-                
-                // Add agent-specific fields if registering as an agent
-                if (sendData?.role === 'AGENT') {
-                    body = {
-                        ...body,
+                    regionalState: sendData?.regionalState,
+                    // Add agent-specific fields if registering as an agent
+                    ...(sendData?.role === 'AGENT' && {
                         experience: parseInt(sendData?.experience || '0'),
                         specialization: sendData?.specialization || []
-                    };
-                }
+                    })
+                };
             } else if (sendData?.pagetype === 'socialLogin') {
                 body = {
                     ...body,

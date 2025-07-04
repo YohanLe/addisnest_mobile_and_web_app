@@ -1,18 +1,27 @@
 const express = require('express');
-const { messageController } = require('../controllers');
-const { protect, authorize } = require('../middleware/auth');
-
 const router = express.Router();
+const { protect } = require('../middleware/authMiddleware');
+const {
+  createMessage,
+  getMessagesByConversation,
+  markMessageAsRead,
+  getUnreadMessageCount,
+  deleteMessage
+} = require('../controllers/messageController');
 
-// All message routes require authentication
-router.use(protect);
+// Create a new message
+router.post('/', protect, createMessage);
 
-router.route('/')
-  .post(messageController.sendMessage);
+// Get all messages for a conversation
+router.get('/conversation/:conversationId', protect, getMessagesByConversation);
 
-router.get('/conversation/:conversationId', messageController.getConversationMessages);
-router.get('/unread', messageController.getUnreadCount);
-router.put('/:id/read', messageController.markAsRead);
-router.delete('/:id', messageController.deleteMessage);
+// Mark a message as read
+router.put('/:id/read', protect, markMessageAsRead);
+
+// Get unread message count
+router.get('/unread/count', protect, getUnreadMessageCount);
+
+// Delete a message
+router.delete('/:id', protect, deleteMessage);
 
 module.exports = router;

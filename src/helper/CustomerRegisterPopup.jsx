@@ -20,7 +20,7 @@ const CustomerRegisterPopup = ({ handlePopup, handleLogin }) => {
         email: '',
         password: '',
         confirmPassword: '',
-        regionalState: 'addis-ababa', // Default to Addis Ababa
+        regionalState: 'Addis Ababa City Administration', // Default to Addis Ababa
         // Agent-specific fields
         licenseNumber: '',
         agency: '',
@@ -340,17 +340,20 @@ const CustomerRegisterPopup = ({ handlePopup, handleLogin }) => {
                                                         backgroundPosition: 'right 12px center'
                                                     }}
                                                 >
-                                                    <option value="addis-ababa">Addis Ababa</option>
-                                                    <option value="oromia">Oromia</option>
-                                                    <option value="amhara">Amhara</option>
-                                                    <option value="tigray">Tigray</option>
-                                                    <option value="sidama">Sidama</option>
-                                                    <option value="snnpr">SNNPR</option>
-                                                    <option value="afar">Afar</option>
-                                                    <option value="somali">Somali</option>
-                                                    <option value="benishangul-gumuz">Benishangul-Gumuz</option>
-                                                    <option value="gambela">Gambela</option>
-                                                    <option value="harari">Harari</option>
+                                                    <option value="Addis Ababa City Administration">Addis Ababa City Administration</option>
+                                                    <option value="Afar Region">Afar Region</option>
+                                                    <option value="Amhara Region">Amhara Region</option>
+                                                    <option value="Benishangul-Gumuz Region">Benishangul-Gumuz Region</option>
+                                                    <option value="Dire Dawa City Administration">Dire Dawa City Administration</option>
+                                                    <option value="Gambela Region">Gambela Region</option>
+                                                    <option value="Harari Region">Harari Region</option>
+                                                    <option value="Oromia Region">Oromia Region</option>
+                                                    <option value="Sidama Region">Sidama Region</option>
+                                                    <option value="Somali Region">Somali Region</option>
+                                                    <option value="South Ethiopia Region">South Ethiopia Region</option>
+                                                    <option value="South West Ethiopia Peoples' Region">South West Ethiopia Peoples' Region</option>
+                                                    <option value="Tigray Region">Tigray Region</option>
+                                                    <option value="Central Ethiopia Region">Central Ethiopia Region</option>
                                                 </select>
                                                 {errors.regionalState && <p style={{
                                                     color: 'red',

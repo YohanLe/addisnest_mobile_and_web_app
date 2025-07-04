@@ -21,7 +21,8 @@ import {
   AboutUsPage,
   PrivacyPolicyPage,
   TermsOfServicePage,
-  PartnerWithUsPage
+  PartnerWithUsPage,
+  PartnershipRequestsPage
 } from './RoutesMain.jsx';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
@@ -191,6 +192,7 @@ const App = () => {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="listings" element={<ManageListings />} />
             <Route path="users" element={<ManageUsers />} />
+            <Route path="partnership-requests" element={<PartnershipRequestsPage />} />
             <Route path="" element={<AdminDashboard />} />
           </Route>
         </Routes>

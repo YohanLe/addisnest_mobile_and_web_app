@@ -7,6 +7,7 @@ const notificationController = require('./notificationController');
 const paymentController = require('./paymentController');
 const connectionTestController = require('./connectionTestController');
 const mediaController = require('./mediaController');
+const partnershipRequestController = require('./partnershipRequestController');
 const { BaseController, ErrorResponse } = require('./baseController');
 
 module.exports = {
@@ -18,6 +19,7 @@ module.exports = {
   paymentController,
   connectionTestController,
   mediaController,
+  partnershipRequestController,
   BaseController,
   ErrorResponse
 };

@@ -6,6 +6,8 @@ const Message = require('./Message');
 const Notification = require('./Notification');
 const Payment = require('./Payment');
 const ConnectionTest = require('./ConnectionTest');
+const PartnershipRequest = require('./PartnershipRequest');
+const PartnershipRequests = require('./partnershiprequests');
 
 module.exports = {
   User,
@@ -14,5 +16,7 @@ module.exports = {
   Message,
   Notification,
   Payment,
-  ConnectionTest
+  ConnectionTest,
+  PartnershipRequest,
+  PartnershipRequests
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const PartnerWithUsPage = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const PartnerWithUsPage = () => {
     partnershipType: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -19,19 +23,37 @@ const PartnerWithUsPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real application, you would send this data to a server
-    console.log('Partnership form submitted:', formData);
-    alert('Thank you for your interest in partnering with us! Our team will contact you soon.');
-    setFormData({
-      companyName: '',
-      contactName: '',
-      email: '',
-      phone: '',
-      partnershipType: '',
-      message: ''
-    });
+    setIsSubmitting(true);
+    setSubmitError(null);
+    
+    try {
+      // Send the partnership request to the backend
+      await axios.post('/api/partnership-requests', formData);
+      
+      // Show success message
+      setSubmitSuccess(true);
+      console.log('Partnership request submitted successfully');
+      
+      // Reset form
+      setFormData({
+        companyName: '',
+        contactName: '',
+        email: '',
+        phone: '',
+        partnershipType: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error submitting partnership request:', error);
+      setSubmitError(
+        error.response?.data?.error || 
+        'An error occurred while submitting your request. Please try again later.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -442,22 +464,51 @@ const PartnerWithUsPage = () => {
               ></textarea>
             </div>
             
+            {submitSuccess && (
+              <div style={{
+                backgroundColor: '#e6f7e6',
+                color: '#2e7d32',
+                padding: '15px',
+                borderRadius: '6px',
+                marginBottom: '20px',
+                fontSize: '14px',
+                textAlign: 'center'
+              }}>
+                Thank you for your interest in partnering with us! Your request has been submitted successfully. Our team will contact you soon.
+              </div>
+            )}
+            
+            {submitError && (
+              <div style={{
+                backgroundColor: '#ffebee',
+                color: '#c62828',
+                padding: '15px',
+                borderRadius: '6px',
+                marginBottom: '20px',
+                fontSize: '14px',
+                textAlign: 'center'
+              }}>
+                {submitError}
+              </div>
+            )}
+            
             <button 
               type="submit" 
+              disabled={isSubmitting}
               style={{
-                backgroundColor: '#4a6cf7',
+                backgroundColor: isSubmitting ? '#a0b3f9' : '#4a6cf7',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 padding: '14px 25px',
                 fontSize: '16px',
                 fontWeight: '500',
-                cursor: 'pointer',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 transition: 'background-color 0.3s',
                 width: '100%'
               }}
             >
-              Submit Partnership Request
+              {isSubmitting ? 'Submitting...' : 'Submit Partnership Request'}
             </button>
           </form>
         </div>

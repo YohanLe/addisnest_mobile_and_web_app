@@ -1,262 +1,256 @@
-const { BaseController, ErrorResponse } = require('./baseController');
-const { Message, Conversation, User, Notification } = require('../models');
+const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+const User = require('../models/User');
+const Property = require('../models/Property');
+const mongoose = require('mongoose');
+const { errorHandler } = require('../utils/errorHandler');
 
-class MessageController extends BaseController {
-  constructor() {
-    super();
-  }
+/**
+ * @desc    Create a new message
+ * @route   POST /api/messages
+ * @access  Private
+ */
+exports.createMessage = async (req, res) => {
+  try {
+    const { conversationId, recipientId, content, propertyId } = req.body;
+    const senderId = req.user.id;
 
-  // @desc    Send a new message
-  // @route   POST /api/messages
-  // @access  Private
-  sendMessage = this.asyncHandler(async (req, res) => {
-    const { conversationId, recipientId, content, propertyId, attachments } = req.body;
-
-    // Validate recipient
-    const recipient = await User.findById(recipientId);
-    if (!recipient) {
-      return this.sendError(res, new ErrorResponse(`Recipient not found with id of ${recipientId}`, 404));
+    // Validate required fields
+    if (!conversationId || !recipientId || !content) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please provide conversation ID, recipient ID, and message content'
+      });
     }
 
-    let conversation;
-
-    // If conversationId is provided, use existing conversation
-    if (conversationId) {
-      conversation = await Conversation.findById(conversationId);
-      
-      if (!conversation) {
-        return this.sendError(res, new ErrorResponse(`Conversation not found with id of ${conversationId}`, 404));
-      }
-
-      // Check if user is a participant
-      const isParticipant = conversation.participants.some(
-        participant => participant.toString() === req.user.id
-      );
-
-      if (!isParticipant && req.user.role !== 'admin') {
-        return this.sendError(res, new ErrorResponse(`Not authorized to send messages in this conversation`, 401));
-      }
-    } else {
-      // Create a new conversation if conversationId is not provided
-      conversation = await Conversation.findOne({
-        participants: { $all: [req.user.id, recipientId] },
-        ...(propertyId && { property: propertyId })
+    // Verify conversation exists
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Conversation not found'
       });
+    }
 
-      if (!conversation) {
-        conversation = await Conversation.create({
-          participants: [req.user.id, recipientId],
-          property: propertyId || null
-        });
+    // Get sender and recipient details
+    const sender = await User.findById(senderId);
+    const recipient = await User.findById(recipientId);
+
+    if (!sender || !recipient) {
+      return res.status(404).json({
+        success: false,
+        error: 'Sender or recipient not found'
+      });
+    }
+
+    // Get property details if provided
+    let property = null;
+    let propertyTitle = null;
+    
+    if (propertyId) {
+      property = await Property.findById(propertyId);
+      if (property) {
+        propertyTitle = property.title || 'Property Inquiry';
       }
     }
 
     // Create the message
     const message = await Message.create({
-      conversation: conversation._id,
-      sender: req.user.id,
+      sender: senderId,
+      senderName: `${sender.firstName} ${sender.lastName || ''}`.trim(),
       recipient: recipientId,
-      content,
+      recipientName: `${recipient.firstName} ${recipient.lastName || ''}`.trim(),
       property: propertyId || null,
-      attachments: attachments || []
-    });
-
-    // Update the conversation with the last message and increment unread count
-    conversation.lastMessage = message._id;
-    conversation.unreadCount = (conversation.unreadCount || 0) + 1;
-    conversation.status = 'active'; // Reactivate if it was archived
-    conversation.isArchived = false; // Unarchive if it was archived
-    conversation.updatedAt = Date.now();
-    await conversation.save();
-
-    // Create a notification for the recipient
-    await Notification.create({
-      recipient: recipientId,
-      sender: req.user.id,
-      type: 'message',
-      title: 'New Message',
-      message: `You have a new message from ${req.user.firstName} ${req.user.lastName}`,
-      data: { messageId: message._id, conversationId: conversation._id },
-      conversation: conversation._id,
-      property: propertyId || null
-    });
-
-    // Populate the message with sender information
-    const populatedMessage = await Message.findById(message._id).populate({
-      path: 'sender',
-      select: 'firstName lastName email profileImage'
-    });
-
-    this.sendResponse(res, populatedMessage, 201);
-  });
-
-  // @desc    Get messages for a conversation
-  // @route   GET /api/messages/conversation/:conversationId
-  // @access  Private
-  getConversationMessages = this.asyncHandler(async (req, res) => {
-    const { conversationId } = req.params;
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 20;
-    const skip = (page - 1) * limit;
-
-    // Check if conversation exists
-    const conversation = await Conversation.findById(conversationId);
-    
-    if (!conversation) {
-      return this.sendError(res, new ErrorResponse(`Conversation not found with id of ${conversationId}`, 404));
-    }
-
-    // Check if user is a participant
-    const isParticipant = conversation.participants.some(
-      participant => participant.toString() === req.user.id
-    );
-
-    if (!isParticipant && req.user.role !== 'admin') {
-      return this.sendError(res, new ErrorResponse(`Not authorized to view messages in this conversation`, 401));
-    }
-
-    // Get messages with pagination, ordered by newest first
-    const messages = await Message.find({ conversation: conversationId })
-      .sort('-createdAt')
-      .skip(skip)
-      .limit(limit)
-      .populate({
-        path: 'sender',
-        select: 'firstName lastName email profileImage'
-      });
-
-    // Count total messages for pagination
-    const total = await Message.countDocuments({ conversation: conversationId });
-
-    // Mark messages as read
-    await Message.updateMany(
-      {
-        conversation: conversationId,
-        recipient: req.user.id,
-        isRead: false
-      },
-      {
-        isRead: true,
-        readAt: Date.now()
-      }
-    );
-
-    // Reset unread count for this conversation
-    conversation.unreadCount = 0;
-    await conversation.save();
-
-    // Pagination result
-    const pagination = {
-      total,
-      pages: Math.ceil(total / limit),
-      page,
-      limit
-    };
-
-    this.sendResponse(res, {
-      count: messages.length,
-      pagination,
-      data: messages.reverse() // Reverse to show oldest first for client display
-    });
-  });
-
-  // @desc    Get unread messages count
-  // @route   GET /api/messages/unread
-  // @access  Private
-  getUnreadCount = this.asyncHandler(async (req, res) => {
-    // Count total unread messages
-    const unreadCount = await Message.countDocuments({
-      recipient: req.user.id,
+      propertyTitle: propertyTitle,
+      content,
+      conversation: conversationId,
       isRead: false
     });
 
-    // Get conversations with unread messages
-    const conversations = await Conversation.find({
-      participants: req.user.id,
-      unreadCount: { $gt: 0 }
-    })
-      .select('_id unreadCount lastMessage')
-      .populate({
-        path: 'lastMessage'
-      })
-      .populate({
-        path: 'participants',
-        select: 'firstName lastName profileImage',
-        match: { _id: { $ne: req.user.id } }
-      });
-
-    this.sendResponse(res, {
-      totalUnread: unreadCount,
-      conversations
+    // Update conversation with last message
+    await Conversation.findByIdAndUpdate(conversationId, {
+      lastMessage: content,
+      updatedAt: Date.now()
     });
-  });
 
-  // @desc    Mark message as read
-  // @route   PUT /api/messages/:id/read
-  // @access  Private
-  markAsRead = this.asyncHandler(async (req, res) => {
-    const message = await Message.findById(req.params.id);
+    // Return the created message
+    return res.status(201).json({
+      success: true,
+      data: message
+    });
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};
 
+/**
+ * @desc    Get all messages for a conversation
+ * @route   GET /api/messages/conversation/:conversationId
+ * @access  Private
+ */
+exports.getMessagesByConversation = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.id;
+
+    // Verify conversation exists and user is a participant
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Conversation not found'
+      });
+    }
+
+    // Check if user is a participant in the conversation
+    const isParticipant = conversation.participants.some(
+      participant => participant.toString() === userId
+    );
+
+    if (!isParticipant) {
+      return res.status(403).json({
+        success: false,
+        error: 'You are not authorized to view these messages'
+      });
+    }
+
+    // Get messages for the conversation
+    const messages = await Message.find({ conversation: conversationId })
+      .sort({ createdAt: 1 })
+      .populate('sender', 'firstName lastName profilePicture')
+      .populate('recipient', 'firstName lastName profilePicture')
+      .populate('property', 'title address price media');
+
+    // Mark messages as read if user is the recipient
+    const unreadMessages = messages.filter(
+      message => !message.isRead && message.recipient._id.toString() === userId
+    );
+
+    if (unreadMessages.length > 0) {
+      await Message.updateMany(
+        {
+          _id: { $in: unreadMessages.map(message => message._id) }
+        },
+        {
+          isRead: true,
+          readAt: Date.now()
+        }
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      count: messages.length,
+      data: messages
+    });
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};
+
+/**
+ * @desc    Mark a message as read
+ * @route   PUT /api/messages/:id/read
+ * @access  Private
+ */
+exports.markMessageAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Find the message
+    const message = await Message.findById(id);
     if (!message) {
-      return this.sendError(res, new ErrorResponse(`Message not found with id of ${req.params.id}`, 404));
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found'
+      });
     }
 
     // Check if user is the recipient
-    if (message.recipient.toString() !== req.user.id && req.user.role !== 'admin') {
-      return this.sendError(res, new ErrorResponse(`Not authorized to mark this message as read`, 401));
+    if (message.recipient.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'You are not authorized to mark this message as read'
+      });
     }
 
-    // Mark message as read
-    message.isRead = true;
-    message.readAt = Date.now();
-    await message.save();
+    // Mark as read if not already
+    if (!message.isRead) {
+      message.isRead = true;
+      message.readAt = Date.now();
+      await message.save();
+    }
 
-    // Recalculate unread count for the conversation
-    const unreadCount = await Message.countDocuments({
-      conversation: message.conversation,
-      recipient: req.user.id,
+    return res.status(200).json({
+      success: true,
+      data: message
+    });
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};
+
+/**
+ * @desc    Get unread message count for a user
+ * @route   GET /api/messages/unread/count
+ * @access  Private
+ */
+exports.getUnreadMessageCount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Count unread messages where user is the recipient
+    const count = await Message.countDocuments({
+      recipient: userId,
       isRead: false
     });
 
-    // Update conversation unread count
-    await Conversation.findByIdAndUpdate(message.conversation, {
-      unreadCount
+    return res.status(200).json({
+      success: true,
+      count
     });
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};
 
-    this.sendResponse(res, message);
-  });
+/**
+ * @desc    Delete a message (soft delete by setting content to null)
+ * @route   DELETE /api/messages/:id
+ * @access  Private
+ */
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
 
-  // @desc    Delete a message
-  // @route   DELETE /api/messages/:id
-  // @access  Private
-  deleteMessage = this.asyncHandler(async (req, res) => {
-    const message = await Message.findById(req.params.id);
-
+    // Find the message
+    const message = await Message.findById(id);
     if (!message) {
-      return this.sendError(res, new ErrorResponse(`Message not found with id of ${req.params.id}`, 404));
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found'
+      });
     }
 
-    // Check if user is the sender or admin
-    if (message.sender.toString() !== req.user.id && req.user.role !== 'admin') {
-      return this.sendError(res, new ErrorResponse(`Not authorized to delete this message`, 401));
+    // Check if user is the sender or recipient
+    if (message.sender.toString() !== userId && message.recipient.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'You are not authorized to delete this message'
+      });
     }
 
-    await message.remove();
+    // Soft delete by setting content to null
+    message.content = '[Message deleted]';
+    await message.save();
 
-    // If this was the last message in the conversation, update the lastMessage field
-    const conversation = await Conversation.findById(message.conversation);
-    if (conversation && conversation.lastMessage && conversation.lastMessage.toString() === req.params.id) {
-      // Find the new last message
-      const lastMessage = await Message.findOne({ conversation: conversation._id })
-        .sort('-createdAt')
-        .limit(1);
-
-      conversation.lastMessage = lastMessage ? lastMessage._id : null;
-      await conversation.save();
-    }
-
-    this.sendResponse(res, { success: true });
-  });
-}
-
-module.exports = new MessageController();
+    return res.status(200).json({
+      success: true,
+      data: {}
+    });
+  } catch (error) {
+    return errorHandler(error, req, res);
+  }
+};

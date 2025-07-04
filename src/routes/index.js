@@ -11,6 +11,7 @@ const paymentRoutes = require('./paymentRoutes');
 const connectionTestRoutes = require('./connectionTestRoutes');
 const mediaRoutes = require('./mediaRoutes');
 const agentRoutes = require('./agentRoutes');
+const partnershipRequestRoutes = require('./partnershipRequestRoutes');
 
 module.exports = {
   agentRoutes,
@@ -24,5 +25,6 @@ module.exports = {
   notificationRoutes,
   paymentRoutes,
   connectionTestRoutes,
-  mediaRoutes
+  mediaRoutes,
+  partnershipRequestRoutes
 };

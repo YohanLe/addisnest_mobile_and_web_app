@@ -132,6 +132,9 @@ wss.on('error', function(error) {
   console.error('WebSocket server error:', error);
 });
 
+// Body parser
+app.use(express.json());
+
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
@@ -140,9 +143,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// Body parser
-app.use(express.json());
 
 // Cookie parser
 app.use(cookieParser());
@@ -182,6 +182,7 @@ app.use('/api/notifications', routes.notificationRoutes);
 app.use('/api/payments', routes.paymentRoutes);
 app.use('/api/connectiontests', routes.connectionTestRoutes);
 app.use('/api/media', routes.mediaRoutes);
+app.use('/api/partnership-requests', routes.partnershipRequestRoutes);
 
 // Base route
 app.get('/', (req, res) => {
@@ -235,6 +236,8 @@ app.use((err, req, res, next) => {
   });
 });
 
+const PORT = process.env.PORT || 5177;
+
 // Handle unhandled routes
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -242,8 +245,6 @@ app.use('*', (req, res) => {
     error: `Route ${req.originalUrl} not found`
   });
 });
-
-const PORT = process.env.PORT || 5000;
 
 // Start the server
 server.listen(PORT, () => {

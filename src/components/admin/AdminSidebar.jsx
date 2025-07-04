@@ -67,6 +67,14 @@ const AdminSidebar = () => {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/admin/partnership-requests" className={({ isActive }) => isActive ? 'active' : ''}>
+              <span className="admin-nav-icon">
+                <i className="fa-solid fa-handshake"></i>
+              </span>
+              Partnership Requests
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/" className="back-to-site">
               <span className="admin-nav-icon">
                 <i className="fa-solid fa-arrow-left"></i>

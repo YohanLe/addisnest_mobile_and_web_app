@@ -35,7 +35,7 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'agent', 'admin', 'customer', 'AGENT', 'USER', 'ADMIN'],
+    enum: ['user', 'agent', 'admin', 'Customer', 'AGENT', 'USER', 'ADMIN', 'customer'],
     default: 'user'
   },
   isVerified: {
@@ -53,7 +53,6 @@ const UserSchema = new mongoose.Schema({
   },
   region: {
     type: String,
-    enum: ['Addis Ababa', 'Adama', 'Bahir Dar', 'Hawassa', 'Dire Dawa', 'Mekelle', 'Gondar', 'Jimma', 'Dessie', 'Other'],
     default: 'Addis Ababa'
   },
   specialties: [{
@@ -86,10 +85,6 @@ const UserSchema = new mongoose.Schema({
   averageRating: {
     type: Number,
     default: 0
-  },
-  isVerified: {
-    type: Boolean,
-    default: false
   },
   licenseVerified: {
     type: Boolean,
