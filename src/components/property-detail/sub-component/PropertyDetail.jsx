@@ -1407,35 +1407,169 @@ const PropertyDetail = ({ PropertyDetails, similarProperties }) => {
                                             justifyContent: 'center'
                                         }}
                                         onClick={() => {
-                                            // Simple mortgage calculation logic
-                                            const inputs = document.querySelectorAll('.property-detail-page input, .property-detail-page select');
-                                            const homePrice = parseFloat(inputs[5].value.replace(/[^0-9.-]+/g, ''));
-                                            const downPayment = parseFloat(inputs[6].value.replace(/[^0-9.-]+/g, ''));
-                                            const interestRate = parseFloat(inputs[7].value) / 100;
-                                            const loanTerm = parseInt(inputs[8].value);
+                                            try {
+                                                // Get the current button that was clicked
+                                                const currentButton = document.activeElement;
+                                                
+                                                // Find the mortgage calculator container (the parent div of the button)
+                                                const mortgageBox = currentButton ? 
+                                                    currentButton.closest('div[style*="padding"]') : null;
+                                                
+                                                // If we found the container, get the inputs directly from it
+                                                let homePriceInput, downPaymentInput, interestRateInput, loanTermSelect;
+                                                
+                                                if (mortgageBox) {
+                                                    // Get inputs within this specific container
+                                                    const inputs = mortgageBox.querySelectorAll('input');
+                                                    const selects = mortgageBox.querySelectorAll('select');
+                                                    
+                                                    if (inputs.length >= 3 && selects.length >= 1) {
+                                                        homePriceInput = inputs[0];
+                                                        downPaymentInput = inputs[1];
+                                                        interestRateInput = inputs[2];
+                                                        loanTermSelect = selects[0];
+                                                    }
+                                                }
+                                                
+                                                // If we couldn't find the inputs through the container, try direct selectors
+                                                if (!homePriceInput || !downPaymentInput || !interestRateInput || !loanTermSelect) {
+                                                    // Try to find inputs by their default values or other attributes
+                                                    const allInputs = document.querySelectorAll('input');
+                                                    const allSelects = document.querySelectorAll('select');
+                                                    
+                                                    // Find home price input (first input in the mortgage calculator section)
+                                                    for (const input of allInputs) {
+                                                        if (input.value && input.value.includes(',') && 
+                                                            input.previousElementSibling && 
+                                                            input.previousElementSibling.textContent.includes('Home Price')) {
+                                                            homePriceInput = input;
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    // Find down payment input (second input in the mortgage calculator section)
+                                                    for (const input of allInputs) {
+                                                        if (input.value && input.value.includes(',') && 
+                                                            input.previousElementSibling && 
+                                                            input.previousElementSibling.textContent.includes('Down Payment')) {
+                                                            downPaymentInput = input;
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    // Find interest rate input
+                                                    for (const input of allInputs) {
+                                                        if (input.value === "5.75" || 
+                                                            (input.previousElementSibling && 
+                                                             input.previousElementSibling.textContent.includes('Interest Rate'))) {
+                                                            interestRateInput = input;
+                                                            break;
+                                                        }
+                                                    }
+                                                    
+                                                    // Find loan term select
+                                                    for (const select of allSelects) {
+                                                        if (select.options && select.options[0] && 
+                                                            select.options[0].value === "30") {
+                                                            loanTermSelect = select;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                // Check if we found all required inputs
+                                                if (!homePriceInput || !downPaymentInput || !interestRateInput || !loanTermSelect) {
+                                                    // If we couldn't find the inputs, use default values
+                                                    const propertyPrice = PropertyDetails?.total_price || PropertyDetails?.price || 450000;
+                                                    const downPayment = propertyPrice * 0.2;
+                                                    const interestRate = 0.0575; // 5.75%
+                                                    const loanTerm = 30; // 30 years
+                                                    
+                                                    // Calculate loan amount
+                                                    const loanAmount = propertyPrice - downPayment;
+                                                    
+                                                    // Calculate monthly interest rate
+                                                    const monthlyRate = interestRate / 12;
+                                                    
+                                                    // Calculate number of payments
+                                                    const numberOfPayments = loanTerm * 12;
+                                                    
+                                                    // Calculate monthly payment
+                                                    const monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
+                                                    
+                                                    // Format the result
+                                                    const formattedResult = new Intl.NumberFormat('en-US', {
+                                                        style: 'currency',
+                                                        currency: 'USD',
+                                                        minimumFractionDigits: 2,
+                                                        maximumFractionDigits: 2
+                                                    }).format(monthlyPayment);
+                                                    
+                                                    // Update the result field
+                                                    document.getElementById('mortgage-calculation-result').textContent = `Monthly Payment: ${formattedResult}`;
+                                                    return;
+                                                }
+                                                
+                                                // Extract values from the inputs
+                                                const homePrice = parseFloat(homePriceInput.value.replace(/[^0-9.-]+/g, ''));
+                                                const downPayment = parseFloat(downPaymentInput.value.replace(/[^0-9.-]+/g, ''));
+                                                const interestRate = parseFloat(interestRateInput.value) / 100;
+                                                const loanTerm = parseInt(loanTermSelect.value || "30");
                                             
-                                            // Calculate loan amount
-                                            const loanAmount = homePrice - downPayment;
-                                            
-                                            // Calculate monthly interest rate
-                                            const monthlyRate = interestRate / 12;
-                                            
-                                            // Calculate number of payments
-                                            const numberOfPayments = loanTerm * 12;
-                                            
-                                            // Calculate monthly payment
-                                            const monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
-                                            
-                                            // Format the result
-                                            const formattedResult = new Intl.NumberFormat('en-US', {
-                                                style: 'currency',
-                                                currency: 'USD',
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            }).format(monthlyPayment);
-                                            
-                                            // Update the result field
-                                            document.getElementById('mortgage-calculation-result').textContent = `Monthly Payment: ${formattedResult}`;
+                                                // Calculate loan amount
+                                                const loanAmount = homePrice - downPayment;
+                                                
+                                                // Calculate monthly interest rate
+                                                const monthlyRate = interestRate / 12;
+                                                
+                                                // Calculate number of payments
+                                                const numberOfPayments = loanTerm * 12;
+                                                
+                                                // Calculate monthly payment
+                                                let monthlyPayment;
+                                                
+                                                if (monthlyRate === 0) {
+                                                    // If interest rate is 0, simply divide loan amount by number of payments
+                                                    monthlyPayment = loanAmount / numberOfPayments;
+                                                } else {
+                                                    // Standard mortgage formula
+                                                    monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
+                                                }
+                                                
+                                                // Format the result
+                                                const formattedResult = new Intl.NumberFormat('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }).format(monthlyPayment);
+                                                
+                                                // Update the result field
+                                                document.getElementById('mortgage-calculation-result').textContent = `Monthly Payment: ${formattedResult}`;
+                                            } catch (error) {
+                                                console.error('Error calculating mortgage:', error.message);
+                                                
+                                                // Fallback calculation if we can't get the inputs
+                                                const propertyPrice = PropertyDetails?.total_price || PropertyDetails?.price || 450000;
+                                                const downPayment = propertyPrice * 0.2;
+                                                const loanAmount = propertyPrice - downPayment;
+                                                const monthlyRate = 0.0575 / 12; // 5.75% annual rate
+                                                const numberOfPayments = 30 * 12; // 30 years
+                                                
+                                                // Calculate monthly payment
+                                                const monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -numberOfPayments));
+                                                
+                                                // Format the result
+                                                const formattedResult = new Intl.NumberFormat('en-US', {
+                                                    style: 'currency',
+                                                    currency: 'USD',
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }).format(monthlyPayment);
+                                                
+                                                // Update the result field
+                                                document.getElementById('mortgage-calculation-result').textContent = `Monthly Payment: ${formattedResult}`;
+                                            }
                                         }}
                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#43A047'}
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4CAF50'}

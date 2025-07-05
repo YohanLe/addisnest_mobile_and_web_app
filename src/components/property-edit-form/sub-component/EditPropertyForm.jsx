@@ -134,9 +134,10 @@ const EditPropertyForm = () => {
     const [MediaPaths, setMediaPaths] = useState([]);
     const [selectedAmenities, setSelectedAmenities] = useState({});
     const [collapsedSections, setCollapsedSections] = useState({
-        basicFeatures: false,
-        securityComfort: false,
-        recreationLocation: false
+        basicFeatures: true,
+        securityComfort: true,
+        recreationLocation: true,
+        amenitiesSection: true
     });
 
     const [inps, setInps] = useState({
@@ -1253,7 +1254,11 @@ const EditPropertyForm = () => {
             obj?.errors && delete obj?.errors[event?.target?.name]
             return obj
         })
-        const newValue = { ...inps, [event.target.name]: event.target.value };
+        
+        // Get input value
+        let value = event.target.value;
+        
+        const newValue = { ...inps, [event.target.name]: value };
         setInps(newValue);
         
         // Auto-save to localStorage as user types (debounced)
@@ -1569,28 +1574,6 @@ const EditPropertyForm = () => {
                     <p>Property ID: {propertyId}</p>
                 </div>
                 
-                {/* Debug Panel - Toggle visibility as needed */}
-                <div style={{ 
-                    margin: '10px 0 20px', 
-                    padding: '10px', 
-                    border: '1px solid #ddd', 
-                    borderRadius: '5px',
-                    background: '#f8f8f8',
-                    fontSize: '13px'
-                }}>
-                    <h4 style={{ margin: '0 0 10px 0' }}>🔍 Debug Information</h4>
-                    <p><strong>Property ID:</strong> {propertyId}</p>
-                    <p><strong>Is Loading Data:</strong> {String(fetchingData)}</p>
-                    <p><strong>Property Type:</strong> {PropertyType?.value || 'Not set'}</p>
-                    <p><strong>Property For:</strong> {activeTab}</p>
-                    <p><strong>Selected Amenities:</strong> {getSelectedAmenitiesArray().length} items</p>
-                    <details>
-                        <summary>View Form Data</summary>
-                        <pre style={{ maxHeight: '100px', overflow: 'auto' }}>
-                            {JSON.stringify(inps, null, 2)}
-                        </pre>
-                    </details>
-                </div>
                 <div className="property-form-main">
                     
                     {/* Step 1: What are you offering? */}
@@ -1653,7 +1636,7 @@ const EditPropertyForm = () => {
                                     </div>
                                 </div>
                                 <div className="form-col-33">
-                                    <div className="form-group">
+                                <div className="form-group">
                                         <label>{activeTab === "For Rent" ? "Monthly Rent * /month" : "Sale Price *"}</label>
                                         <div className="price-input">
                                         <input
@@ -1910,15 +1893,18 @@ const EditPropertyForm = () => {
 
                     {/* Step 4: Property Amenities */}
                     <div className="form-step-section">
-                        <div className="step-header">
+                        <div className="step-header" onClick={() => toggleSection('amenitiesSection')} style={{ cursor: 'pointer' }}>
                             <div className="step-indicator">
                                 <span className="step-number">4</span>
                             </div>
                             <h4>Property Amenities</h4>
                             <p style={{ margin: '8px 0', color: '#666' }}>Select all that apply</p>
+                            <div style={{ marginLeft: 'auto', fontSize: '20px' }}>
+                                {collapsedSections.amenitiesSection ? '▼' : '▲'}
+                            </div>
                         </div>
                         
-                        <div className="step-content">
+                        <div className="step-content" style={{ display: collapsedSections.amenitiesSection ? 'none' : 'block' }}>
                             <div className="amenities-container">
                                 <div className="amenities-row">
                                     

@@ -32,7 +32,7 @@ import AdminLoginPage from './components/admin/AdminLoginPage';
 import PropertyDetailMain from './components/property-detail';
 import { MortgageCalculatorModern, SimpleMortgageCalculator } from './components/mortgage-calculator';
 import TestPropertyDetail from './components/property-detail/TestPropertyDetail';
-import ChoosePromotion from './components/payment-method/choose-propmo/sub-component/ChoosePropmotionFixed';
+import ChoosePromotion from './components/payment-method/choose-propmo/sub-component/ChoosePropmotion';
 import PaymentMethod from './components/payment-method/payment-process/sub-component/PaymentMethod';
 // import BuyPropertyPage from './components/Property-list/BuyPropertyPage';
 import EnableTestMode from './helper/EnableTestMode';

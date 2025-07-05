@@ -407,19 +407,8 @@
   position: relative;
 }
 
-.price-input::before {
-  content: 'ETB';
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #666;
-  font-weight: 500;
-  font-size: 14px;
-}
-
 .price-input input {
-  padding-left: 50px;
+  padding-left: 15px;
 }
 
 .error-message {

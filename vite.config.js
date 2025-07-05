@@ -8,7 +8,7 @@ export default defineConfig({
     strictPort: false, // Allow Vite to use a different port if 5183 is already in use
     proxy: {
       '/api': {
-        target: 'http://localhost:5177', // Your backend server address
+        target: 'http://localhost:7000', // Your backend server address
         changeOrigin: true,
         secure: false,
       },

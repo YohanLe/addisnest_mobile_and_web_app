@@ -727,7 +727,7 @@ const PropertyListForm = () => {
                                 </div>
                                 <div className="form-col-33">
                                     <div className={`form-group required ${validationErrors.total_price ? 'has-error' : ''}`}>
-                                        <label>{activeTab === "For Rent" ? "Monthly Rent (ETB/month) *" : "Sale Price (ETB) *"}</label>
+                                        <label>{activeTab === "For Rent" ? "Monthly Rent *" : "Sale Price (ETB) *"}</label>
                                         <div className="price-input" style={{ position: 'relative' }}>
                                                 <input
                                                     type="text"
@@ -750,6 +750,17 @@ const PropertyListForm = () => {
                                                     value={inps?.total_price}
                                                     style={{ paddingLeft: '10px' }}
                                                 />
+                                                {/* Remove any ETB text that might be added by CSS or JS */}
+                                                <style>
+                                                    {`
+                                                    .price-input::before,
+                                                    .price-input::after,
+                                                    .price-input *::before,
+                                                    .price-input *::after {
+                                                        content: none !important;
+                                                    }
+                                                    `}
+                                                </style>
                                         </div>
                                         {validationErrors.total_price && (
                                             <span className="error-msg">

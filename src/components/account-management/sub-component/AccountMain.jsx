@@ -68,8 +68,30 @@ const AccountMain = () => {
             });
         }
         
-        // Check if we need to show the property alert tab
-        if (location.state?.showPropertyAlert) {
+        // Check if activeTab is specified in location state
+        if (location.state?.activeTab) {
+            console.log("Active tab specified in navigation:", location.state.activeTab);
+            
+            // Map the tab name to the corresponding index
+            if (location.state.activeTab === 'property-listings') {
+                console.log("Setting active tab to Property Alert (property listings)");
+                setActiveTab(2); // Index 2 is the "Listed Property Alert" tab
+            } else if (location.state.activeTab === 'dashboard') {
+                setActiveTab(0);
+            } else if (location.state.activeTab === 'messages') {
+                setActiveTab(1);
+            } else if (location.state.activeTab === 'contact-us') {
+                setActiveTab(3);
+            } else if (location.state.activeTab === 'profile') {
+                setActiveTab(4);
+            } else if (location.state.activeTab === 'password') {
+                setActiveTab(5);
+            } else if (location.state.activeTab === 'reviews') {
+                setActiveTab(6);
+            }
+        }
+        // Check if we need to show the property alert tab (for backward compatibility)
+        else if (location.state?.showPropertyAlert) {
             console.log("Setting active tab to Property Alert");
             setActiveTab(2); // Index 2 is the "Listed Property Alert" tab
         }
