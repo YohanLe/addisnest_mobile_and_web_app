@@ -186,6 +186,8 @@ const ManageListings = () => {
       case 'pending':
       case 'pending_payment':
         return 'pending';
+      case 'Sold':
+        return 'sold';
       default:
         return '';
     }
@@ -254,6 +256,7 @@ const ManageListings = () => {
           <div className="listings-table">
             <div className="table-header">
               <div className="header-cell property">Property</div>
+              <div className="header-cell offering">Offering</div>
               <div className="header-cell location">Location</div>
               <div className="header-cell price">Price/ETB</div>
               <div className="header-cell owner">Owner</div>
@@ -267,13 +270,20 @@ const ManageListings = () => {
                 listings.map(listing => (
                   <div className="table-row" key={listing._id}>
                     <div className="cell property">{listing.title || "Test Property"}</div>
+                    <div className="cell offering">{listing.offeringType || "For Sale"}</div>
                     <div className="cell location">{listing.address?.city}, {listing.address?.state}</div>
                     <div className="cell price">{formatPrice(listing.price)}</div>
                     <div className="cell owner">{listing.ownerName || `${listing.owner?.firstName || ''} ${listing.owner?.lastName || ''}`}</div>
                     <div className="cell status">
-                      <span className={`status-badge ${getStatusClass(listing.status)}`}>
-                        {getStatusLabel(listing.status)}
-                      </span>
+                      <select 
+                        className={`status-select ${getStatusClass(listing.status)}`}
+                        value={listing.status || 'pending'}
+                        onChange={(e) => handleStatusChange(listing._id, e.target.value)}
+                        title="Change status"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="Sold">Sold</option>
+                      </select>
                     </div>
                     <div className="cell date">{formatDate(listing.createdAt)}</div>
                     <div className="cell actions">
@@ -284,32 +294,6 @@ const ManageListings = () => {
                       >
                         <i className="fa-solid fa-edit"></i>
                       </Link>
-                      
-                      {listing.status !== 'active' ? (
-                        <button 
-                          className="action-icon approve"
-                          onClick={() => handleStatusChange(listing._id, 'active')}
-                          title="Approve"
-                        >
-                          <i className="fa-solid fa-check"></i>
-                        </button>
-                      ) : (
-                        <button 
-                          className="action-icon pause"
-                          onClick={() => handleStatusChange(listing._id, 'pending')}
-                          title="Unpublish"
-                        >
-                          <i className="fa-solid fa-pause"></i>
-                        </button>
-                      )}
-                      
-                      <button 
-                        className="action-icon delete"
-                        onClick={() => handleDelete(listing._id)}
-                        title="Delete"
-                      >
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
                     </div>
                   </div>
                 ))
